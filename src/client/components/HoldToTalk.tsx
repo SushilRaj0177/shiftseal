@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { Icon } from './Icon.js';
 import type { Language } from '../../shared/types.js';
 import { t } from '../../shared/i18n/index.js';
 
@@ -74,7 +75,7 @@ export const HoldToTalk: React.FC<HoldToTalkProps> = ({ lang, onRecorded, disabl
         onClick={() => (recording ? stopRecording() : startRecording())}
         style={{ width: '100%', minHeight: '52px', fontSize: '15px' }}
       >
-        <span aria-hidden="true">{recording ? '⏹️' : '🎙️'}</span>
+        <Icon name={recording ? 'stop' : 'mic'} />
         <span>{recording ? t(lang, 'recordingReleaseToSend') : t(lang, 'holdToTalk')}</span>
       </button>
       {micError && (

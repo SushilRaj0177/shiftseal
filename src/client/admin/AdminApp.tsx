@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Icon, zoneIcon } from '../components/Icon.js';
 import { useSearchParams, Link } from 'react-router-dom';
 import type {
   Language,
@@ -256,14 +257,14 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
             className={workplaceId === 'wp-tower-b' ? 'btn-primary' : 'btn-subtle'}
             onClick={() => setSearchParams({ workplaceId: 'wp-tower-b', view: viewMode })}
           >
-            🏗️ Tower B Construction Site
+            <Icon name="crane" />Tower B Construction Site
           </button>
           <button
             type="button"
             className={workplaceId === 'wp-campus' ? 'btn-primary' : 'btn-subtle'}
             onClick={() => setSearchParams({ workplaceId: 'wp-campus', view: viewMode })}
           >
-            🏛️ Campus Facilities
+            <Icon name="building" />Campus Facilities
           </button>
           <button
             type="button"
@@ -275,7 +276,7 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
               })
             }
           >
-            🖨️ {viewMode === 'zones' ? 'Back to Dashboard' : 'Printable Zone QRs'}
+            <Icon name="printer" />{viewMode === 'zones' ? 'Back to Dashboard' : 'Printable Zone QRs'}
           </button>
           <Link to="/" className="btn-subtle" style={{ textDecoration: 'none' }}>
             {t(lang, 'switchRole')}
@@ -311,7 +312,7 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
               </p>
             </div>
             <button type="button" className="btn-primary" onClick={() => window.print()}>
-              🖨️ Print Stickers
+              <Icon name="printer" />Print Stickers
             </button>
           </div>
 
@@ -357,7 +358,7 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
               >
                 <span className="badge">SAFETY ZONE STICKER</span>
                 <h4 style={{ marginTop: '8px' }}>
-                  {z.icon} {z.name}
+                  <Icon name={zoneIcon(z.name)} /> {z.name}
                 </h4>
                 <p style={{ fontSize: '12px', color: 'var(--ink-secondary)' }}>
                   {z.nameTa} · {z.nameHi}
@@ -423,7 +424,7 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
                       >
                         Ledger: {d.matchStatus.replace('_', ' ')} ({d.supportedHours}h)
                       </span>
-                      <span className="badge">⏳ {paydayCountdown.label}</span>
+                      <span className="badge"><Icon name="hourglass" />{paydayCountdown.label}</span>
                       <span
                         className={
                           d.resolutionStatus === 'approved'
@@ -548,17 +549,17 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
                         </strong>
                         {h.floorApplied && (
                           <span className="badge badge-warning">
-                            ⚖️ Floor raised ({h.aiSeverity} → {h.finalSeverity})
+                            <Icon name="scale" />Floor raised ({h.aiSeverity} → {h.finalSeverity})
                           </span>
                         )}
                       </div>
 
                       <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
                         {isEscalated && (
-                          <span className="badge badge-danger">🚨 ESCALATED ({cd.label})</span>
+                          <span className="badge badge-danger"><Icon name="siren" />ESCALATED ({cd.label})</span>
                         )}
                         {!isEscalated && h.status !== 'resolved' && (
-                          <span className="badge">⏳ {cd.label}</span>
+                          <span className="badge"><Icon name="hourglass" />{cd.label}</span>
                         )}
                         <span
                           className={
@@ -588,7 +589,7 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
                             disabled={busy}
                             onClick={() => handleUpdateHazard(h.id, 'acknowledged')}
                           >
-                            👁️ Acknowledge
+                            <Icon name="eye" />Acknowledge
                           </button>
                         )}
                         <button
@@ -637,7 +638,7 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
                       fontSize="13"
                       fontWeight={z.isHotspot ? '700' : '500'}
                     >
-                      {z.icon} {z.zoneName}
+                      <Icon name={zoneIcon(z.zoneName)} /> {z.zoneName}
                     </text>
                     <rect
                       x={175}
@@ -656,7 +657,7 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
                       fill={fill}
                     />
                     <text x={508} y={20} fill="currentColor" fontSize="13" fontWeight="700">
-                      {z.reportCount14d} {z.isHotspot ? '⚠️ HOTSPOT' : ''}
+                      {z.reportCount14d} {z.isHotspot ? 'HOTSPOT' : ''}
                     </text>
                   </g>
                 );
@@ -807,7 +808,7 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
                   <span className={grp.visible ? 'badge badge-good' : 'badge badge-warning'}>
                     {grp.visible
                       ? `✓ ${grp.count}/${grp.threshold} responses (Unlocked)`
-                      : `🔒 ${grp.count}/${grp.threshold}, hidden to protect anonymity`}
+                      : `${grp.count}/${grp.threshold}, hidden to protect anonymity`}
                   </span>
                 </div>
 
@@ -977,7 +978,7 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
                           }}
                           style={{ fontSize: '12px', minHeight: '36px', padding: '6px 10px' }}
                         >
-                          ✏️ Edit {lastCompletedShift.date} shift ({lastCompletedShift.checkOutTime})
+                          <Icon name="pencil" />Edit {lastCompletedShift.date} shift ({lastCompletedShift.checkOutTime})
                         </button>
                       )}
                     </div>

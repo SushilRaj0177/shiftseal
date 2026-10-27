@@ -69,7 +69,7 @@ export const en = {
   reportedHazardsTrackingTitle: 'Reported Hazards & Status Tracking',
   selectZone: '1. Select or scan zone QR',
   describeHazard: '2. Describe what is unsafe',
-  addOptionalPhotoButton: '📷 Add optional photo (<300 KB)',
+  addOptionalPhotoButton: 'Add optional photo (<300 KB)',
   photoCompressedNotice: '✓ Photo compressed on phone; only description stored on server.',
   severityFloorNote: 'Safety rule applied: severity cannot be lowered below high.',
   speakUpTitle: 'Speak up anonymously',
@@ -77,7 +77,7 @@ export const en = {
   anonymityThresholdNote:
     'Shared with management only when 5 or more workers in your group respond.',
   anonymityGroupProgress: 'responses in your group (minimum 5 required to unlock for management)',
-  piiScrubSampleLabel: '🛡️ Identity removal sample:',
+  piiScrubSampleLabel: 'Identity removal sample:',
   sendAnonymously: 'Send anonymously',
   removedDetailsLabel: 'Identifying details removed:',
   // Payslip line translations

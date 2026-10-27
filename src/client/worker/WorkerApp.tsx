@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { Icon } from '../components/Icon.js';
 import { useSearchParams, Link } from 'react-router-dom';
 import type {
   Language,
@@ -151,7 +152,7 @@ export const WorkerApp: React.FC<WorkerAppProps> = ({ lang }) => {
               color: 'var(--ink-secondary)',
             }}
           >
-            ⇄ {t(lang, 'switchDemoWorker')}
+            <Icon name="swap" />{t(lang, 'switchDemoWorker')}
           </button>
           <Link
             to="/"
@@ -224,8 +225,9 @@ export const WorkerApp: React.FC<WorkerAppProps> = ({ lang }) => {
           aria-current={tab === 'home' ? 'page' : undefined}
           onClick={() => setTab('home')}
         >
-          <span aria-hidden="true">
-            🏠{unreadNotifs > 0 ? ` (${unreadNotifs})` : ''}
+          <span className="tab-icon" aria-hidden="true">
+            <Icon name="home" size={22} />
+            {unreadNotifs > 0 && <span className="tab-dot">{unreadNotifs}</span>}
           </span>
           <span>{t(lang, 'navHome')}</span>
         </button>
@@ -235,7 +237,7 @@ export const WorkerApp: React.FC<WorkerAppProps> = ({ lang }) => {
           aria-current={tab === 'pay' ? 'page' : undefined}
           onClick={() => setTab('pay')}
         >
-          <span aria-hidden="true">₹</span>
+          <span className="tab-icon" aria-hidden="true"><Icon name="wallet" size={22} /></span>
           <span>{t(lang, 'navPay')}</span>
         </button>
         <button
@@ -244,7 +246,7 @@ export const WorkerApp: React.FC<WorkerAppProps> = ({ lang }) => {
           aria-current={tab === 'report' ? 'page' : undefined}
           onClick={() => setTab('report')}
         >
-          <span aria-hidden="true">⚠️</span>
+          <span className="tab-icon" aria-hidden="true"><Icon name="alert" size={22} /></span>
           <span>{t(lang, 'navReport')}</span>
         </button>
         <button
@@ -253,7 +255,7 @@ export const WorkerApp: React.FC<WorkerAppProps> = ({ lang }) => {
           aria-current={tab === 'speakup' ? 'page' : undefined}
           onClick={() => setTab('speakup')}
         >
-          <span aria-hidden="true">🛡️</span>
+          <span className="tab-icon" aria-hidden="true"><Icon name="shield" size={22} /></span>
           <span>{t(lang, 'navSpeakUp')}</span>
         </button>
       </nav>

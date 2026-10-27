@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Icon } from '../components/Icon.js';
 import type {
   Language,
   WorkerProfile,
@@ -232,7 +233,7 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
 
                 {line.flagged && line.flagReason && (
                   <p style={{ fontSize: '12px', color: 'var(--danger)', marginTop: '6px', fontWeight: 600 }}>
-                    ⚠️ {t(lang, 'dedMissingReasonFlag')}
+                    <Icon name="alert" />{t(lang, 'dedMissingReasonFlag')}
                   </p>
                 )}
 
@@ -269,7 +270,7 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
                             borderRadius: '999px',
                           }}
                         >
-                          <span>⚖️ {translateRuleBadgeLabel(lang, line.ruleRef.id)}</span>
+                          <span><Icon name="scale" />{translateRuleBadgeLabel(lang, line.ruleRef.id)}</span>
                           <span aria-hidden="true">{isExpanded ? '▲' : '▼'}</span>
                         </button>
                       </div>
@@ -310,7 +311,7 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
             onClick={() => setShowAskWhy((v) => !v)}
             style={{ flex: 1 }}
           >
-            <span aria-hidden="true">❓</span>
+            <span aria-hidden="true"><Icon name="help" /></span>
             <span>{t(lang, 'askWhy')}</span>
           </button>
           <button
@@ -319,7 +320,7 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
             onClick={() => setShowClaimSheet((v) => !v)}
             style={{ flex: 1 }}
           >
-            <span aria-hidden="true">⏱️</span>
+            <span aria-hidden="true"><Icon name="clock" /></span>
             <span>{t(lang, 'claimMissedOvertime')}</span>
           </button>
         </div>
@@ -328,7 +329,7 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
       {/* Ask Why Sheet */}
       {showAskWhy && (
         <section className="card" aria-labelledby="ask-why-heading">
-          <h3 id="ask-why-heading">❓ {t(lang, 'askWhy')}</h3>
+          <h3 id="ask-why-heading"><Icon name="help" />{t(lang, 'askWhy')}</h3>
           <p style={{ fontSize: '13px', color: 'var(--ink-secondary)', marginTop: '4px', marginBottom: '12px' }}>
             Every number in the AI explanation is verified against your shift ledger before display.
           </p>
@@ -410,7 +411,7 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
       {/* Claim Missed Overtime Sheet */}
       {showClaimSheet && (
         <section className="card" aria-labelledby="claim-ot-heading">
-          <h3 id="claim-ot-heading">⏱️ {t(lang, 'claimMissedOvertime')}</h3>
+          <h3 id="claim-ot-heading"><Icon name="clock" />{t(lang, 'claimMissedOvertime')}</h3>
           <div style={{ marginTop: '10px', marginBottom: '12px' }}>
             <span style={{ fontSize: '12px', color: 'var(--ink-secondary)', display: 'block', marginBottom: '6px' }}>
               {t(lang, 'samplePromptLabel')}
@@ -428,7 +429,7 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
               style={{ textAlign: 'left', fontSize: '13px', width: '100%', justifyContent: 'flex-start' }}
             >
               <span>
-                {worker.sector === 'campus' ? '🏛️ Campus sample:' : '🏗️ தமிழ் sample:'}
+                {worker.sector === 'campus' ? 'Campus sample:' : 'தமிழ் sample:'}
               </span>
               <span style={{ fontWeight: 400 }}>
                 "{worker.sector === 'campus' ? CAMPUS_CLAIM_SAMPLE : CONSTRUCTION_CLAIM_SAMPLE}"
@@ -506,8 +507,8 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
                   {draftClaim.matchStatus === 'supported'
                     ? `✓ ${t(lang, 'supportedBadge')}`
                     : draftClaim.matchStatus === 'partly_supported'
-                      ? `⚠️ ${t(lang, 'partlySupportedBadge')} (${draftClaim.supportedHours}h)`
-                      : `⏳ ${t(lang, 'unsupportedBadge')}`}
+                      ? `${t(lang, 'partlySupportedBadge')} (${draftClaim.supportedHours}h)`
+                      : `${t(lang, 'unsupportedBadge')}`}
                 </span>
                 {draftClaim.isDemoFallback && (
                   <span className="badge badge-warning">{t(lang, 'demoResponseBadge')}</span>

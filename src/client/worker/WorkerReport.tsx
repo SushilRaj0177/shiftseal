@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Icon, zoneIcon } from '../components/Icon.js';
 import type {
   Language,
   WorkerProfile,
@@ -160,7 +161,7 @@ export const WorkerReport: React.FC<WorkerReportProps> = ({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <section className="card" aria-labelledby="report-hazard-heading">
-        <h3 id="report-hazard-heading">⚠️ {t(lang, 'reportHazardTitle')}</h3>
+        <h3 id="report-hazard-heading"><Icon name="alert" />{t(lang, 'reportHazardTitle')}</h3>
 
         <p style={{ fontSize: '13px', fontWeight: 600, marginTop: '12px', marginBottom: '8px' }}>
           {t(lang, 'selectZone')}
@@ -191,7 +192,7 @@ export const WorkerReport: React.FC<WorkerReportProps> = ({
                   fontSize: '13px',
                 }}
               >
-                <span aria-hidden="true">{z.icon}</span>
+                <span aria-hidden="true"><Icon name={zoneIcon(z.name)} /></span>
                 <span>{lang === 'ta' ? z.nameTa : lang === 'hi' ? z.nameHi : z.name}</span>
               </button>
             );
@@ -320,7 +321,7 @@ export const WorkerReport: React.FC<WorkerReportProps> = ({
                 Severity: {draftHazard.finalSeverity.toUpperCase()}
               </span>
               {draftHazard.floorApplied && (
-                <span className="badge badge-warning">⚖️ {t(lang, 'severityFloorNote')}</span>
+                <span className="badge badge-warning"><Icon name="scale" />{t(lang, 'severityFloorNote')}</span>
               )}
               {draftHazard.isDemoFallback && (
                 <span className="badge badge-warning">{t(lang, 'demoResponseBadge')}</span>

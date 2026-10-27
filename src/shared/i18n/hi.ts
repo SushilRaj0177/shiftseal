@@ -70,7 +70,7 @@ export const hi: Translations = {
   reportedHazardsTrackingTitle: 'दर्ज सुरक्षा रिपोर्ट और स्थिति',
   selectZone: '1. ज़ोन चुनें या QR स्कैन करें',
   describeHazard: '2. बताएं क्या असुरक्षित है',
-  addOptionalPhotoButton: '📷 फ़ोटो जोड़ें (<300 KB)',
+  addOptionalPhotoButton: 'फ़ोटो जोड़ें (<300 KB)',
   photoCompressedNotice: '✓ फ़ोटो फ़ोन पर कंप्रेस की गई; सर्वर पर केवल विवरण सहेजा गया।',
   severityFloorNote: 'सुरक्षा नियम लागू: गंभीरता को कम नहीं किया जा सकता।',
   speakUpTitle: 'बिना नाम बताए अपनी बात रखें',
@@ -78,7 +78,7 @@ export const hi: Translations = {
   anonymityThresholdNote:
     'प्रबंधन को तभी दिखेगा जब आपके समूह से 5 या अधिक लोग राय देंगे।',
   anonymityGroupProgress: 'समूह की प्रतिक्रियाएं (प्रबंधन को दिखने के लिए कम से कम 5 आवश्यक)',
-  piiScrubSampleLabel: '🛡️ पहचान हटाने का उदाहरण:',
+  piiScrubSampleLabel: 'पहचान हटाने का उदाहरण:',
   sendAnonymously: 'गुमनाम रूप से भेजें',
   removedDetailsLabel: 'हटाई गई पहचान जानकारी:',
   payLineNormal: 'सामान्य शिफ्ट वेतन',

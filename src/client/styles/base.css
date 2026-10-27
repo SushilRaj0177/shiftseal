@@ -350,3 +350,113 @@ button:disabled {
     grid-column: 1 / -1;
   }
 }
+
+/* ---- Icons ---- */
+.icon {
+  flex: none;
+  display: inline-block;
+  vertical-align: -0.2em;
+}
+
+.icon {
+  margin-inline-end: 0.3em;
+}
+
+.worker-tab-btn .icon,
+.tab-icon .icon {
+  margin: 0;
+}
+
+/* ---- Mobile app shell polish ---- */
+.card {
+  border-color: color-mix(in srgb, var(--line) 70%, transparent);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    0 1px 2px rgba(27, 27, 31, 0.04),
+    0 8px 24px -12px rgba(27, 27, 31, 0.12);
+}
+
+.badge {
+  font-size: 12px;
+  letter-spacing: 0.01em;
+  border-width: 0;
+  padding: 4px 10px;
+}
+
+.badge .icon {
+  width: 14px;
+  height: 14px;
+}
+
+button {
+  border-radius: 12px;
+  letter-spacing: -0.005em;
+}
+
+.btn-primary {
+  box-shadow: 0 6px 16px -8px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
+.worker-bottom-nav {
+  padding: 6px 10px calc(6px + env(safe-area-inset-bottom));
+  background: color-mix(in srgb, var(--surface) 96%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  box-shadow: 0 -8px 24px -16px rgba(27, 27, 31, 0.18);
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.worker-tab-btn {
+  min-height: 56px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 600;
+  gap: 4px;
+  position: relative;
+}
+
+.worker-tab-btn[aria-current='page'] {
+  background: transparent;
+  color: var(--accent);
+}
+
+.worker-tab-btn .tab-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 30px;
+  border-radius: 999px;
+  transition: background-color var(--transition-fast);
+}
+
+.worker-tab-btn[aria-current='page'] .tab-icon {
+  background: var(--accent-soft);
+}
+
+.tab-dot {
+  position: absolute;
+  top: -2px;
+  right: 8px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 17px;
+  text-align: center;
+}
+
+.container-narrow {
+  padding-bottom: calc(112px + env(safe-area-inset-bottom));
+}
+
+@media (max-width: 560px) {
+  .worker-bottom-nav {
+    left: 0;
+    right: 0;
+  }
+}

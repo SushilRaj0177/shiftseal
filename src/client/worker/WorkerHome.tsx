@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Icon } from '../components/Icon.js';
 import type {
   Language,
   WorkerProfile,
@@ -127,7 +128,7 @@ export const WorkerHome: React.FC<WorkerHomeProps> = ({
       {notifications.length > 0 && (
         <section className="card" aria-labelledby="notif-heading" style={{ borderLeft: '4px solid var(--warning)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-            <h3 id="notif-heading">🔔 {t(lang, 'notificationsTitle')}</h3>
+            <h3 id="notif-heading"><Icon name="bell" />{t(lang, 'notificationsTitle')}</h3>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {notifications.map((n) => {
@@ -173,7 +174,7 @@ export const WorkerHome: React.FC<WorkerHomeProps> = ({
                         onClick={() => handleNotificationResponse(n.id, 'disagree')}
                         style={{ flex: 1 }}
                       >
-                        ✋ {t(lang, 'iDisagree')}
+                        <Icon name="hand" />{t(lang, 'iDisagree')}
                       </button>
                     </div>
                   ) : (
@@ -207,7 +208,7 @@ export const WorkerHome: React.FC<WorkerHomeProps> = ({
             onClick={handleCameraQrScan}
             style={{ fontSize: '13px', padding: '8px 12px' }}
           >
-            📷 QR ({workplace.checkinCode})
+            <Icon name="qr" />QR ({workplace.checkinCode})
           </button>
         </div>
 
@@ -247,7 +248,7 @@ export const WorkerHome: React.FC<WorkerHomeProps> = ({
             onClick={() => handleCheckInOut('CHECK_IN')}
             style={{ width: '100%', minHeight: '56px', fontSize: '17px' }}
           >
-            <span aria-hidden="true">🟢</span>
+            <span aria-hidden="true"><Icon name="login" /></span>
             <span>{t(lang, 'checkIn')}</span>
           </button>
         )}
@@ -264,7 +265,7 @@ export const WorkerHome: React.FC<WorkerHomeProps> = ({
               onClick={() => handleCheckInOut('CHECK_OUT')}
               style={{ width: '100%', minHeight: '56px', fontSize: '17px' }}
             >
-              <span aria-hidden="true">🔴</span>
+              <span aria-hidden="true"><Icon name="logout" /></span>
               <span>{t(lang, 'checkOut')}</span>
             </button>
           </div>
@@ -316,7 +317,7 @@ export const WorkerHome: React.FC<WorkerHomeProps> = ({
           onClick={() => setShowReceipts((v) => !v)}
           style={{ width: '100%' }}
         >
-          <span aria-hidden="true">🔗</span>
+          <span aria-hidden="true"><Icon name="link" /></span>
           <span>
             {t(lang, 'myReceipts')} ({chain.length} SHA-256 events)
           </span>
@@ -354,7 +355,7 @@ export const WorkerHome: React.FC<WorkerHomeProps> = ({
                       fontSize: '12px',
                     }}
                   >
-                    ⚠️ {ed.oldValue} → {ed.newValue} ({ed.editorName}): "{ed.reason}"{' '}
+                    <Icon name="alert" />{ed.oldValue} → {ed.newValue} ({ed.editorName}): "{ed.reason}"{' '}
                     {t(lang, 'writtenBySupervisorNote')}
                   </div>
                 ))}

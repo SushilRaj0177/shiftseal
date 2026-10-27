@@ -70,7 +70,7 @@ export const ta: Translations = {
   reportedHazardsTrackingTitle: 'புகாரளிக்கப்பட்ட ஆபத்துகள் & நிலை',
   selectZone: '1. இடத்தைத் தேர்ந்தெடுக்கவும் அல்லது QR ஸ்கேன் செய்யவும்',
   describeHazard: '2. என்ன ஆபத்து என்பதைச் சொல்லவும்',
-  addOptionalPhotoButton: '📷 புகைப்படம் சேர் (<300 KB)',
+  addOptionalPhotoButton: 'புகைப்படம் சேர் (<300 KB)',
   photoCompressedNotice: '✓ புகைப்படம் சுருக்கப்பட்டது; விளக்கம் மட்டுமே சேமிக்கப்படும்.',
   severityFloorNote: 'பாதுகாப்பு விதி: தீவிரத்தன்மை உயர் நிலைக்குக் கீழே குறையாது.',
   speakUpTitle: 'பெயர் இன்றி கருத்து சொல்',
@@ -78,7 +78,7 @@ export const ta: Translations = {
   anonymityThresholdNote:
     'குழுவில் 5 பேருக்கு மேல் கருத்து சொன்னால் மட்டுமே நிர்வாகத்திற்குத் தெரியும்.',
   anonymityGroupProgress: 'குழு பதில்கள் (நிர்வாகம் பார்க்க குறைந்தது 5 தேவை)',
-  piiScrubSampleLabel: '🛡️ அடையாளம் நீக்கும் மாதிரி:',
+  piiScrubSampleLabel: 'அடையாளம் நீக்கும் மாதிரி:',
   sendAnonymously: 'பெயர் இன்றி அனுப்பு',
   removedDetailsLabel: 'நீக்கப்பட்ட அடையாள விவரங்கள்:',
   payLineNormal: 'சாதாரண பணி சம்பளம்',

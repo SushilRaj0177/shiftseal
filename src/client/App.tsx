@@ -1,4 +1,5 @@
 import React, { useState, Suspense, lazy } from 'react';
+import { Icon } from './components/Icon.js';
 import { BrowserRouter, Routes, Route, useNavigate, Link } from 'react-router-dom';
 import type { Language } from '../shared/types.js';
 import { t } from '../shared/i18n/index.js';
@@ -86,7 +87,7 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ lang, onSelectLang }) => {
             fontWeight: 600,
           }}
         >
-          🛡️ {t(lang, 'principleBanner')}
+          <Icon name="shield" />{t(lang, 'principleBanner')}
         </div>
       </section>
 
@@ -101,7 +102,7 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ lang, onSelectLang }) => {
             <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
               <span className="badge badge-warning">Construction · தமிழ்</span>
               <span aria-hidden="true" style={{ fontSize: '20px' }}>
-                👷
+                <Icon name="hardhat" />
               </span>
             </div>
             <h3>{t(lang, 'muruganCardTitle')}</h3>
@@ -121,7 +122,7 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ lang, onSelectLang }) => {
             <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
               <span className="badge badge-danger">Campus · தமிழ் / EN</span>
               <span aria-hidden="true" style={{ fontSize: '20px' }}>
-                🔦
+                <Icon name="torch" />
               </span>
             </div>
             <h3>{t(lang, 'lakshmiCardTitle')}</h3>
@@ -146,7 +147,7 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ lang, onSelectLang }) => {
             <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
               <span className="badge badge-accent">Sector 1: Construction</span>
               <span aria-hidden="true" style={{ fontSize: '20px' }}>
-                🏗️
+                <Icon name="crane" />
               </span>
             </div>
             <h3>{t(lang, 'adminTowerTitle')}</h3>
@@ -166,7 +167,7 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ lang, onSelectLang }) => {
             <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
               <span className="badge badge-accent">Sector 2: College Campus</span>
               <span aria-hidden="true" style={{ fontSize: '20px' }}>
-                🏛️
+                <Icon name="building" />
               </span>
             </div>
             <h3>{t(lang, 'adminCampusTitle')}</h3>

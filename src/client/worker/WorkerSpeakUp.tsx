@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Icon } from '../components/Icon.js';
 import type {
   Language,
   WorkerProfile,
@@ -105,7 +106,7 @@ export const WorkerSpeakUp: React.FC<WorkerSpeakUpProps> = ({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <section className="card" aria-labelledby="speak-up-heading">
-        <h3 id="speak-up-heading">🛡️ {t(lang, 'speakUpTitle')}</h3>
+        <h3 id="speak-up-heading"><Icon name="shield" />{t(lang, 'speakUpTitle')}</h3>
         <p
           style={{
             marginTop: '6px',
@@ -116,7 +117,7 @@ export const WorkerSpeakUp: React.FC<WorkerSpeakUpProps> = ({
             fontWeight: 600,
           }}
         >
-          🔒 {t(lang, 'privacyGuarantee')}
+          <Icon name="lock" />{t(lang, 'privacyGuarantee')}
         </p>
 
         {/* Anonymity Group Threshold Progress Bar */}
@@ -263,7 +264,7 @@ export const WorkerSpeakUp: React.FC<WorkerSpeakUpProps> = ({
             </div>
 
             <p style={{ fontSize: '12px', color: 'var(--ink-secondary)' }}>
-              🔒 {t(lang, 'privacyGuarantee')}
+              <Icon name="lock" />{t(lang, 'privacyGuarantee')}
             </p>
 
             <button
@@ -272,7 +273,7 @@ export const WorkerSpeakUp: React.FC<WorkerSpeakUpProps> = ({
               disabled={loading}
               onClick={handleSendAnonymously}
             >
-              🛡️ {t(lang, 'sendAnonymously')}
+              <Icon name="shield" />{t(lang, 'sendAnonymously')}
             </button>
           </div>
         )}
