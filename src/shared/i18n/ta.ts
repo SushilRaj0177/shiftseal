@@ -8,8 +8,8 @@ export const ta: Translations = {
   demoSignIn: 'டெமோ உள்நுழைவு',
   demoSignInSubtitle:
     'பாதுகாப்பான வருகைப் பதிவு, ஓவர்டைம் சரிபார்ப்பு மற்றும் பாதுகாப்பு புகார்களைப் பார்க்க ஒரு பாத்திரத்தைத் தேர்ந்தெடுக்கவும்.',
-  workerRoles: 'தொழிலாளர் பக்கம் (மொபைல்)',
-  adminRoles: 'நிர்வாகி பக்கம் (Employer / Admin)',
+  workerRoles: 'தொழிலாளர்கள்',
+  adminRoles: 'நிர்வாகிகள்',
   muruganCardTitle: 'முருகன் (Murugan)',
   muruganCardRole: 'கட்டுமானத் தொழிலாளி · டவர் B தளம்',
   muruganCardNote: 'சனிக்கிழமை ஓவர்டைம் & செவ்வாய் நேர மாற்றம்',

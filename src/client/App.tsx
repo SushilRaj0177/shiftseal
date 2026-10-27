@@ -4,7 +4,6 @@ import { BrowserRouter, Routes, Route, useNavigate, Link } from 'react-router-do
 import type { Language } from '../shared/types.js';
 import { t } from '../shared/i18n/index.js';
 import { LangSwitch } from './components/LangSwitch.js';
-import { ListenButton } from './components/ListenButton.js';
 
 const WorkerApp = lazy(() => import('./worker/WorkerApp.js'));
 const AdminApp = lazy(() => import('./admin/AdminApp.js'));
@@ -42,144 +41,82 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ lang, onSelectLang }) => {
     navigate(`/admin?workplaceId=${workplaceId}`);
   };
 
+  const workers = [
+    { id: 'w-murugan', lang: 'ta' as Language, initials: 'MK', tone: 'amber', title: t(lang, 'muruganCardTitle'), role: t(lang, 'muruganCardRole'), note: t(lang, 'muruganCardNote') },
+    { id: 'w-lakshmi', lang: 'en' as Language, initials: 'LS', tone: 'teal', title: t(lang, 'lakshmiCardTitle'), role: t(lang, 'lakshmiCardRole'), note: t(lang, 'lakshmiCardNote') },
+  ];
+  const admins = [
+    { id: 'wp-tower-b', icon: 'crane' as const, title: t(lang, 'adminTowerTitle'), role: t(lang, 'adminTowerRole'), note: t(lang, 'adminTowerNote') },
+    { id: 'wp-campus', icon: 'building' as const, title: t(lang, 'adminCampusTitle'), role: t(lang, 'adminCampusRole'), note: t(lang, 'adminCampusNote') },
+  ];
+
   return (
-    <div className="container-wide">
-      <section
-        className="card"
-        style={{
-          marginBottom: '24px',
-          borderLeft: '4px solid var(--accent)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '10px',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start',
-            flexWrap: 'wrap',
-            gap: '12px',
-          }}
-        >
-          <div>
-            <span className="badge badge-accent">{t(lang, 'demoSignIn')}</span>
-            <h1 style={{ marginTop: '8px' }}>{t(lang, 'tagline')}</h1>
-            <p style={{ color: 'var(--ink-secondary)', marginTop: '4px', fontSize: '17px' }}>
-              {t(lang, 'pitchLine')}
-            </p>
-          </div>
-          <ListenButton
-            lang={lang}
-            text={`${t(lang, 'tagline')} ${t(lang, 'demoSignInSubtitle')}`}
-          />
-        </div>
-        <p style={{ color: 'var(--ink-secondary)', fontSize: '14px' }}>
-          {t(lang, 'demoSignInSubtitle')}
-        </p>
-        <div
-          style={{
-            padding: '10px 14px',
-            background: 'var(--surface-subtle)',
-            borderRadius: 'var(--radius-sm)',
-            fontSize: '14px',
-            fontWeight: 600,
-          }}
-        >
-          <Icon name="shield" />{t(lang, 'principleBanner')}
+    <div className="container-narrow signin">
+      <section className="signin-hero">
+        <span className="signin-mark" aria-hidden="true">
+          <Icon name="shield" size={30} />
+        </span>
+        <h1>{t(lang, 'tagline')}</h1>
+        <p>{t(lang, 'pitchLine')}</p>
+      </section>
+
+      <section aria-labelledby="worker-roles-heading" className="account-group">
+        <h2 id="worker-roles-heading" className="group-label">
+          {t(lang, 'workerRoles')}
+        </h2>
+        <div className="account-list">
+          {workers.map((w) => (
+            <button
+              key={w.id}
+              type="button"
+              className="account-row"
+              onClick={() => handleWorkerSignIn(w.id, w.lang)}
+            >
+              <span className={`avatar avatar-${w.tone}`} aria-hidden="true">
+                {w.initials}
+              </span>
+              <span className="account-text">
+                <strong>{w.title}</strong>
+                <span>{w.role}</span>
+                <small>{w.note}</small>
+              </span>
+              <Icon name="arrowRight" className="chevron" />
+            </button>
+          ))}
         </div>
       </section>
 
-      <section aria-labelledby="worker-roles-heading" style={{ marginBottom: '28px' }}>
-        <h2 id="worker-roles-heading">{t(lang, 'workerRoles')}</h2>
-        <div className="role-grid">
-          <button
-            type="button"
-            className="role-card"
-            onClick={() => handleWorkerSignIn('w-murugan', 'ta')}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-              <span className="badge badge-warning">Construction · தமிழ்</span>
-              <span aria-hidden="true" style={{ fontSize: '20px' }}>
-                <Icon name="hardhat" />
+      <section aria-labelledby="admin-roles-heading" className="account-group">
+        <h2 id="admin-roles-heading" className="group-label">
+          {t(lang, 'adminRoles')}
+        </h2>
+        <div className="account-list">
+          {admins.map((a) => (
+            <button
+              key={a.id}
+              type="button"
+              className="account-row"
+              onClick={() => handleAdminSignIn(a.id)}
+            >
+              <span className="avatar avatar-accent" aria-hidden="true">
+                <Icon name={a.icon} size={22} />
               </span>
-            </div>
-            <h3>{t(lang, 'muruganCardTitle')}</h3>
-            <p style={{ color: 'var(--ink-secondary)', fontSize: '14px' }}>
-              {t(lang, 'muruganCardRole')}
-            </p>
-            <p style={{ fontSize: '13px', color: 'var(--accent)', fontWeight: 600 }}>
-              → {t(lang, 'muruganCardNote')}
-            </p>
-          </button>
-
-          <button
-            type="button"
-            className="role-card"
-            onClick={() => handleWorkerSignIn('w-lakshmi', 'en')}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-              <span className="badge badge-danger">Campus · தமிழ் / EN</span>
-              <span aria-hidden="true" style={{ fontSize: '20px' }}>
-                <Icon name="torch" />
+              <span className="account-text">
+                <strong>{a.title}</strong>
+                <span>{a.role}</span>
+                <small>{a.note}</small>
               </span>
-            </div>
-            <h3>{t(lang, 'lakshmiCardTitle')}</h3>
-            <p style={{ color: 'var(--ink-secondary)', fontSize: '14px' }}>
-              {t(lang, 'lakshmiCardRole')}
-            </p>
-            <p style={{ fontSize: '13px', color: 'var(--accent)', fontWeight: 600 }}>
-              → {t(lang, 'lakshmiCardNote')}
-            </p>
-          </button>
+              <Icon name="arrowRight" className="chevron" />
+            </button>
+          ))}
         </div>
       </section>
 
-      <section aria-labelledby="admin-roles-heading">
-        <h2 id="admin-roles-heading">{t(lang, 'adminRoles')}</h2>
-        <div className="role-grid">
-          <button
-            type="button"
-            className="role-card"
-            onClick={() => handleAdminSignIn('wp-tower-b')}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-              <span className="badge badge-accent">Sector 1: Construction</span>
-              <span aria-hidden="true" style={{ fontSize: '20px' }}>
-                <Icon name="crane" />
-              </span>
-            </div>
-            <h3>{t(lang, 'adminTowerTitle')}</h3>
-            <p style={{ color: 'var(--ink-secondary)', fontSize: '14px' }}>
-              {t(lang, 'adminTowerRole')}
-            </p>
-            <p style={{ fontSize: '13px', color: 'var(--accent)', fontWeight: 600 }}>
-              → {t(lang, 'adminTowerNote')}
-            </p>
-          </button>
-
-          <button
-            type="button"
-            className="role-card"
-            onClick={() => handleAdminSignIn('wp-campus')}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-              <span className="badge badge-accent">Sector 2: College Campus</span>
-              <span aria-hidden="true" style={{ fontSize: '20px' }}>
-                <Icon name="building" />
-              </span>
-            </div>
-            <h3>{t(lang, 'adminCampusTitle')}</h3>
-            <p style={{ color: 'var(--ink-secondary)', fontSize: '14px' }}>
-              {t(lang, 'adminCampusRole')}
-            </p>
-            <p style={{ fontSize: '13px', color: 'var(--accent)', fontWeight: 600 }}>
-              → {t(lang, 'adminCampusNote')}
-            </p>
-          </button>
-        </div>
-      </section>
+      <p className="signin-foot">
+        <Icon name="lock" size={14} />
+        {t(lang, 'principleBanner')}
+      </p>
+      <p className="signin-foot muted">{t(lang, 'demoSignIn')}</p>
     </div>
   );
 };
@@ -205,7 +142,7 @@ export const App: React.FC = () => {
         <div className="app-header-inner">
           <Link to="/" className="brand-mark">
             <span className="brand-seal" aria-hidden="true">
-              S
+              <Icon name="shield" size={20} />
             </span>
             <div>
               <strong style={{ fontSize: '17px', display: 'block', lineHeight: 1.1 }}>

@@ -126,7 +126,7 @@ export const WorkerHome: React.FC<WorkerHomeProps> = ({
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* Notifications Card (Live Supervisor Edit Alerts) */}
       {notifications.length > 0 && (
-        <section className="card" aria-labelledby="notif-heading" style={{ borderLeft: '4px solid var(--warning)' }}>
+        <section className="card" aria-labelledby="notif-heading">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
             <h3 id="notif-heading"><Icon name="bell" />{t(lang, 'notificationsTitle')}</h3>
           </div>

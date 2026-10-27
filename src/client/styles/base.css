@@ -460,3 +460,78 @@ button {
     right: 0;
   }
 }
+
+/* ---- Sign-in: native account picker ---- */
+.signin { padding-top: 28px; }
+.signin-hero { text-align: center; padding: 8px 8px 24px; }
+.signin-hero h1 { font-size: 26px; letter-spacing: -0.025em; margin-top: 14px; }
+.signin-hero p { color: var(--ink-secondary); margin-top: 6px; }
+.signin-mark {
+  display: inline-grid; place-items: center; width: 60px; height: 60px; border-radius: 18px;
+  background: var(--accent); color: #fff;
+  box-shadow: 0 10px 24px -12px color-mix(in srgb, var(--accent) 80%, transparent);
+}
+.signin-mark .icon, .brand-seal .icon { margin: 0; }
+.account-group { margin-top: 18px; }
+.group-label {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ink-secondary); margin: 0 4px 8px;
+}
+.account-list {
+  background: var(--surface); border-radius: var(--radius-lg); overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  box-shadow: 0 8px 24px -14px rgba(27, 27, 31, 0.16);
+}
+.account-row {
+  width: 100%; border: 0; border-radius: 0; background: transparent; text-align: left;
+  display: flex; align-items: center; gap: 14px; padding: 14px 16px; min-height: 76px;
+  justify-content: flex-start; font-weight: 400;
+}
+.account-row + .account-row { border-top: 1px solid color-mix(in srgb, var(--line) 60%, transparent); }
+.account-row:hover { background: var(--surface-subtle); }
+.account-row:active:not(:disabled) { transform: none; background: var(--surface-subtle); }
+.account-text { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.account-text strong { font-size: 16px; font-weight: 600; }
+.account-text span { font-size: 13px; color: var(--ink-secondary); }
+.account-text small { font-size: 12px; color: var(--ink-secondary); margin-top: 2px; opacity: 0.85; }
+.chevron { color: var(--ink-secondary); margin: 0; }
+.signin-foot {
+  display: flex; align-items: center; justify-content: center; gap: 6px; text-align: center;
+  font-size: 13px; color: var(--ink-secondary); margin-top: 22px;
+}
+.signin-foot .icon { margin: 0; }
+.signin-foot.muted { margin-top: 4px; font-size: 12px; opacity: 0.8; }
+
+.avatar {
+  flex: none; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center;
+  font-weight: 700; font-size: 15px; letter-spacing: 0.02em;
+}
+.avatar .icon { margin: 0; }
+.avatar-amber { background: #f6e7cf; color: #7a4a00; }
+.avatar-teal { background: #d8efe9; color: #1f5f52; }
+.avatar-accent { background: var(--accent-soft); color: var(--accent); }
+@media (prefers-color-scheme: dark) {
+  .avatar-amber { background: #3a2c14; color: #f3c77e; }
+  .avatar-teal { background: #15322c; color: #8fd8c4; }
+}
+
+/* ---- Worker profile bar ---- */
+.profile-bar { display: flex; align-items: center; gap: 12px; padding: 4px 2px 16px; }
+.profile-text { flex: 1; min-width: 0; }
+.profile-name { font-size: 20px; font-weight: 700; letter-spacing: -0.015em; line-height: 1.2; }
+.profile-sub {
+  font-size: 13px; color: var(--ink-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.seal-status {
+  display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; font-size: 12px; font-weight: 600;
+}
+.seal-status .icon { margin: 0; }
+.seal-status.ok { color: var(--good); }
+.seal-status.bad { color: var(--danger); }
+.profile-actions { display: flex; gap: 6px; }
+.icon-btn {
+  width: 42px; height: 42px; min-height: 42px; padding: 0; border-radius: 50%;
+  display: inline-grid; place-items: center; background: var(--surface);
+  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent); color: var(--ink-secondary);
+}
+.icon-btn .icon { margin: 0; }

@@ -8,8 +8,8 @@ export const hi: Translations = {
   demoSignIn: 'डेमो साइन-इन',
   demoSignInSubtitle:
     'पक्की शिफ्ट रसीदें, ओवरटाइम जांच और सुरक्षा रिपोर्ट देखने के लिए कोई भूमिका चुनें।',
-  workerRoles: 'कामगार ऐप (मोबाइल)',
-  adminRoles: 'प्रबंधन डैशबोर्ड (Employer / Admin)',
+  workerRoles: 'कामगार',
+  adminRoles: 'नियोक्ता',
   muruganCardTitle: 'मुरुगन (Murugan)',
   muruganCardRole: 'निर्माण श्रमिक · टॉवर B साइट',
   muruganCardNote: 'शनिवार ओवरटाइम और मंगलवार समय बदलाव',

@@ -97,78 +97,56 @@ export const WorkerApp: React.FC<WorkerAppProps> = ({ lang }) => {
 
   return (
     <div className="container-narrow">
-      <div
-        className="card"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '16px',
-          gap: '10px',
-          flexWrap: 'wrap',
-        }}
-      >
-        <div>
-          <span
-            className={
-              clientChainValid && data.chainVerification.ok
-                ? 'badge badge-good'
-                : 'badge badge-danger'
-            }
-          >
-            {clientChainValid && data.chainVerification.ok
-              ? t(lang, 'recordIntact')
-              : t(lang, 'recordTampered')}
-          </span>
-          <h2 style={{ marginTop: '6px' }}>
-            {lang === 'ta'
-              ? data.worker.nameTa
-              : lang === 'hi'
-                ? data.worker.nameHi
-                : data.worker.name}
-          </h2>
-          <p style={{ fontSize: '13px', color: 'var(--ink-secondary)' }}>
+      <header className="profile-bar">
+        <span className="avatar avatar-amber" aria-hidden="true">
+          {data.worker.name
+            .split(' ')
+            .map((p) => p[0])
+            .join('')
+            .slice(0, 2)}
+        </span>
+        <div className="profile-text">
+          <h1 className="profile-name">
+            {lang === 'ta' ? data.worker.nameTa : lang === 'hi' ? data.worker.nameHi : data.worker.name}
+          </h1>
+          <p className="profile-sub">
             {lang === 'ta'
               ? `${data.worker.roleTa} · ${data.workplace.nameTa}`
               : lang === 'hi'
                 ? `${data.worker.roleHi} · ${data.workplace.nameHi}`
                 : `${data.worker.role} · ${data.workplace.name}`}
           </p>
+          <span
+            className={
+              clientChainValid && data.chainVerification.ok ? 'seal-status ok' : 'seal-status bad'
+            }
+          >
+            <Icon name={clientChainValid && data.chainVerification.ok ? 'shield' : 'alert'} size={14} />
+            {clientChainValid && data.chainVerification.ok
+              ? t(lang, 'recordIntact')
+              : t(lang, 'recordTampered')}
+          </span>
         </div>
-        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+        <div className="profile-actions">
           <button
             type="button"
-            className="btn-subtle"
+            className="icon-btn"
+            aria-label={t(lang, 'switchDemoWorker')}
+            title={t(lang, 'switchDemoWorker')}
             onClick={() =>
               setSearchParams({
                 workerId: workerId === 'w-murugan' ? 'w-lakshmi' : 'w-murugan',
                 tab,
               })
             }
-            style={{
-              fontSize: '12px',
-              padding: '4px 9px',
-              minHeight: '34px',
-              color: 'var(--ink-secondary)',
-            }}
           >
-            <Icon name="swap" />{t(lang, 'switchDemoWorker')}
+            <Icon name="swap" />
           </button>
-          <Link
-            to="/"
-            className="btn-subtle"
-            style={{
-              textDecoration: 'none',
-              padding: '4px 9px',
-              minHeight: '34px',
-              fontSize: '12px',
-              color: 'var(--ink-secondary)',
-            }}
-          >
-            {t(lang, 'switchRole')}
+          <Link to="/" className="icon-btn" aria-label={t(lang, 'switchRole')} title={t(lang, 'switchRole')}>
+            <Icon name="logout" />
           </Link>
         </div>
-      </div>
+      </header>
 
       {tab === 'home' && (
         <WorkerHome

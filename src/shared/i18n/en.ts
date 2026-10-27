@@ -6,8 +6,8 @@ export const en = {
   demoSignIn: 'Demo sign-in',
   demoSignInSubtitle:
     'Select a worker or administrator role to explore tamper-evident shift records, verified overtime claims, and safety hotspots.',
-  workerRoles: 'Worker interface (Mobile-first)',
-  adminRoles: 'Employer & Admin interface',
+  workerRoles: 'Workers',
+  adminRoles: 'Employers',
   muruganCardTitle: 'Murugan',
   muruganCardRole: 'Construction worker · Tower B Construction Site',
   muruganCardNote: 'Saturday slab overtime & edited Tuesday checkout',
