@@ -120,6 +120,16 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
     return () => clearInterval(interval);
   }, [fetchDashboard]);
 
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setEditingShift(null);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
   const handleResolveDispute = async (
     claimId: string,
     decision: 'approved' | 'rejected'
@@ -435,28 +445,32 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
                   </p>
 
                   {d.resolutionStatus === 'pending' ? (
-                    <div style={{ display: 'flex', gap: '8px', marginTop: '10px', flexWrap: 'wrap' }}>
-                      <label htmlFor={`reason-${d.id}`} className="skip-link">
-                        Decision reason
-                      </label>
-                      <input
-                        id={`reason-${d.id}`}
-                        type="text"
-                        placeholder="Required reason for decision..."
-                        value={disputeReasons[d.id] || ''}
-                        onChange={(e) =>
-                          setDisputeReasons({ ...disputeReasons, [d.id]: e.target.value })
-                        }
-                        style={{
-                          flex: 1,
-                          minWidth: '200px',
-                          minHeight: '42px',
-                          padding: '6px 10px',
-                          borderRadius: 'var(--radius-sm)',
-                          border: '1px solid var(--line)',
-                          background: 'var(--surface)',
-                        }}
-                      />
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '10px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+                      <div style={{ flex: 1, minWidth: '220px' }}>
+                        <label
+                          htmlFor={`reason-${d.id}`}
+                          style={{ display: 'block', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}
+                        >
+                          Decision reason (required to reject)
+                        </label>
+                        <input
+                          id={`reason-${d.id}`}
+                          type="text"
+                          placeholder="Enter decision reason..."
+                          value={disputeReasons[d.id] || ''}
+                          onChange={(e) =>
+                            setDisputeReasons({ ...disputeReasons, [d.id]: e.target.value })
+                          }
+                          style={{
+                            width: '100%',
+                            minHeight: '42px',
+                            padding: '6px 10px',
+                            borderRadius: 'var(--radius-sm)',
+                            border: '1px solid var(--line)',
+                            background: 'var(--surface)',
+                          }}
+                        />
+                      </div>
                       <button
                         type="button"
                         className="btn-good"

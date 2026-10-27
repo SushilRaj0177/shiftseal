@@ -54,6 +54,18 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
   } | null>(null);
   const [submittedClaim, setSubmittedClaim] = useState<OvertimeClaim | null>(null);
 
+  React.useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowAskWhy(false);
+        setShowClaimSheet(false);
+        setExpandedRuleId(null);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
   const payslipSpeech =
     lang === 'ta'
       ? `இந்த வார நிகர சம்பளம் ரூபாய் ${payslip.netPay}. சாதாரண பணி ${payslip.normalHours} மணிக்கு ரூபாய் ${payslip.normalHours * payslip.hourlyRate}. ஓவர்டைம் ${payslip.otHours} மணிக்கு இருமடங்கு விகிதத்தில் ரூபாய் ${payslip.otHours * payslip.hourlyRate * 2}. பிடித்தம் ரூபாய் ${payslip.totalDeductions}.`
@@ -281,11 +293,12 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
           />
 
           <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
-            <label htmlFor="ask-pay-input" className="skip-link">
-              Ask a question about your pay
+            <label htmlFor="ask-pay-input" className="sr-only">
+              {t(lang, 'askWhy')}
             </label>
             <input
               id="ask-pay-input"
+              aria-label={t(lang, 'askWhy')}
               type="text"
               placeholder={t(lang, 'orTypeHere')}
               value={askQuestion}
@@ -377,11 +390,12 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
           />
 
           <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
-            <label htmlFor="claim-text-input" className="skip-link">
-              Describe missed overtime
+            <label htmlFor="claim-text-input" className="sr-only">
+              {t(lang, 'claimMissedOvertime')}
             </label>
             <input
               id="claim-text-input"
+              aria-label={t(lang, 'claimMissedOvertime')}
               type="text"
               placeholder={t(lang, 'orTypeHere')}
               value={claimText}

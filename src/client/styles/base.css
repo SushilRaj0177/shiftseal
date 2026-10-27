@@ -64,6 +64,18 @@ h3 {
   top: 12px;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 :focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 2px;
@@ -156,7 +168,7 @@ button:disabled {
 }
 
 .app-header-inner {
-  max-width: 1080px;
+  max-width: 1200px;
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -199,7 +211,7 @@ button:disabled {
 }
 
 .container-wide {
-  max-width: 1080px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 24px 16px 64px;
 }

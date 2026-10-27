@@ -48,6 +48,17 @@ export const WorkerHome: React.FC<WorkerHomeProps> = ({
   const [busy, setBusy] = useState(false);
   const [scanNotice, setScanNotice] = useState<string | null>(null);
 
+  React.useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowReceipts(false);
+        setShowQrInput(false);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
   const isCheckedIn = Boolean(todayShift && todayShift.checkInTime && !todayShift.checkOutTime);
   const isCompletedToday = Boolean(todayShift && todayShift.checkInTime && todayShift.checkOutTime);
   const intact = clientChainValid && serverChainValid;

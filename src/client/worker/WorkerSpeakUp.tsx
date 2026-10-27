@@ -181,11 +181,12 @@ export const WorkerSpeakUp: React.FC<WorkerSpeakUpProps> = ({
         />
 
         <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
-          <label htmlFor="speakup-input" className="skip-link">
-            Share anonymous feedback
+          <label htmlFor="speakup-input" className="sr-only">
+            {t(lang, 'speakUpTitle')}
           </label>
           <input
             id="speakup-input"
+            aria-label={t(lang, 'speakUpTitle')}
             type="text"
             placeholder={t(lang, 'orTypeHere')}
             value={text}

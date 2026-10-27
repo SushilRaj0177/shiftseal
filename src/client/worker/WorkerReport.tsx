@@ -229,11 +229,12 @@ export const WorkerReport: React.FC<WorkerReportProps> = ({
         />
 
         <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
-          <label htmlFor="hazard-text-input" className="skip-link">
-            Describe safety hazard
+          <label htmlFor="hazard-text-input" className="sr-only">
+            {t(lang, 'describeHazard')}
           </label>
           <input
             id="hazard-text-input"
+            aria-label={t(lang, 'describeHazard')}
             type="text"
             placeholder={t(lang, 'orTypeHere')}
             value={text}
