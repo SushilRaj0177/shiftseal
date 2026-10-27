@@ -19,6 +19,15 @@ export const securityHeaders = helmet({
   crossOriginEmbedderPolicy: false,
 });
 
+/** Limits powerful browser features: microphone and camera for this origin only. */
+export function permissionsPolicy(_req: Request, res: Response, next: NextFunction): void {
+  res.setHeader(
+    'Permissions-Policy',
+    'microphone=(self), camera=(self), geolocation=(), payment=(), usb=(), interest-cohort=()'
+  );
+  next();
+}
+
 export const aiRateLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 20,

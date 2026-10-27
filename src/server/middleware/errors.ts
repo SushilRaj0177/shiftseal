@@ -27,6 +27,17 @@ export function errorHandler(
     return;
   }
 
+  // Malformed or oversized bodies rejected by express.json()
+  const bodyError = err as { type?: string; status?: number } | null;
+  if (bodyError?.type === 'entity.parse.failed') {
+    res.status(400).json({ error: 'MALFORMED_JSON', message: 'Request body is not valid JSON.' });
+    return;
+  }
+  if (bodyError?.type === 'entity.too.large') {
+    res.status(413).json({ error: 'PAYLOAD_TOO_LARGE', message: 'Request body is too large.' });
+    return;
+  }
+
   if (err instanceof AppError) {
     res.status(err.statusCode).json({
       error: err.code,

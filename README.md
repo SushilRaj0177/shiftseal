@@ -165,13 +165,13 @@ Each industry is a **configuration, not a code fork**: a ruleset JSON, zones, ha
   - Visible `:focus-visible`, Esc closes sheets, and everything works by keyboard.
   - WCAG AA contrast, `prefers-reduced-motion` respected, read-aloud.
 - **Testing:**
-  - **74 Vitest tests in 13 files:** hours (night shifts, no double-counted overtime), pay, ledger tamper detection, claims tolerance, severity floor, anonymity threshold, fact check, fatigue, zod schemas.
+  - **93 Vitest tests in 17 files:** hours (night shifts, no double-counted overtime), pay, ledger tamper detection, claims tolerance, severity floor, anonymity threshold, fact check, fatigue, zod schemas.
   - API tests with Gemini mocked: admin routes reject missing, spoofed, tampered and wrong-workplace sessions, feedback never stores the original, a fact-check failure falls back to the template.
   - CI runs lint, type-check, Prettier format check, tests, build and `npm audit` on every push.
 
 ```bash
 npm ci
-npm test        # 74 tests
+npm test        # 93 tests
 npm run lint
 npm run build
 npm start       # http://localhost:8080 (STORE=memory by default)

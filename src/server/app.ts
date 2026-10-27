@@ -3,7 +3,7 @@ import compression from 'compression';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { securityHeaders, apiRateLimiter } from './middleware/security.js';
+import { securityHeaders, apiRateLimiter, permissionsPolicy } from './middleware/security.js';
 import { errorHandler } from './middleware/errors.js';
 import { healthRouter } from './routes/health.js';
 import { workerRouter } from './routes/worker.js';
@@ -20,6 +20,7 @@ export function createApp() {
   app.set('trust proxy', 1);
   app.disable('x-powered-by');
   app.use(securityHeaders);
+  app.use(permissionsPolicy);
   app.use(compression());
   app.use(express.json({ limit: '4mb' }));
 
