@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v3';
 
 /** Typed, validated runtime configuration. Invalid settings fail fast at startup. */
 const envSchema = z.object({

@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from 'zod/v3';
 
 export const languageSchema = z.enum(['en', 'ta', 'hi']);
 export const sectorSchema = z.enum(['construction', 'campus']);

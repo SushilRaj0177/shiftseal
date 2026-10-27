@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { z } from 'zod';
+import { z } from 'zod/v3';
 import { getStore } from '../store/firestore.js';
 import { AppError } from '../middleware/errors.js';
 import { createSessionToken } from '../auth/session.js';

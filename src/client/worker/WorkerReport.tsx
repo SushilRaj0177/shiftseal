@@ -241,7 +241,7 @@ export const WorkerReport: React.FC<WorkerReportProps> = ({
               justifyContent: 'flex-start',
             }}
           >
-            <span>{worker.sector === 'campus' ? '🇮🇳 हिंदी sample:' : '🇮🇳 தமிழ் sample:'}</span>
+            <span>{worker.sector === 'campus' ? 'हिंदी sample:' : 'தமிழ் sample:'}</span>
             <span style={{ fontWeight: 400 }}>
               "{worker.sector === 'campus' ? CAMPUS_HAZARD_SAMPLE : CONSTRUCTION_HAZARD_SAMPLE}"
             </span>

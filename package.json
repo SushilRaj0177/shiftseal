@@ -2,7 +2,7 @@
   "name": "shiftseal",
   "version": "1.0.0",
   "private": true,
-  "description": "Shiftseal: a FairShift decent work platform (SDG 8) \u2014 Proof of work for the world's shift workers",
+  "description": "Shiftseal: a FairShift decent work platform (SDG 8) — Proof of work for the world's shift workers",
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server/index.ts",
@@ -28,7 +28,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.30.0",
-    "zod": "^3.24.2"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",

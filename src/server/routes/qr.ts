@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import QRCode from 'qrcode';
-import { z } from 'zod';
+import { z } from 'zod/v3';
 
 /** Public: renders a check-in or zone code as an SVG QR sticker (codes are not secrets). */
 export const qrRouter = Router();
