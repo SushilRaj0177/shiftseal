@@ -375,8 +375,9 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
           </div>
         </section>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {/* 1. Disputes before payday */}
+        <div className="admin-grid">
+          <div className="admin-col">
+            {/* 1. Disputes before payday */}
           <section className="card" aria-labelledby="card-disputes">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
               <div>
@@ -605,7 +606,9 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
               })}
             </div>
           </section>
+          </div>
 
+          <div className="admin-col">
           {/* 3. Near-miss hotspots (inline SVG bar chart) */}
           <section className="card" aria-labelledby="card-hotspots">
             <h3 id="card-hotspots">3. Near-Miss Hotspots by Zone (Last 14 Days)</h3>
@@ -731,22 +734,128 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
             </div>
           </section>
 
-          {/* 5. Overtime owed this week + Edit a shift */}
+          {/* 5. Overtime owed this week summary */}
           <section className="card" aria-labelledby="card-overtime">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
               <div>
-                <h3 id="card-overtime">5. Overtime Owed This Week & Tamper-Evident Shift Ledger</h3>
+                <h3 id="card-overtime">5. Overtime Owed This Week</h3>
                 <p style={{ fontSize: '13px', color: 'var(--ink-secondary)' }}>
-                  Any shift time correction requires a written reason, appends an EDIT event to the worker's hash chain, and notifies the worker immediately.
+                  Calculated at 2× statutory rate from sealed shift receipts and supported claims.
                 </p>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <span style={{ fontSize: '12px', color: 'var(--ink-secondary)', display: 'block' }}>
-                  Total Overtime Owed ({data.overtimeSummary.totalHours}h at 2×)
+                  Total Overtime ({data.overtimeSummary.totalHours}h at 2×)
                 </span>
-                <strong style={{ fontSize: '22px', color: 'var(--accent)' }}>
+                <strong style={{ fontSize: '24px', color: 'var(--accent)' }}>
                   ₹{data.overtimeSummary.totalAmount}
                 </strong>
+              </div>
+            </div>
+          </section>
+
+          {/* 7. Attendance today */}
+          <section className="card" aria-labelledby="card-attendance">
+            <h3 id="card-attendance">7. Attendance Today ({data.todayDate})</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginTop: '12px' }}>
+              <div style={{ padding: '14px', background: 'var(--good-soft)', borderRadius: 'var(--radius-sm)' }}>
+                <span style={{ fontSize: '12px', color: 'var(--good)', fontWeight: 600, display: 'block' }}>
+                  Checked In
+                </span>
+                <strong style={{ fontSize: '24px', color: 'var(--good)' }}>
+                  {data.attendanceToday.checkedIn} / {data.attendanceToday.total}
+                </strong>
+              </div>
+              <div style={{ padding: '14px', background: 'var(--warning-soft)', borderRadius: 'var(--radius-sm)' }}>
+                <span style={{ fontSize: '12px', color: 'var(--warning)', fontWeight: 600, display: 'block' }}>
+                  Late Arrival
+                </span>
+                <strong style={{ fontSize: '24px', color: 'var(--warning)' }}>
+                  {data.attendanceToday.late}
+                </strong>
+              </div>
+              <div style={{ padding: '14px', background: 'var(--surface-subtle)', borderRadius: 'var(--radius-sm)' }}>
+                <span style={{ fontSize: '12px', color: 'var(--ink-secondary)', fontWeight: 600, display: 'block' }}>
+                  Not Checked In Yet
+                </span>
+                <strong style={{ fontSize: '24px' }}>{data.attendanceToday.absent}</strong>
+              </div>
+            </div>
+          </section>
+          </div>
+
+          {/* Bottom spanning both columns: 6. Feedback themes & Tamper-Evident Shift Ledger */}
+          <section className="card admin-span-full" aria-labelledby="card-feedback">
+            <h3 id="card-feedback">6. Anonymous Worker Feedback Themes (k-Anonymity Gate: k ≥ 5)</h3>
+            <p style={{ fontSize: '13px', color: 'var(--ink-secondary)', marginBottom: '12px' }}>
+              Original voice and words are never stored. Themes unlock only when a team has 5 or more responses.
+            </p>
+
+            {data.feedbackGroups.map((grp) => (
+              <div
+                key={grp.team}
+                style={{
+                  padding: '14px',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--line)',
+                  background: 'var(--surface-subtle)',
+                  marginBottom: '10px',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                  <strong>Team: {grp.team}</strong>
+                  <span className={grp.visible ? 'badge badge-good' : 'badge badge-warning'}>
+                    {grp.visible
+                      ? `✓ ${grp.count}/${grp.threshold} responses (Unlocked)`
+                      : `🔒 ${grp.count}/${grp.threshold}, hidden to protect anonymity`}
+                  </span>
+                </div>
+
+                {!grp.visible ? (
+                  <p style={{ fontSize: '13px', color: 'var(--ink-secondary)', marginTop: '8px' }}>
+                    {grp.statusMessage}. Individual responses remain hidden until {grp.threshold} workers respond.
+                  </p>
+                ) : (
+                  <div style={{ marginTop: '10px' }}>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '10px' }}>
+                      {grp.themes.map((tItem) => (
+                        <span key={tItem.theme} className="badge badge-accent">
+                          {tItem.theme.replace(/_/g, ' ')} ({tItem.count})
+                        </span>
+                      ))}
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {grp.entries.map((entry) => (
+                        <div
+                          key={entry.id}
+                          style={{
+                            padding: '8px 10px',
+                            background: 'var(--surface)',
+                            borderRadius: '6px',
+                            fontSize: '13px',
+                            border: '1px solid var(--line)',
+                          }}
+                        >
+                          "{entry.cleanTextEnglish}"
+                          <span style={{ display: 'block', fontSize: '11px', color: 'var(--ink-secondary)', marginTop: '2px' }}>
+                            Scrubbed PII: {entry.removed.join(', ') || 'none'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </section>
+
+          <section className="card admin-span-full" aria-labelledby="card-ledger-list">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+              <div>
+                <h3 id="card-ledger-list">Tamper-Evident Shift Ledger & Per-Worker Overtime</h3>
+                <p style={{ fontSize: '13px', color: 'var(--ink-secondary)' }}>
+                  Any shift time correction requires a written reason, appends an EDIT event to the worker's SHA-256 chain, and notifies the worker immediately.
+                </p>
               </div>
             </div>
 
@@ -875,100 +984,6 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
                   </div>
                 );
               })}
-            </div>
-          </section>
-
-          {/* 6. Feedback themes (5-response anonymity gate) */}
-          <section className="card" aria-labelledby="card-feedback">
-            <h3 id="card-feedback">6. Anonymous Worker Feedback Themes (k-Anonymity Gate: k ≥ 5)</h3>
-            <p style={{ fontSize: '13px', color: 'var(--ink-secondary)', marginBottom: '12px' }}>
-              Original voice and words are never stored. Themes unlock only when a team has 5 or more responses.
-            </p>
-
-            {data.feedbackGroups.map((grp) => (
-              <div
-                key={grp.team}
-                style={{
-                  padding: '14px',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--line)',
-                  background: 'var(--surface-subtle)',
-                  marginBottom: '10px',
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                  <strong>Team: {grp.team}</strong>
-                  <span className={grp.visible ? 'badge badge-good' : 'badge badge-warning'}>
-                    {grp.visible
-                      ? `✓ ${grp.count}/${grp.threshold} responses (Unlocked)`
-                      : `🔒 ${grp.count}/${grp.threshold}, hidden to protect anonymity`}
-                  </span>
-                </div>
-
-                {!grp.visible ? (
-                  <p style={{ fontSize: '13px', color: 'var(--ink-secondary)', marginTop: '8px' }}>
-                    {grp.statusMessage}. Individual responses remain hidden until {grp.threshold} workers respond.
-                  </p>
-                ) : (
-                  <div style={{ marginTop: '10px' }}>
-                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '10px' }}>
-                      {grp.themes.map((tItem) => (
-                        <span key={tItem.theme} className="badge badge-accent">
-                          {tItem.theme.replace(/_/g, ' ')} ({tItem.count})
-                        </span>
-                      ))}
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {grp.entries.map((entry) => (
-                        <div
-                          key={entry.id}
-                          style={{
-                            padding: '8px 10px',
-                            background: 'var(--surface)',
-                            borderRadius: '6px',
-                            fontSize: '13px',
-                            border: '1px solid var(--line)',
-                          }}
-                        >
-                          "{entry.cleanTextEnglish}"
-                          <span style={{ display: 'block', fontSize: '11px', color: 'var(--ink-secondary)', marginTop: '2px' }}>
-                            Scrubbed PII: {entry.removed.join(', ') || 'none'}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </section>
-
-          {/* 7. Attendance today */}
-          <section className="card" aria-labelledby="card-attendance">
-            <h3 id="card-attendance">7. Attendance Today ({data.todayDate})</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginTop: '12px' }}>
-              <div style={{ padding: '14px', background: 'var(--good-soft)', borderRadius: 'var(--radius-sm)' }}>
-                <span style={{ fontSize: '12px', color: 'var(--good)', fontWeight: 600, display: 'block' }}>
-                  Checked In
-                </span>
-                <strong style={{ fontSize: '24px', color: 'var(--good)' }}>
-                  {data.attendanceToday.checkedIn} / {data.attendanceToday.total}
-                </strong>
-              </div>
-              <div style={{ padding: '14px', background: 'var(--warning-soft)', borderRadius: 'var(--radius-sm)' }}>
-                <span style={{ fontSize: '12px', color: 'var(--warning)', fontWeight: 600, display: 'block' }}>
-                  Late Arrival
-                </span>
-                <strong style={{ fontSize: '24px', color: 'var(--warning)' }}>
-                  {data.attendanceToday.late}
-                </strong>
-              </div>
-              <div style={{ padding: '14px', background: 'var(--surface-subtle)', borderRadius: 'var(--radius-sm)' }}>
-                <span style={{ fontSize: '12px', color: 'var(--ink-secondary)', fontWeight: 600, display: 'block' }}>
-                  Not Checked In Yet
-                </span>
-                <strong style={{ fontSize: '24px' }}>{data.attendanceToday.absent}</strong>
-              </div>
             </div>
           </section>
         </div>

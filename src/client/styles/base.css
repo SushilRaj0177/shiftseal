@@ -320,3 +320,33 @@ button:disabled {
   min-height: 20px;
   opacity: 0.75;
 }
+
+.admin-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.admin-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (min-width: 1100px) {
+  .container-wide,
+  .app-header-inner {
+    max-width: 1360px;
+  }
+
+  .admin-grid {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    align-items: start;
+    gap: 20px;
+  }
+
+  .admin-span-full {
+    grid-column: 1 / -1;
+  }
+}
