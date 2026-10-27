@@ -18,7 +18,9 @@ interface WorkerReportProps {
   onRefresh: () => void;
 }
 
-const HINDI_CAMPUS_HAZARD_SAMPLE =
+const CONSTRUCTION_HAZARD_SAMPLE =
+  'ஸ்காஃபோல்ட் B-ல நாலாவது மாடியில கைப்பிடி கம்பி உடைஞ்சிருக்கு';
+const CAMPUS_HAZARD_SAMPLE =
   'हॉस्टल ब्लॉक A में बिजली का तार खुला लटक रहा है';
 
 export const WorkerReport: React.FC<WorkerReportProps> = ({
@@ -209,15 +211,26 @@ export const WorkerReport: React.FC<WorkerReportProps> = ({
             className="btn-subtle"
             disabled={loading}
             onClick={() => {
-              const hostelZone = workplace.zones.find((z) => z.id === 'z-hostel-a');
-              if (hostelZone) setSelectedZoneId(hostelZone.id);
-              setText(HINDI_CAMPUS_HAZARD_SAMPLE);
-              runStructureHazard({ text: HINDI_CAMPUS_HAZARD_SAMPLE });
+              if (worker.sector === 'campus') {
+                const hostelZone = workplace.zones.find((z) => z.id === 'z-hostel-a');
+                if (hostelZone) setSelectedZoneId(hostelZone.id);
+                setText(CAMPUS_HAZARD_SAMPLE);
+                runStructureHazard({ text: CAMPUS_HAZARD_SAMPLE });
+              } else {
+                const scafZone = workplace.zones.find((z) => z.id === 'z-scaffold-b');
+                if (scafZone) setSelectedZoneId(scafZone.id);
+                setText(CONSTRUCTION_HAZARD_SAMPLE);
+                runStructureHazard({ text: CONSTRUCTION_HAZARD_SAMPLE });
+              }
             }}
             style={{ textAlign: 'left', fontSize: '13px', width: '100%', justifyContent: 'flex-start' }}
           >
-            <span>🇮🇳 हिंदी sample:</span>
-            <span style={{ fontWeight: 400 }}>"{HINDI_CAMPUS_HAZARD_SAMPLE}"</span>
+            <span>
+              {worker.sector === 'campus' ? '🇮🇳 हिंदी sample:' : '🇮🇳 தமிழ் sample:'}
+            </span>
+            <span style={{ fontWeight: 400 }}>
+              "{worker.sector === 'campus' ? CAMPUS_HAZARD_SAMPLE : CONSTRUCTION_HAZARD_SAMPLE}"
+            </span>
           </button>
         </div>
 

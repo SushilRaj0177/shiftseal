@@ -19,8 +19,10 @@ interface WorkerPayProps {
   onRefresh: () => void;
 }
 
-const TAMIL_OVERTIME_SAMPLE =
+const CONSTRUCTION_CLAIM_SAMPLE =
   'நேத்து சனிக்கிழமை ஸ்லாப் போடறதுக்கு ரெண்டு மணி நேரம் கூடுதலா இருந்தேன்';
+const CAMPUS_CLAIM_SAMPLE =
+  'I stayed 2 extra hours on Saturday after my night shift because the morning relief guard arrived late';
 
 function translatePayLineLabel(lang: Language, labelKey: string): string {
   if (labelKey === 'Normal shift pay') return t(lang, 'payLineNormal');
@@ -418,13 +420,19 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
               className="btn-subtle"
               disabled={claimLoading}
               onClick={() => {
-                setClaimText(TAMIL_OVERTIME_SAMPLE);
-                runStructureClaim({ text: TAMIL_OVERTIME_SAMPLE });
+                const sample =
+                  worker.sector === 'campus' ? CAMPUS_CLAIM_SAMPLE : CONSTRUCTION_CLAIM_SAMPLE;
+                setClaimText(sample);
+                runStructureClaim({ text: sample });
               }}
               style={{ textAlign: 'left', fontSize: '13px', width: '100%', justifyContent: 'flex-start' }}
             >
-              <span>🇮🇳 தமிழ் sample:</span>
-              <span style={{ fontWeight: 400 }}>"{TAMIL_OVERTIME_SAMPLE}"</span>
+              <span>
+                {worker.sector === 'campus' ? '🏛️ Campus sample:' : '🏗️ தமிழ் sample:'}
+              </span>
+              <span style={{ fontWeight: 400 }}>
+                "{worker.sector === 'campus' ? CAMPUS_CLAIM_SAMPLE : CONSTRUCTION_CLAIM_SAMPLE}"
+              </span>
             </button>
           </div>
 
