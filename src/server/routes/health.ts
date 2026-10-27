@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { getModelName } from '../gemini/client.js';
 
 export const healthRouter = Router();
 
@@ -7,7 +8,8 @@ healthRouter.get('/', (_req, res) => {
     status: 'ok',
     service: 'shiftseal',
     store: process.env.STORE || 'memory',
-    model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
+    vertexai: process.env.GOOGLE_GENAI_USE_VERTEXAI === 'true',
+    model: getModelName(),
     timestamp: new Date().toISOString(),
   });
 });

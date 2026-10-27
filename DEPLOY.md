@@ -1,22 +1,29 @@
-# Deploying Shiftseal to Google Cloud Run
+# Deploying Shiftseal to Google Cloud Run (Vertex AI + Firestore)
 
-Shiftseal is packaged as a single container serving both the Vite React client and the Express API + Gemini verification engine.
+Shiftseal runs on Google Cloud Run using Vertex AI (`@google/genai` with `vertexai: true`) and Cloud Firestore.
 
-## Quick Deploy (Google Cloud Shell)
+## 1. Enable Vertex AI & Grant Service Account Permissions
+
+Run in Google Cloud Shell:
+
+```bash
+gcloud config set project promptwars-512900
+gcloud services enable aiplatform.googleapis.com firestore.googleapis.com
+PROJECT_NUMBER=$(gcloud projects describe promptwars-512900 --format="value(projectNumber)")
+gcloud projects add-iam-policy-binding promptwars-512900 \
+  --member="serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com" \
+  --role="roles/aiplatform.user"
+gcloud projects add-iam-policy-binding promptwars-512900 \
+  --member="serviceAccount:${PROJECT_NUMBER}-compute@developer.gserviceaccount.com" \
+  --role="roles/datastore.user"
+```
+
+## 2. Deploy to Cloud Run
 
 ```bash
 git clone https://github.com/SushilRaj0177/shiftseal.git && cd shiftseal
-gcloud config set project promptwars-512900
+# Or if already cloned: cd shiftseal && git pull --rebase origin main
 gcloud run deploy shiftseal --source . --region asia-south1 --allow-unauthenticated \
-  --set-env-vars STORE=firestore,GEMINI_MODEL=gemini-2.5-flash,GEMINI_API_KEY=YOUR_GEMINI_KEY
+  --remove-env-vars GEMINI_API_KEY \
+  --set-env-vars GOOGLE_GENAI_USE_VERTEXAI=true,GOOGLE_CLOUD_PROJECT=promptwars-512900,GOOGLE_CLOUD_LOCATION=global,GEMINI_MODEL=gemini-3.8-flash,STORE=firestore
 ```
-
-## Updating an Existing Deployment
-
-```bash
-cd shiftseal && git pull
-gcloud run deploy shiftseal --source . --region asia-south1 --allow-unauthenticated \
-  --set-env-vars STORE=firestore,GEMINI_MODEL=gemini-2.5-flash,GEMINI_API_KEY=YOUR_GEMINI_KEY
-```
-
-> **Security Note:** Never commit your actual `GEMINI_API_KEY` to this file or any file in the repository. Always replace `YOUR_GEMINI_KEY` in the terminal command or Cloud Run environment variables.

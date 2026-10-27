@@ -403,7 +403,10 @@ export const WorkerReport: React.FC<WorkerReportProps> = ({
                 <strong>
                   {h.zoneName} · {h.hazardType.replace(/_/g, ' ')}
                 </strong>
-                <div style={{ display: 'flex', gap: '6px' }}>
+                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                  {h.isDemoFallback && (
+                    <span className="badge badge-warning">{t(lang, 'demoResponseBadge')}</span>
+                  )}
                   <span
                     className={
                       h.finalSeverity === 'critical' || h.finalSeverity === 'high'

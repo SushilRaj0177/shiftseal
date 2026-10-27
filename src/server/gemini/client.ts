@@ -31,12 +31,24 @@ import {
 import { DEMO_TODAY } from '../store/seed.js';
 
 const TIMEOUT_MS = 15_000;
+export const DEFAULT_GEMINI_MODEL = 'gemini-3.8-flash';
+const FALLBACK_VERTEX_MODELS = ['gemini-3-flash-preview', 'gemini-2.0-flash'];
 
-function getModelName(): string {
-  return process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+export function getModelName(): string {
+  return process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL;
 }
 
 function getGenAiClient(): GoogleGenAI | null {
+  if (process.env.GOOGLE_GENAI_USE_VERTEXAI === 'true') {
+    const project = process.env.GOOGLE_CLOUD_PROJECT || 'promptwars-512900';
+    const location = process.env.GOOGLE_CLOUD_LOCATION || 'global';
+    return new GoogleGenAI({
+      vertexai: true,
+      project,
+      location,
+    });
+  }
+
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey || apiKey.trim().length === 0 || apiKey === 'YOUR_GEMINI_KEY') {
     return null;
@@ -44,14 +56,22 @@ function getGenAiClient(): GoogleGenAI | null {
   return new GoogleGenAI({ apiKey });
 }
 
+function logSafeGeminiFailure(operation: string, err: unknown): void {
+  const errorName = err instanceof Error ? err.name : typeof err;
+  const statusObj = err as { status?: number; statusCode?: number; code?: string | number } | null;
+  const statusCode = statusObj?.status ?? statusObj?.statusCode ?? statusObj?.code ?? 'unknown';
+  console.error(`[Gemini Failure] op=${operation} type=${errorName} status=${String(statusCode)}`);
+}
+
 async function callGeminiWithRetry(
+  operation: string,
   prompt: string,
   responseSchema: Schema,
   input: { text?: string; audioBase64?: string; audioMimeType?: string }
 ): Promise<unknown> {
   const ai = getGenAiClient();
   if (!ai) {
-    throw new Error('NO_API_KEY');
+    throw new Error('NO_GENAI_CREDENTIALS');
   }
 
   const parts: Array<{ text: string } | { inlineData: { data: string; mimeType: string } }> = [
@@ -71,12 +91,15 @@ async function callGeminiWithRetry(
   }
 
   let lastError: unknown;
+  const candidateModels = [getModelName(), ...FALLBACK_VERTEX_MODELS];
+
   for (let attempt = 0; attempt < 2; attempt++) {
+    const modelToUse = candidateModels[Math.min(attempt, candidateModels.length - 1)];
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
     try {
       const response = await ai.models.generateContent({
-        model: getModelName(),
+        model: modelToUse,
         contents: [{ role: 'user', parts }],
         config: {
           systemInstruction: SYSTEM_INSTRUCTION,
@@ -95,6 +118,7 @@ async function callGeminiWithRetry(
     } catch (err) {
       clearTimeout(timer);
       lastError = err;
+      logSafeGeminiFailure(`${operation}_model_${modelToUse}_attempt_${attempt + 1}`, err);
     }
   }
   throw lastError;
@@ -125,13 +149,15 @@ export async function structureClaim(
 
   try {
     const raw = await callGeminiWithRetry(
+      'structureClaim',
       buildStructureClaimPrompt(DEMO_TODAY, lang),
       schema,
       input
     );
     const parsed = structuredClaimOutputSchema.parse(raw);
     return { ...parsed, isDemoFallback: false };
-  } catch {
+  } catch (err) {
+    logSafeGeminiFailure('structureClaim_fallback', err);
     const fallback = buildFallbackStructuredClaim(input.text, lang);
     return { ...fallback, isDemoFallback: true };
   }
@@ -181,6 +207,7 @@ export async function explainPay(
 
   try {
     const raw = await callGeminiWithRetry(
+      'explainPay',
       buildExplainPayPrompt(truthMap, lang),
       schema,
       {
@@ -205,11 +232,12 @@ export async function explainPay(
       verificationStatus: 'checked',
       isDemoFallback: false,
     };
-  } catch {
+  } catch (err) {
+    logSafeGeminiFailure('explainPay_fallback', err);
     const tpl = buildTemplatePayExplanation(payslip, lang);
     return {
       ...tpl,
-      verificationStatus: 'checked',
+      verificationStatus: 'template_fallback',
       isDemoFallback: true,
     };
   }
@@ -262,13 +290,15 @@ export async function structureHazard(
 
   try {
     const raw = await callGeminiWithRetry(
+      'structureHazard',
       buildStructureHazardPrompt(sector, zoneName, lang),
       schema,
       input
     );
     const parsed = structuredHazardOutputSchema.parse(raw);
     return { ...parsed, isDemoFallback: false };
-  } catch {
+  } catch (err) {
+    logSafeGeminiFailure('structureHazard_fallback', err);
     const fallback = buildFallbackHazard(input.text, sector, lang);
     return { ...fallback, isDemoFallback: true };
   }
@@ -320,13 +350,15 @@ export async function anonymiseFeedback(
 
   try {
     const raw = await callGeminiWithRetry(
+      'anonymiseFeedback',
       buildAnonymiseFeedbackPrompt(lang),
       schema,
       input
     );
     const parsed = anonymisedFeedbackOutputSchema.parse(raw);
     return { ...parsed, isDemoFallback: false };
-  } catch {
+  } catch (err) {
+    logSafeGeminiFailure('anonymiseFeedback_fallback', err);
     const fallback = buildFallbackAnonymisedFeedback(input.text, lang);
     return { ...fallback, isDemoFallback: true };
   }

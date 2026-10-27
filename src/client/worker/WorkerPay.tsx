@@ -560,17 +560,22 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
                   <strong>
                     {c.date} · +{c.extraHours}h
                   </strong>
-                  <span
-                    className={
-                      c.resolutionStatus === 'approved'
-                        ? 'badge badge-good'
-                        : c.resolutionStatus === 'rejected'
-                          ? 'badge badge-danger'
-                          : 'badge badge-warning'
-                    }
-                  >
-                    {c.matchStatus} · {c.resolutionStatus}
-                  </span>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                    {c.isDemoFallback && (
+                      <span className="badge badge-warning">{t(lang, 'demoResponseBadge')}</span>
+                    )}
+                    <span
+                      className={
+                        c.resolutionStatus === 'approved'
+                          ? 'badge badge-good'
+                          : c.resolutionStatus === 'rejected'
+                            ? 'badge badge-danger'
+                            : 'badge badge-warning'
+                      }
+                    >
+                      {c.matchStatus} · {c.resolutionStatus}
+                    </span>
+                  </div>
                 </div>
                 <p style={{ color: 'var(--ink-secondary)', marginTop: '4px' }}>{c.reason}</p>
                 <p style={{ fontSize: '12px', marginTop: '4px' }}>{c.evidence.explanation}</p>

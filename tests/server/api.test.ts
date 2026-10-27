@@ -124,14 +124,15 @@ describe('API Routes — Worker, AI (with fallback/mock), and Admin security & p
     expect(ovRes.body.chainVerification.ok).toBe(true);
     expect(ovRes.body.notifications.length).toBeGreaterThanOrEqual(1);
 
-    // 2. Check explain-pay fact check
+    // 2. Check explain-pay fact check (demo fallback when no Vertex/API key in unit test)
     const payRes = await request(app).post('/api/ai/explain-pay').send({
       workerId: 'w-murugan',
       lang: 'ta',
       question: 'என் சம்பள கணக்கு என்ன?',
     });
     expect(payRes.status).toBe(200);
-    expect(payRes.body.verificationStatus).toBe('checked');
+    expect(payRes.body.verificationStatus).toBe('template_fallback');
+    expect(payRes.body.isDemoFallback).toBe(true);
     expect(payRes.body.citedFacts.length).toBeGreaterThan(0);
 
     // 3. Submit hazard from worker and verify it appears at top of admin hazard queue
