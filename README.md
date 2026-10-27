@@ -178,4 +178,6 @@ npm run build
 npm start       # http://localhost:8080 (STORE=memory by default)
 ```
 
+**Further reading:** [`SECURITY.md`](SECURITY.md) (threat model), [`docs/adr/`](docs/adr) (architecture decisions), [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
 **Deploy:** see [`DEPLOY.md`](DEPLOY.md). The app deploys to Cloud Run from source, using Vertex AI environment variables and no API key.
