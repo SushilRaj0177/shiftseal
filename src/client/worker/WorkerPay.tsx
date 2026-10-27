@@ -182,144 +182,87 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* Payslip Card */}
-      <section className="card" aria-labelledby="payslip-heading">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px', marginBottom: '14px' }}>
+      <section className="card payslip" aria-labelledby="payslip-heading">
+        <div className="payslip-head">
           <div>
-            <span className="badge badge-accent">{payslip.weekLabel}</span>
-            <h3 id="payslip-heading" style={{ marginTop: '6px' }}>
-              {t(lang, 'navPay')} · ₹{payslip.netPay}
+            <span className="payslip-week">{payslip.weekLabel}</span>
+            <h3 id="payslip-heading" className="payslip-title">
+              {t(lang, 'navPay')}
             </h3>
           </div>
           <ListenButton lang={lang} text={payslipSpeech} />
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {payslip.lines.map((line) => {
-            const isNet = line.kind === 'net';
+        <div className="payslip-hero">
+          <span className="payslip-hero-label">{t(lang, 'payLineNet')}</span>
+          <span className="payslip-hero-amount">₹{payslip.netPay}</span>
+          <span className="payslip-hero-note">{t(lang, 'payLineNetNote')}</span>
+        </div>
+
+        <ul className="payslip-lines">
+          {payslip.lines.filter((line) => line.kind !== 'net').map((line) => {
             const isExpanded = expandedRuleId === line.id;
             const kindBadgeLabel =
               line.ruleRef?.kind === 'law' ? t(lang, 'lawBadge') : t(lang, 'policyBadge');
 
             return (
-              <div
-                key={line.id}
-                style={{
-                  padding: '12px',
-                  borderRadius: 'var(--radius-sm)',
-                  background: isNet ? 'var(--accent-soft)' : 'var(--surface-subtle)',
-                  border: line.flagged ? '1px solid var(--danger)' : '1px solid var(--line)',
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
-                  <div>
-                    <strong style={{ fontSize: isNet ? '17px' : '15px' }}>
-                      {translatePayLineLabel(lang, line.labelKey)}
-                    </strong>
+              <li key={line.id} className={line.flagged ? 'payslip-line is-flagged' : 'payslip-line'}>
+                <div className="payslip-row">
+                  <div className="payslip-label">
+                    <span>{translatePayLineLabel(lang, line.labelKey)}</span>
                     {line.hours !== undefined && line.rate !== undefined && (
-                      <span style={{ display: 'block', fontSize: '12px', color: 'var(--ink-secondary)' }}>
+                      <span className="payslip-sub">
                         {line.hours}h × ₹{line.rate}/hr
                       </span>
                     )}
                   </div>
-                  <strong
-                    style={{
-                      fontSize: isNet ? '19px' : '16px',
-                      color: line.amount < 0 ? 'var(--danger)' : isNet ? 'var(--accent)' : 'var(--ink)',
-                    }}
-                  >
+                  <span className={line.amount < 0 ? 'payslip-amount is-negative' : 'payslip-amount'}>
                     {line.amount < 0 ? `-₹${Math.abs(line.amount)}` : `₹${line.amount}`}
-                  </strong>
+                  </span>
                 </div>
 
                 {line.flagged && line.flagReason && (
-                  <p style={{ fontSize: '12px', color: 'var(--danger)', marginTop: '6px', fontWeight: 600 }}>
+                  <p className="payslip-flag">
                     <Icon name="alert" />{t(lang, 'dedMissingReasonFlag')}
                   </p>
                 )}
 
-                {isNet ? (
-                  <p style={{ fontSize: '12px', color: 'var(--ink-secondary)', marginTop: '6px' }}>
-                    {t(lang, 'payLineNetNote')}
-                  </p>
-                ) : (
-                  line.ruleRef && (
-                    <>
-                      <div
-                        style={{
-                          marginTop: '8px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          flexWrap: 'wrap',
-                        }}
-                      >
-                        <span
-                          className={
-                            line.ruleRef.kind === 'law' ? 'badge badge-accent' : 'badge'
-                          }
-                        >
-                          {kindBadgeLabel}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => setExpandedRuleId(isExpanded ? null : line.id)}
-                          style={{
-                            minHeight: '30px',
-                            padding: '4px 10px',
-                            fontSize: '12px',
-                            borderRadius: '999px',
-                          }}
-                        >
-                          <span><Icon name="scale" />{translateRuleBadgeLabel(lang, line.ruleRef.id)}</span>
-                          <span aria-hidden="true">{isExpanded ? '▲' : '▼'}</span>
-                        </button>
-                      </div>
+                {line.ruleRef && (
+                  <>
+                    <button
+                      type="button"
+                      className="rule-chip"
+                      aria-expanded={isExpanded}
+                      onClick={() => setExpandedRuleId(isExpanded ? null : line.id)}
+                    >
+                      <span className={line.ruleRef.kind === 'law' ? 'rule-chip-kind is-law' : 'rule-chip-kind'}>
+                        {kindBadgeLabel}
+                      </span>
+                      <span>{translateRuleBadgeLabel(lang, line.ruleRef.id)}</span>
+                      <span aria-hidden="true" className="rule-chip-caret">{isExpanded ? '▲' : '▼'}</span>
+                    </button>
 
-                      {isExpanded && (
-                        <div
-                          style={{
-                            marginTop: '8px',
-                            padding: '10px',
-                            background: 'var(--surface)',
-                            borderRadius: 'var(--radius-sm)',
-                            fontSize: '12px',
-                            border: '1px solid var(--line)',
-                          }}
-                        >
-                          <div>
-                            <strong>Source:</strong> {line.ruleRef.source}
-                          </div>
-                          {line.ruleRef.note && (
-                            <div style={{ marginTop: '4px', color: 'var(--ink-secondary)' }}>
-                              {line.ruleRef.note}
-                            </div>
-                          )}
+                    {isExpanded && (
+                      <div className="rule-source">
+                        <div>
+                          <strong>Source:</strong> {line.ruleRef.source}
                         </div>
-                      )}
-                    </>
-                  )
+                        {line.ruleRef.note && <div className="rule-source-note">{line.ruleRef.note}</div>}
+                      </div>
+                    )}
+                  </>
                 )}
-              </div>
+              </li>
             );
           })}
-        </div>
+        </ul>
 
-        <div style={{ display: 'flex', gap: '10px', marginTop: '16px', flexWrap: 'wrap' }}>
-          <button
-            type="button"
-            className="btn-subtle"
-            onClick={() => setShowAskWhy((v) => !v)}
-            style={{ flex: 1 }}
-          >
+        <div className="payslip-actions">
+          <button type="button" className="btn-subtle" onClick={() => setShowAskWhy((v) => !v)}>
             <span aria-hidden="true"><Icon name="help" /></span>
             <span>{t(lang, 'askWhy')}</span>
           </button>
-          <button
-            type="button"
-            className="btn-primary"
-            onClick={() => setShowClaimSheet((v) => !v)}
-            style={{ flex: 1 }}
-          >
+          <button type="button" className="btn-primary" onClick={() => setShowClaimSheet((v) => !v)}>
             <span aria-hidden="true"><Icon name="clock" /></span>
             <span>{t(lang, 'claimMissedOvertime')}</span>
           </button>
