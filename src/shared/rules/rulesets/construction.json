@@ -1,0 +1,86 @@
+{
+  "sector": "construction",
+  "name": "Construction Site (Building & Other Construction Workers)",
+  "rules": {
+    "hours.daily": {
+      "id": "hours.daily",
+      "value": 8,
+      "unit": "hours/day",
+      "kind": "law",
+      "source": "Occupational Safety, Health and Working Conditions Code, 2020 (India): normal daily working hours",
+      "note": "Time worked beyond 8 hours in a day is counted as daily overtime."
+    },
+    "ot.weekly": {
+      "id": "ot.weekly",
+      "value": 48,
+      "unit": "hours/week",
+      "kind": "law",
+      "source": "Occupational Safety, Health and Working Conditions Code, 2020 (India): normal weekly hours",
+      "note": "Time worked beyond 48 normal hours in a week is counted as weekly overtime."
+    },
+    "ot.multiplier": {
+      "id": "ot.multiplier",
+      "value": 2,
+      "unit": "x hourly rate",
+      "kind": "law",
+      "source": "Occupational Safety, Health and Working Conditions Code, 2020 & Code on Wages, 2019 (India): overtime wages at twice the ordinary rate of wages",
+      "note": "Mandatory 2x rate for all overtime hours."
+    },
+    "rest.weeklyDays": {
+      "id": "rest.weeklyDays",
+      "value": 1,
+      "unit": "days/week",
+      "kind": "law",
+      "source": "Occupational Safety, Health and Working Conditions Code, 2020 (India): weekly day of rest",
+      "note": "At least one rest day every 7 days."
+    },
+    "pay.deductionReasonRequired": {
+      "id": "pay.deductionReasonRequired",
+      "value": 1,
+      "unit": "boolean",
+      "kind": "law",
+      "source": "Code on Wages, 2019 (India): authorised deductions from wages must specify reason and category",
+      "note": "Unexplained wage deductions are flagged for review."
+    },
+    "rest.minGapHours": {
+      "id": "rest.minGapHours",
+      "value": 10,
+      "unit": "hours",
+      "kind": "policy",
+      "source": "Workplace policy: minimum turnaround rest between consecutive shifts",
+      "note": "Flags turnarounds shorter than 10 hours."
+    },
+    "fatigue.maxConsecutiveDays": {
+      "id": "fatigue.maxConsecutiveDays",
+      "value": 6,
+      "unit": "days",
+      "kind": "policy",
+      "source": "Workplace policy: maximum consecutive days worked without rest day",
+      "note": "Alert triggered when worker works more than 6 days in a row."
+    },
+    "fatigue.maxRolling7dHours": {
+      "id": "fatigue.maxRolling7dHours",
+      "value": 60,
+      "unit": "hours/7d",
+      "kind": "policy",
+      "source": "Workplace policy: rolling 7-day cumulative hour ceiling",
+      "note": "Alert triggered when rolling 7-day hours exceed 60h."
+    },
+    "hazard.floorHigh": {
+      "id": "hazard.floorHigh",
+      "value": 3,
+      "unit": "severity_rank",
+      "kind": "policy",
+      "source": "Workplace safety policy: mandatory high-severity floor for life-safety construction hazards",
+      "note": "Electrical, fall from height, scaffold, structural collapse, crane lifting, and fire cannot be graded below High."
+    },
+    "hazard.hotspotThreshold": {
+      "id": "hazard.hotspotThreshold",
+      "value": 3,
+      "unit": "reports/14d",
+      "kind": "policy",
+      "source": "Workplace safety policy: near-miss zone hotspot threshold",
+      "note": "Zones with 3 or more reports within 14 days are flagged as active hotspots."
+    }
+  }
+}
