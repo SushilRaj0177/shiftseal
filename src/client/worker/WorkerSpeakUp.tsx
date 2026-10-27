@@ -149,7 +149,8 @@ export const WorkerSpeakUp: React.FC<WorkerSpeakUpProps> = ({
             />
           </div>
           <p style={{ fontSize: '12px', color: 'var(--ink-secondary)', marginTop: '6px' }}>
-            {t(lang, 'anonymityThresholdNote')} ({feedbackGroupStatus.statusMessage})
+            {t(lang, 'anonymityThresholdNote')} ({feedbackGroupStatus.count}/
+            {feedbackGroupStatus.threshold} {t(lang, 'anonymityGroupProgress')})
           </p>
         </div>
 
@@ -167,7 +168,7 @@ export const WorkerSpeakUp: React.FC<WorkerSpeakUpProps> = ({
             }}
             style={{ textAlign: 'left', fontSize: '13px', width: '100%', justifyContent: 'flex-start' }}
           >
-            <span>🛡️ English PII scrub sample:</span>
+            <span>{t(lang, 'piiScrubSampleLabel')}</span>
             <span style={{ fontWeight: 400 }}>"{ENGLISH_FEEDBACK_SAMPLE}"</span>
           </button>
         </div>
@@ -206,7 +207,7 @@ export const WorkerSpeakUp: React.FC<WorkerSpeakUpProps> = ({
             disabled={loading || !text.trim()}
             onClick={() => runPreview({ text: text.trim() })}
           >
-            Preview
+            {t(lang, 'previewButton')}
           </button>
         </div>
 
@@ -237,7 +238,7 @@ export const WorkerSpeakUp: React.FC<WorkerSpeakUpProps> = ({
 
             <div>
               <label htmlFor="cleaned-feedback-text" style={{ fontSize: '12px', display: 'block', fontWeight: 600 }}>
-                Cleaned anonymous text (you can edit before sending):
+                {t(lang, 'cleanedAnonymousTextLabel')}
               </label>
               <textarea
                 id="cleaned-feedback-text"

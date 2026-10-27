@@ -22,6 +22,17 @@ interface WorkerPayProps {
 const TAMIL_OVERTIME_SAMPLE =
   'நேத்து சனிக்கிழமை ஸ்லாப் போடறதுக்கு ரெண்டு மணி நேரம் கூடுதலா இருந்தேன்';
 
+function translatePayLineLabel(lang: Language, labelKey: string): string {
+  if (labelKey === 'Normal shift pay') return t(lang, 'payLineNormal');
+  if (labelKey === 'Overtime pay (2x rate)') return t(lang, 'payLineOvertime');
+  if (labelKey === 'Approved overtime claim (2x rate)') return t(lang, 'payLineClaimOvertime');
+  if (labelKey === 'Net payable wage') return t(lang, 'payLineNet');
+  if (labelKey.startsWith('Canteen Tea & Meals')) return t(lang, 'dedCanteen');
+  if (labelKey.startsWith('Equipment charge')) return t(lang, 'dedEquipmentUnexplained');
+  if (labelKey.startsWith('Staff Welfare Fund')) return t(lang, 'dedWelfare');
+  return labelKey;
+}
+
 export const WorkerPay: React.FC<WorkerPayProps> = ({
   lang,
   worker,
@@ -189,7 +200,9 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
                   <div>
-                    <strong style={{ fontSize: isNet ? '17px' : '15px' }}>{line.labelKey}</strong>
+                    <strong style={{ fontSize: isNet ? '17px' : '15px' }}>
+                      {translatePayLineLabel(lang, line.labelKey)}
+                    </strong>
                     {line.hours !== undefined && line.rate !== undefined && (
                       <span style={{ display: 'block', fontSize: '12px', color: 'var(--ink-secondary)' }}>
                         {line.hours}h × ₹{line.rate}/hr
@@ -208,7 +221,7 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
 
                 {line.flagged && line.flagReason && (
                   <p style={{ fontSize: '12px', color: 'var(--danger)', marginTop: '6px', fontWeight: 600 }}>
-                    ⚠️ {line.flagReason}
+                    ⚠️ {t(lang, 'dedMissingReasonFlag')}
                   </p>
                 )}
 
@@ -322,7 +335,7 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
                 })
               }
             >
-              Ask
+              {t(lang, 'askButton')}
             </button>
           </div>
 
@@ -415,7 +428,7 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
               disabled={claimLoading || !claimText.trim()}
               onClick={() => runStructureClaim({ text: claimText.trim() })}
             >
-              Check
+              {t(lang, 'checkButton')}
             </button>
           </div>
 
@@ -462,7 +475,7 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                 <div>
                   <label htmlFor="edit-claim-date" style={{ fontSize: '12px', display: 'block' }}>
-                    Shift Date
+                    {t(lang, 'shiftDateLabel')}
                   </label>
                   <input
                     id="edit-claim-date"
@@ -480,7 +493,7 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
                 </div>
                 <div>
                   <label htmlFor="edit-claim-hours" style={{ fontSize: '12px', display: 'block' }}>
-                    Extra Hours
+                    {t(lang, 'extraHoursLabel')}
                   </label>
                   <input
                     id="edit-claim-hours"
@@ -503,7 +516,7 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
 
               <div>
                 <label htmlFor="edit-claim-reason" style={{ fontSize: '12px', display: 'block' }}>
-                  Reason understood
+                  {t(lang, 'reasonUnderstoodLabel')}
                 </label>
                 <input
                   id="edit-claim-reason"
@@ -521,7 +534,7 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
               </div>
 
               <div style={{ fontSize: '12px', padding: '8px', background: 'var(--surface)', borderRadius: '6px' }}>
-                <strong>Ledger Evidence Check:</strong> {draftClaim.evidence.explanation}
+                <strong>{t(lang, 'ledgerEvidenceCheckLabel')}</strong> {draftClaim.evidence.explanation}
               </div>
 
               <button
@@ -558,7 +571,7 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
       {/* Existing Claims History */}
       {claims.length > 0 && (
         <section className="card" aria-labelledby="claims-history-heading">
-          <h3 id="claims-history-heading">Overtime Claims & Disputes</h3>
+          <h3 id="claims-history-heading">{t(lang, 'claimsHistoryTitle')}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
             {claims.map((c) => (
               <div

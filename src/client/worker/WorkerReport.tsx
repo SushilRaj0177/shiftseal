@@ -33,6 +33,7 @@ export const WorkerReport: React.FC<WorkerReportProps> = ({
   const [photoBase64, setPhotoBase64] = useState<string | undefined>(undefined);
   const [photoSizeKb, setPhotoSizeKb] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   const [draftHazard, setDraftHazard] = useState<{
     hazardType: HazardType;
@@ -254,35 +255,33 @@ export const WorkerReport: React.FC<WorkerReportProps> = ({
             disabled={loading || !text.trim()}
             onClick={() => runStructureHazard({ text: text.trim() })}
           >
-            Check
+            {t(lang, 'checkButton')}
           </button>
         </div>
 
         <div style={{ marginTop: '10px' }}>
-          <label
-            htmlFor="hazard-photo-input"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontSize: '13px',
-              cursor: 'pointer',
-              color: 'var(--accent)',
-              fontWeight: 600,
-            }}
-          >
-            📷 Optional photo (compressed &lt;300 KB on phone)
+          <label htmlFor="hazard-photo-input" className="sr-only">
+            {t(lang, 'addOptionalPhotoButton')}
           </label>
           <input
+            ref={fileInputRef}
             id="hazard-photo-input"
             type="file"
             accept="image/*"
             onChange={handlePhotoSelect}
-            style={{ display: 'block', marginTop: '4px', fontSize: '12px' }}
+            className="sr-only"
           />
+          <button
+            type="button"
+            className="btn-subtle"
+            onClick={() => fileInputRef.current?.click()}
+            style={{ fontSize: '13px', minHeight: '40px', padding: '6px 12px' }}
+          >
+            {t(lang, 'addOptionalPhotoButton')}
+          </button>
           {photoSizeKb !== null && (
-            <span style={{ fontSize: '12px', color: 'var(--good)', display: 'block', marginTop: '4px' }}>
-              ✓ Compressed on phone to {photoSizeKb} KB (only description stored on server).
+            <span style={{ fontSize: '12px', color: 'var(--good)', display: 'block', marginTop: '6px' }}>
+              {t(lang, 'photoCompressedNotice')} ({photoSizeKb} KB)
             </span>
           )}
         </div>
@@ -317,7 +316,7 @@ export const WorkerReport: React.FC<WorkerReportProps> = ({
 
             <div>
               <label htmlFor="hazard-type-select" style={{ fontSize: '12px', display: 'block' }}>
-                Hazard Category
+                {t(lang, 'hazardCategoryLabel')}
               </label>
               <input
                 id="hazard-type-select"
@@ -338,7 +337,7 @@ export const WorkerReport: React.FC<WorkerReportProps> = ({
 
             <div>
               <label htmlFor="hazard-summary-edit" style={{ fontSize: '12px', display: 'block' }}>
-                Summary understood
+                {t(lang, 'summaryUnderstoodLabel')}
               </label>
               <input
                 id="hazard-summary-edit"
@@ -388,7 +387,7 @@ export const WorkerReport: React.FC<WorkerReportProps> = ({
 
       {/* Status Tracking */}
       <section className="card" aria-labelledby="hazard-status-heading">
-        <h3 id="hazard-status-heading">Reported Hazards & Status Tracking</h3>
+        <h3 id="hazard-status-heading">{t(lang, 'reportedHazardsTrackingTitle')}</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '12px' }}>
           {hazards.map((h) => (
             <div
