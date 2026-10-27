@@ -121,7 +121,14 @@ export function buildFallbackHazard(
   ) {
     hazardType = 'electrical';
     aiSeverity = 'medium';
-  } else if (raw.includes('scaffold') || raw.includes('சாரக்கட்டு') || raw.includes('स्कैफोल्ड')) {
+  } else if (
+    raw.includes('scaffold') ||
+    raw.includes('சாரக்கட்டு') ||
+    raw.includes('ஸ்காஃபோல்ட்') ||
+    raw.includes('கைப்பிடி') ||
+    raw.includes('स्कैफोल्ड') ||
+    raw.includes('plank')
+  ) {
     hazardType = sector === 'construction' ? 'scaffold' : 'fall_from_height';
     aiSeverity = 'medium';
   } else if (raw.includes('gas') || raw.includes('கேஸ்') || raw.includes('गैस')) {
@@ -132,19 +139,16 @@ export function buildFallbackHazard(
     aiSeverity = 'medium';
   }
 
+  const trimmed = (text ?? '').trim();
   const description =
-    text && text.trim().length > 0
-      ? text.trim()
+    trimmed.length > 0
+      ? trimmed.slice(0, 500)
       : detectedLanguage === 'hi'
         ? 'हॉस्टल ब्लॉक A में बिजली का तार खुला लटक रहा है'
         : 'Exposed live electrical wire hanging in walkway';
 
   const englishSummary =
-    hazardType === 'electrical'
-      ? 'Exposed electrical wiring hanging near walkway creating shock risk.'
-      : hazardType === 'scaffold'
-        ? 'Unsecured scaffold platform guardrail requiring immediate inspection.'
-        : 'Safety hazard reported by worker requiring supervisor inspection.';
+    trimmed.length > 0 ? trimmed.slice(0, 500) : description;
 
   return {
     hazardType,

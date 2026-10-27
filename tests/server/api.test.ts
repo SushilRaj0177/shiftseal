@@ -216,6 +216,27 @@ describe('API Routes — Worker, AI (with mocked Gemini & fallback), and Admin s
     expect(res.body.severityEvaluation.floorApplied).toBe(true);
   });
 
+  it('POST /api/ai/hazard demo fallback uses worker own text trimmed without inventing canned summary', async () => {
+    setGeminiGeneratorForTests(async () => {
+      throw new Error('NO_CREDENTIALS');
+    });
+
+    const app = createApp();
+    const res = await request(app).post('/api/ai/hazard').send({
+      workplaceId: 'wp-tower-b',
+      zoneId: 'z-scaffold-b',
+      lang: 'en',
+      text: '   Cracked wooden plank on Scaffold B level 2   ',
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.structuredHazard.isDemoFallback).toBe(true);
+    expect(res.body.structuredHazard.englishSummary).toBe(
+      'Cracked wooden plank on Scaffold B level 2'
+    );
+    expect(res.body.severityEvaluation.finalSeverity).toBe('high');
+  });
+
   it('supports worker check-in/out, notification disagree -> dispute creation, and admin dispute resolution', async () => {
     const app = createApp();
 
