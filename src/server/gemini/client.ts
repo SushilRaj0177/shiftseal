@@ -34,6 +34,13 @@ const TIMEOUT_MS = 15_000;
 export const DEFAULT_GEMINI_MODEL = 'gemini-3.8-flash';
 const FALLBACK_VERTEX_MODELS = ['gemini-3-flash-preview', 'gemini-2.0-flash'];
 
+type CustomGeneratorFn = (operation: string, input: { text?: string; audioBase64?: string; audioMimeType?: string }) => Promise<unknown>;
+let customGeneratorForTests: CustomGeneratorFn | null = null;
+
+export function setGeminiGeneratorForTests(fn: CustomGeneratorFn | null): void {
+  customGeneratorForTests = fn;
+}
+
 export function getModelName(): string {
   return process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL;
 }
@@ -69,6 +76,9 @@ async function callGeminiWithRetry(
   responseSchema: Schema,
   input: { text?: string; audioBase64?: string; audioMimeType?: string }
 ): Promise<unknown> {
+  if (customGeneratorForTests) {
+    return customGeneratorForTests(operation, input);
+  }
   const ai = getGenAiClient();
   if (!ai) {
     throw new Error('NO_GENAI_CREDENTIALS');

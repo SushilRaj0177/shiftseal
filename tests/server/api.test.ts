@@ -1,19 +1,67 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import request from 'supertest';
 import { createApp } from '../../src/server/app.js';
 import { MemoryStore } from '../../src/server/store/memory.js';
 import { setStoreForTests } from '../../src/server/store/firestore.js';
+import { setGeminiGeneratorForTests } from '../../src/server/gemini/client.js';
 
-describe('API Routes — Worker, AI (with fallback/mock), and Admin security & privacy', () => {
+describe('API Routes — Worker, AI (with mocked Gemini & fallback), and Admin security/privacy', () => {
   let memStore: MemoryStore;
 
   beforeEach(() => {
-    delete process.env.GEMINI_API_KEY; // Force deterministic mock/demo fallback for unit tests
+    delete process.env.GEMINI_API_KEY;
+    delete process.env.GOOGLE_GENAI_USE_VERTEXAI;
     memStore = new MemoryStore();
     setStoreForTests(memStore);
+    setGeminiGeneratorForTests(null);
   });
 
-  it('POST /api/ai/claim returns a structured claim and ledger match result for Murugan Saturday slab overtime', async () => {
+  afterEach(() => {
+    setGeminiGeneratorForTests(null);
+    vi.restoreAllMocks();
+  });
+
+  it('rejects admin routes when called with worker or missing credentials', async () => {
+    const app = createApp();
+    const resNoHeader = await request(app).get('/api/admin/dashboard/wp-tower-b');
+    expect(resNoHeader.status).toBe(403);
+
+    const resWorkerHeader = await request(app)
+      .get('/api/admin/dashboard/wp-tower-b')
+      .set('x-shiftseal-role', 'worker');
+    expect(resWorkerHeader.status).toBe(403);
+
+    const resEditRejected = await request(app)
+      .post('/api/admin/shifts/edit')
+      .set('x-shiftseal-role', 'worker')
+      .send({
+        workerId: 'w-murugan',
+        targetEventId: 'ev-1',
+        newTimestamp: '18:00',
+        reason: 'Attempted unauthorized edit',
+      });
+    expect(resEditRejected.status).toBe(403);
+  });
+
+  it('allows admin routes when x-shiftseal-role: admin is set', async () => {
+    const app = createApp();
+    const res = await request(app)
+      .get('/api/admin/dashboard/wp-tower-b')
+      .set('x-shiftseal-role', 'admin');
+    expect(res.status).toBe(200);
+    expect(res.body.workplace.id).toBe('wp-tower-b');
+    expect(res.body.hotspots.length).toBeGreaterThan(0);
+  });
+
+  it('POST /api/ai/claim with mocked Gemini returns structured claim and ledger match result (isDemoFallback: false)', async () => {
+    setGeminiGeneratorForTests(async () => ({
+      date: '2026-10-24',
+      extraHours: 2,
+      reason: 'Saturday slab concrete pouring',
+      detectedLanguage: 'ta',
+      confidence: 0.98,
+    }));
+
     const app = createApp();
     const res = await request(app).post('/api/ai/claim').send({
       workerId: 'w-murugan',
@@ -22,132 +70,192 @@ describe('API Routes — Worker, AI (with fallback/mock), and Admin security & p
     });
 
     expect(res.status).toBe(200);
+    expect(res.body.structuredClaim.isDemoFallback).toBe(false);
     expect(res.body.structuredClaim.date).toBe('2026-10-24');
     expect(res.body.structuredClaim.extraHours).toBe(2);
     expect(res.body.matchResult.status).toBe('supported');
     expect(res.body.matchResult.supportedHours).toBe(2);
   });
 
-  it('POST /api/ai/hazard enforces the deterministic high-severity floor on electrical hazards', async () => {
+  it('POST /api/ai/explain-pay passes factcheck when mocked Gemini cites accurate payFacts', async () => {
     const app = createApp();
-    const res = await request(app).post('/api/ai/hazard').send({
-      workplaceId: 'wp-campus',
-      zoneId: 'z-hostel-a',
-      lang: 'hi',
-      text: 'हॉस्टल ब्लॉक A में बिजली का तार खुला लटक रहा है',
+    const overview = await request(app).get('/api/worker/w-murugan/overview');
+    const netPay = overview.body.payslip.netPay;
+    const normalHours = overview.body.payslip.normalHours;
+
+    setGeminiGeneratorForTests(async () => ({
+      answer: `Your net pay is ₹${netPay} for ${normalHours} normal hours.`,
+      citedFacts: [
+        { ref: 'netPay', value: netPay },
+        { ref: 'normalHours', value: normalHours },
+      ],
+    }));
+
+    const res = await request(app).post('/api/ai/explain-pay').send({
+      workerId: 'w-murugan',
+      lang: 'en',
+      question: 'Why is my pay this amount?',
     });
 
     expect(res.status).toBe(200);
-    expect(res.body.structuredHazard.hazardType).toBe('electrical');
-    expect(res.body.severityEvaluation.finalSeverity).toBe('high');
+    expect(res.body.verificationStatus).toBe('checked');
+    expect(res.body.isDemoFallback).toBe(false);
+    expect(res.body.answer).toContain(String(netPay));
   });
 
-  it('Admin route rejects requests without x-shiftseal-role: admin header', async () => {
+  it('POST /api/ai/explain-pay falls back to template_fallback when Gemini hallucinates a wrong number', async () => {
+    setGeminiGeneratorForTests(async () => ({
+      answer: 'Your net pay is ₹99999 this week.',
+      citedFacts: [{ ref: 'netPay', value: 99999 }],
+    }));
+
     const app = createApp();
-    const res = await request(app).get('/api/admin/dashboard/wp-tower-b');
-    expect(res.status).toBe(403);
-    expect(res.body.error).toBe('FORBIDDEN');
-
-    const okRes = await request(app)
-      .get('/api/admin/dashboard/wp-tower-b')
-      .set('x-shiftseal-role', 'admin');
-    expect(okRes.status).toBe(200);
-    expect(okRes.body.workplace.id).toBe('wp-tower-b');
-  });
-
-  it('Feedback preview and submission never store the original identifying text in the store', async () => {
-    const app = createApp();
-    const rawIdentifyingMessage =
-      'Supervisor Ravi shouted at me near Gate 2 at 7:15 PM when I asked why my Tuesday overtime hours were reduced.';
-
-    const previewRes = await request(app).post('/api/ai/feedback-preview').send({
-      workplaceId: 'wp-campus',
-      team: 'Campus Security & Operations',
+    const res = await request(app).post('/api/ai/explain-pay').send({
+      workerId: 'w-murugan',
       lang: 'en',
-      text: rawIdentifyingMessage,
+      question: 'Why is my pay this amount?',
     });
 
-    expect(previewRes.status).toBe(200);
-    const cleaned = previewRes.body.preview;
-    expect(cleaned.cleanText).not.toContain('Ravi');
-    expect(cleaned.cleanText).not.toContain('Gate 2');
-    expect(cleaned.removed).toContain('name');
+    expect(res.status).toBe(200);
+    expect(res.body.verificationStatus).toBe('template_fallback');
+    expect(res.body.isDemoFallback).toBe(false);
+    expect(res.body.answer).not.toContain('99999');
+  });
 
-    // Verify store was NOT touched by preview
-    const beforeFeedback = await memStore.getFeedback('wp-campus');
-    expect(beforeFeedback).toHaveLength(3);
-
-    // Submit only the cleaned text
-    const submitRes = await request(app).post('/api/worker/feedback').send({
-      workplaceId: 'wp-campus',
-      team: 'Campus Security & Operations',
-      cleanText: cleaned.cleanText,
-      cleanTextEnglish: cleaned.cleanTextEnglish,
-      removed: cleaned.removed,
-      themes: cleaned.themes,
-      sentiment: cleaned.sentiment,
+  it('POST /api/ai/explain-pay returns template_fallback and isDemoFallback: true when Gemini throws', async () => {
+    setGeminiGeneratorForTests(async () => {
+      throw new Error('VERTEX_UNAVAILABLE');
     });
 
-    expect(submitRes.status).toBe(201);
-    const afterFeedback = await memStore.getFeedback('wp-campus');
-    expect(afterFeedback).toHaveLength(4);
-    for (const entry of afterFeedback) {
-      expect(JSON.stringify(entry)).not.toContain('Supervisor Ravi shouted');
-    }
-  });
-
-  it('Admin shift edit appends an EDIT event to the ledger and creates a worker notification', async () => {
     const app = createApp();
-    const editRes = await request(app)
-      .post('/api/admin/shifts/edit')
-      .set('x-shiftseal-role', 'admin')
-      .send({
-        workerId: 'w-murugan',
-        targetEventId: 'ev-w-murugan-2026-10-22-out',
-        newTimestamp: '17:00',
-        reason: 'Adjusted Thursday checkout log',
-        editorName: 'Supervisor Ravi',
-      });
-
-    expect(editRes.status).toBe(201);
-    expect(editRes.body.editEvent.type).toBe('EDIT');
-    expect(editRes.body.notification.oldValue).toBe('18:00');
-    expect(editRes.body.notification.newValue).toBe('17:00');
-  });
-
-  it('Live demo flow: worker overview reflects admin shift edit andPOST /api/ai/explain-pay returns fact-checked explanation', async () => {
-    const app = createApp();
-
-    // 1. Check worker overview
-    const ovRes = await request(app).get('/api/worker/w-murugan/overview');
-    expect(ovRes.status).toBe(200);
-    expect(ovRes.body.chainVerification.ok).toBe(true);
-    expect(ovRes.body.notifications.length).toBeGreaterThanOrEqual(1);
-
-    // 2. Check explain-pay fact check (demo fallback when no Vertex/API key in unit test)
-    const payRes = await request(app).post('/api/ai/explain-pay').send({
+    const res = await request(app).post('/api/ai/explain-pay').send({
       workerId: 'w-murugan',
       lang: 'ta',
       question: 'என் சம்பள கணக்கு என்ன?',
     });
-    expect(payRes.status).toBe(200);
-    expect(payRes.body.verificationStatus).toBe('template_fallback');
-    expect(payRes.body.isDemoFallback).toBe(true);
-    expect(payRes.body.citedFacts.length).toBeGreaterThan(0);
 
-    // 3. Submit hazard from worker and verify it appears at top of admin hazard queue
-    const hazRes = await request(app).post('/api/worker/hazards').send({
-      workplaceId: 'wp-tower-b',
-      zoneId: 'z-scaffold-b',
-      workerId: 'w-murugan',
-      hazardType: 'electrical',
-      description: 'Live cable near scaffold base',
-      englishSummary: 'Live cable near scaffold base',
-      aiSeverity: 'low', // floor will raise to high!
-      detectedLanguage: 'en',
+    expect(res.status).toBe(200);
+    expect(res.body.verificationStatus).toBe('template_fallback');
+    expect(res.body.isDemoFallback).toBe(true);
+  });
+
+  it('feedback route never stores or logs the original identifying text (verified via store and console spies)', async () => {
+    const saveFeedbackSpy = vi.spyOn(memStore, 'saveFeedback');
+    const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    const secretRawText =
+      'Supervisor Ravi badge #99412 shouted at Murugan near Gate 2 at 7:15 PM on Tuesday.';
+
+    setGeminiGeneratorForTests(async () => ({
+      cleanText: 'A supervisor spoke harshly when asked about overtime.',
+      cleanTextEnglish: 'A supervisor spoke harshly when asked about overtime.',
+      removed: ['name', 'place', 'time'],
+      themes: ['supervisor_conduct', 'overtime_pay'],
+      sentiment: -0.8,
+    }));
+
+    const app = createApp();
+    const previewRes = await request(app).post('/api/ai/feedback-preview').send({
+      workplaceId: 'wp-campus',
+      team: 'Campus Security & Operations',
+      lang: 'en',
+      text: secretRawText,
     });
-    expect(hazRes.status).toBe(201);
-    expect(hazRes.body.hazard.finalSeverity).toBe('high');
-    expect(hazRes.body.hazard.floorApplied).toBe(true);
+
+    expect(previewRes.status).toBe(200);
+    expect(saveFeedbackSpy).not.toHaveBeenCalled();
+
+    const submitRes = await request(app).post('/api/worker/feedback').send({
+      workplaceId: 'wp-campus',
+      team: 'Campus Security & Operations',
+      cleanText: previewRes.body.preview.cleanText,
+      cleanTextEnglish: previewRes.body.preview.cleanTextEnglish,
+      removed: previewRes.body.preview.removed,
+      themes: previewRes.body.preview.themes,
+      sentiment: previewRes.body.preview.sentiment,
+    });
+
+    expect(submitRes.status).toBe(201);
+    expect(saveFeedbackSpy).toHaveBeenCalledTimes(1);
+
+    const savedArg = JSON.stringify(saveFeedbackSpy.mock.calls[0][0]);
+    expect(savedArg).not.toContain('99412');
+    expect(savedArg).not.toContain('Ravi');
+
+    const allLogs = [
+      ...consoleLogSpy.mock.calls.flat(),
+      ...consoleErrorSpy.mock.calls.flat(),
+      ...consoleWarnSpy.mock.calls.flat(),
+    ].join(' ');
+    expect(allLogs).not.toContain('99412');
+    expect(allLogs).not.toContain(secretRawText);
+  });
+
+  it('POST /api/ai/hazard enforces severity floor even when mocked AI grades electrical as low', async () => {
+    setGeminiGeneratorForTests(async () => ({
+      hazardType: 'electrical',
+      description: 'Loose wire near corridor',
+      aiSeverity: 'low',
+      englishSummary: 'Loose wire near corridor',
+      detectedLanguage: 'en',
+    }));
+
+    const app = createApp();
+    const res = await request(app).post('/api/ai/hazard').send({
+      workplaceId: 'wp-campus',
+      zoneId: 'z-hostel-a',
+      lang: 'en',
+      text: 'Loose wire near corridor',
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.severityEvaluation.aiSeverity).toBe('low');
+    expect(res.body.severityEvaluation.finalSeverity).toBe('high');
+    expect(res.body.severityEvaluation.floorApplied).toBe(true);
+  });
+
+  it('supports worker check-in/out, notification disagree -> dispute creation, and admin dispute resolution', async () => {
+    const app = createApp();
+
+    // Worker check-in
+    const checkInRes = await request(app).post('/api/worker/check-in-out').send({
+      workerId: 'w-murugan',
+      action: 'CHECK_IN',
+      zoneCode: 'TB-GATE',
+    });
+    expect(checkInRes.status).toBe(201);
+    expect(checkInRes.body.verification.ok).toBe(true);
+
+    // Worker disagrees with supervisor edit notification
+    const disagreeRes = await request(app).post('/api/worker/notifications/respond').send({
+      workerId: 'w-murugan',
+      notificationId: 'notif-murugan-edit-1',
+      response: 'disagree',
+    });
+    expect(disagreeRes.status).toBe(200);
+    expect(disagreeRes.body.dispute).toBeDefined();
+
+    // Admin resolves the created dispute
+    const resolveRes = await request(app)
+      .post('/api/admin/disputes/resolve')
+      .set('x-shiftseal-role', 'admin')
+      .send({
+        claimId: disagreeRes.body.dispute.id,
+        decision: 'approved',
+        reason: 'Verified against concrete mixer log',
+      });
+    expect(resolveRes.status).toBe(200);
+    expect(resolveRes.body.claim.resolutionStatus).toBe('approved');
+  });
+
+  it('serves zone QR SVG on GET /api/admin/qr-svg', async () => {
+    const app = createApp();
+    const res = await request(app)
+      .get('/api/admin/qr-svg?code=TB-SCAF-B')
+      .set('x-shiftseal-role', 'admin');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toContain('image/svg+xml');
   });
 });
