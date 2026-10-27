@@ -167,7 +167,8 @@ Each industry is a **configuration, not a code fork**: a ruleset JSON, zones, ha
 - **Testing:**
   - **93 Vitest tests in 17 files:** hours (night shifts, no double-counted overtime), pay, ledger tamper detection, claims tolerance, severity floor, anonymity threshold, fact check, fatigue, zod schemas.
   - API tests with Gemini mocked: admin routes reject missing, spoofed, tampered and wrong-workplace sessions, feedback never stores the original, a fact-check failure falls back to the template.
-  - CI runs lint, type-check, Prettier format check, tests, build and `npm audit` on every push.
+  - **Coverage (v8): 86% lines, 94% functions** across server and shared logic, enforced by thresholds (`npm run test:coverage`).
+  - CI runs lint, type-check, Prettier format check, tests with coverage thresholds, build and `npm audit` on every push.
 
 ```bash
 npm ci
