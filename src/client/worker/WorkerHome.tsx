@@ -131,12 +131,13 @@ export const WorkerHome: React.FC<WorkerHomeProps> = ({
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {notifications.map((n) => {
+              const supNote = t(lang, 'writtenBySupervisorNote');
               const msg =
                 lang === 'ta'
-                  ? `உங்கள் ${n.date} பணி முடிவு நேரம் ${n.oldValue} → ${n.newValue} என ${n.supervisorName ?? 'மேற்பார்வையாளர்'} மாற்றியுள்ளார். காரணம்: "${n.reason}"`
+                  ? `உங்கள் ${n.date} பணி முடிவு நேரம் ${n.oldValue} → ${n.newValue} என ${n.supervisorName ?? 'மேற்பார்வையாளர்'} மாற்றியுள்ளார். காரணம்: "${n.reason}" ${supNote}`
                   : lang === 'hi'
-                    ? `आपका ${n.date} चेक-आउट समय ${n.oldValue} → ${n.newValue} (${n.supervisorName ?? 'सुपरवाइजर'}) द्वारा बदला गया। कारण: "${n.reason}"`
-                    : `Your ${n.date} checkout was changed ${n.oldValue} → ${n.newValue} by ${n.supervisorName ?? 'Supervisor'}. Reason: "${n.reason}"`;
+                    ? `आपका ${n.date} चेक-आउट समय ${n.oldValue} → ${n.newValue} (${n.supervisorName ?? 'सुपरवाइजर'}) द्वारा बदला गया। कारण: "${n.reason}" ${supNote}`
+                    : `Your ${n.date} checkout was changed ${n.oldValue} → ${n.newValue} by ${n.supervisorName ?? 'Supervisor'}. Reason: "${n.reason}" ${supNote}`;
 
               return (
                 <div
@@ -353,7 +354,8 @@ export const WorkerHome: React.FC<WorkerHomeProps> = ({
                       fontSize: '12px',
                     }}
                   >
-                    ⚠️ Edited {ed.oldValue} → {ed.newValue} by {ed.editorName} ({ed.reason})
+                    ⚠️ {ed.oldValue} → {ed.newValue} ({ed.editorName}): "{ed.reason}"{' '}
+                    {t(lang, 'writtenBySupervisorNote')}
                   </div>
                 ))}
               </div>

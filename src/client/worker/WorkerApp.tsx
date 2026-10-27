@@ -134,7 +134,7 @@ export const WorkerApp: React.FC<WorkerAppProps> = ({ lang }) => {
                 : `${data.worker.role} · ${data.workplace.name}`}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
           <button
             type="button"
             className="btn-subtle"
@@ -144,14 +144,25 @@ export const WorkerApp: React.FC<WorkerAppProps> = ({ lang }) => {
                 tab,
               })
             }
-            style={{ fontSize: '12px', padding: '6px 10px', minHeight: '38px' }}
+            style={{
+              fontSize: '12px',
+              padding: '4px 9px',
+              minHeight: '34px',
+              color: 'var(--ink-secondary)',
+            }}
           >
-            ⇄ {workerId === 'w-murugan' ? 'Lakshmi' : 'Murugan'}
+            ⇄ {t(lang, 'switchDemoWorker')}
           </button>
           <Link
             to="/"
             className="btn-subtle"
-            style={{ textDecoration: 'none', padding: '6px 10px', minHeight: '38px', fontSize: '12px' }}
+            style={{
+              textDecoration: 'none',
+              padding: '4px 9px',
+              minHeight: '34px',
+              fontSize: '12px',
+              color: 'var(--ink-secondary)',
+            }}
           >
             {t(lang, 'switchRole')}
           </Link>
