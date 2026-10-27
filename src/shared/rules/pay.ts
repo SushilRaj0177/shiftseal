@@ -99,7 +99,7 @@ export function calculatePayslip(input: CalculatePayslipInput): PayslipCalculati
       amount: -dedAmount,
       flagged: missingReason,
       flagReason: missingReason
-        ? 'Deduction lacks an explicit written reason as required by the Code on Wages, 2019.'
+        ? 'Deduction lacks an explicit written reason as required by workplace policy.'
         : undefined,
       ruleRef: deductionRule,
       shiftRefs: [],
@@ -114,7 +114,6 @@ export function calculatePayslip(input: CalculatePayslipInput): PayslipCalculati
     kind: 'net',
     labelKey: 'Net payable wage',
     amount: netPay,
-    ruleRef: otMultiplierRule,
     shiftRefs: allShiftRefs,
   });
 

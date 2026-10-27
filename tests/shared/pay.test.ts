@@ -100,5 +100,8 @@ describe('pay.ts', () => {
     const flagged = slip.lines.find((l) => l.id === 'line-ded-d2');
     expect(flagged?.flagged).toBe(true);
     expect(flagged?.flagReason).toBeTruthy();
+    expect(flagged?.ruleRef?.kind).toBe('policy');
+    const netLine = slip.lines.find((l) => l.kind === 'net');
+    expect(netLine?.ruleRef).toBeUndefined();
   });
 });

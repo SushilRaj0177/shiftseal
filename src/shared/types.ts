@@ -159,7 +159,7 @@ export interface PayslipLine {
   amount: number;
   flagged?: boolean;
   flagReason?: string;
-  ruleRef: RuleDefinition;
+  ruleRef?: RuleDefinition;
   shiftRefs: string[];
 }
 
@@ -277,7 +277,7 @@ export interface HazardReport {
   floorSeverity: SeverityLevel;
   finalSeverity: SeverityLevel;
   floorApplied: boolean;
-  ruleRef: RuleDefinition;
+  ruleRef?: RuleDefinition;
   status: HazardStatus;
   createdAt: string;
   acknowledgedAt?: string;

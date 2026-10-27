@@ -38,8 +38,8 @@
       "id": "pay.deductionReasonRequired",
       "value": 1,
       "unit": "boolean",
-      "kind": "law",
-      "source": "Code on Wages, 2019 (India): authorised deductions from wages must specify reason and category",
+      "kind": "policy",
+      "source": "Workplace policy: any wage deduction must specify an explicit written reason",
       "note": "Unexplained wage deductions are flagged for review."
     },
     "rest.minGapHours": {

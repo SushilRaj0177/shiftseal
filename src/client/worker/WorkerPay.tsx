@@ -33,6 +33,15 @@ function translatePayLineLabel(lang: Language, labelKey: string): string {
   return labelKey;
 }
 
+function translateRuleBadgeLabel(lang: Language, ruleId: string): string {
+  if (ruleId === 'hours.daily') return t(lang, 'ruleLabelHoursDaily');
+  if (ruleId === 'ot.weekly') return t(lang, 'ruleLabelOtWeekly');
+  if (ruleId === 'ot.multiplier') return t(lang, 'ruleLabelOtMultiplier');
+  if (ruleId === 'pay.deductionReasonRequired') return t(lang, 'ruleLabelDeductionReason');
+  if (ruleId === 'hazard.floorHigh') return t(lang, 'ruleLabelHazardFloor');
+  return ruleId;
+}
+
 export const WorkerPay: React.FC<WorkerPayProps> = ({
   lang,
   worker,
@@ -186,7 +195,7 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
             const isNet = line.kind === 'net';
             const isExpanded = expandedRuleId === line.id;
             const kindBadgeLabel =
-              line.ruleRef.kind === 'law' ? t(lang, 'lawBadge') : t(lang, 'policyBadge');
+              line.ruleRef?.kind === 'law' ? t(lang, 'lawBadge') : t(lang, 'policyBadge');
 
             return (
               <div
@@ -225,42 +234,67 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
                   </p>
                 )}
 
-                <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                  <button
-                    type="button"
-                    onClick={() => setExpandedRuleId(isExpanded ? null : line.id)}
-                    style={{
-                      minHeight: '30px',
-                      padding: '4px 10px',
-                      fontSize: '12px',
-                      borderRadius: '999px',
-                    }}
-                  >
-                    <span>⚖️ {kindBadgeLabel}: {line.ruleRef.id}</span>
-                    <span aria-hidden="true">{isExpanded ? '▲' : '▼'}</span>
-                  </button>
-                </div>
-
-                {isExpanded && (
-                  <div
-                    style={{
-                      marginTop: '8px',
-                      padding: '10px',
-                      background: 'var(--surface)',
-                      borderRadius: 'var(--radius-sm)',
-                      fontSize: '12px',
-                      border: '1px solid var(--line)',
-                    }}
-                  >
-                    <div>
-                      <strong>Source:</strong> {line.ruleRef.source}
-                    </div>
-                    {line.ruleRef.note && (
-                      <div style={{ marginTop: '4px', color: 'var(--ink-secondary)' }}>
-                        {line.ruleRef.note}
+                {isNet ? (
+                  <p style={{ fontSize: '12px', color: 'var(--ink-secondary)', marginTop: '6px' }}>
+                    {t(lang, 'payLineNetNote')}
+                  </p>
+                ) : (
+                  line.ruleRef && (
+                    <>
+                      <div
+                        style={{
+                          marginTop: '8px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          flexWrap: 'wrap',
+                        }}
+                      >
+                        <span
+                          className={
+                            line.ruleRef.kind === 'law' ? 'badge badge-accent' : 'badge'
+                          }
+                        >
+                          {kindBadgeLabel}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setExpandedRuleId(isExpanded ? null : line.id)}
+                          style={{
+                            minHeight: '30px',
+                            padding: '4px 10px',
+                            fontSize: '12px',
+                            borderRadius: '999px',
+                          }}
+                        >
+                          <span>⚖️ {translateRuleBadgeLabel(lang, line.ruleRef.id)}</span>
+                          <span aria-hidden="true">{isExpanded ? '▲' : '▼'}</span>
+                        </button>
                       </div>
-                    )}
-                  </div>
+
+                      {isExpanded && (
+                        <div
+                          style={{
+                            marginTop: '8px',
+                            padding: '10px',
+                            background: 'var(--surface)',
+                            borderRadius: 'var(--radius-sm)',
+                            fontSize: '12px',
+                            border: '1px solid var(--line)',
+                          }}
+                        >
+                          <div>
+                            <strong>Source:</strong> {line.ruleRef.source}
+                          </div>
+                          {line.ruleRef.note && (
+                            <div style={{ marginTop: '4px', color: 'var(--ink-secondary)' }}>
+                              {line.ruleRef.note}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </>
+                  )
                 )}
               </div>
             );
