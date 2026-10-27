@@ -86,7 +86,9 @@ export const WorkerHome: React.FC<WorkerHomeProps> = ({
   const handleCameraQrScan = async () => {
     setScanNotice(null);
     if ('BarcodeDetector' in window) {
-      setScanNotice('BarcodeDetector ready: simulated scan of gate sticker ' + workplace.checkinCode);
+      setScanNotice(
+        'BarcodeDetector ready: simulated scan of gate sticker ' + workplace.checkinCode
+      );
       setZoneCode(workplace.checkinCode);
     } else {
       setScanNotice('Camera QR scanner not supported on this browser. Code pre-filled below.');
@@ -127,8 +129,18 @@ export const WorkerHome: React.FC<WorkerHomeProps> = ({
       {/* Notifications Card (Live Supervisor Edit Alerts) */}
       {notifications.length > 0 && (
         <section className="card" aria-labelledby="notif-heading">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-            <h3 id="notif-heading"><Icon name="bell" />{t(lang, 'notificationsTitle')}</h3>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '10px',
+            }}
+          >
+            <h3 id="notif-heading">
+              <Icon name="bell" />
+              {t(lang, 'notificationsTitle')}
+            </h3>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {notifications.map((n) => {
@@ -152,7 +164,14 @@ export const WorkerHome: React.FC<WorkerHomeProps> = ({
                     gap: '10px',
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                      gap: '8px',
+                    }}
+                  >
                     <p style={{ fontWeight: 500, fontSize: '14px' }}>{msg}</p>
                     <ListenButton lang={lang} text={msg} />
                   </div>
@@ -174,13 +193,20 @@ export const WorkerHome: React.FC<WorkerHomeProps> = ({
                         onClick={() => handleNotificationResponse(n.id, 'disagree')}
                         style={{ flex: 1 }}
                       >
-                        <Icon name="hand" />{t(lang, 'iDisagree')}
+                        <Icon name="hand" />
+                        {t(lang, 'iDisagree')}
                       </button>
                     </div>
                   ) : (
                     <div>
-                      <span className={n.status === 'disputed' ? 'badge badge-danger' : 'badge badge-good'}>
-                        {n.status === 'disputed' ? t(lang, 'disputedBadge') : t(lang, 'acknowledgedBadge')}
+                      <span
+                        className={
+                          n.status === 'disputed' ? 'badge badge-danger' : 'badge badge-good'
+                        }
+                      >
+                        {n.status === 'disputed'
+                          ? t(lang, 'disputedBadge')
+                          : t(lang, 'acknowledgedBadge')}
                       </span>
                     </div>
                   )}
@@ -193,7 +219,14 @@ export const WorkerHome: React.FC<WorkerHomeProps> = ({
 
       {/* Check-in / Check-out Card */}
       <section className="card" aria-labelledby="checkin-heading">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '12px',
+          }}
+        >
           <div>
             <span className={isCheckedIn ? 'badge badge-good' : 'badge'}>
               {isCheckedIn ? t(lang, 'checkedInStatus') : t(lang, 'notCheckedInStatus')}
@@ -208,19 +241,26 @@ export const WorkerHome: React.FC<WorkerHomeProps> = ({
             onClick={handleCameraQrScan}
             style={{ fontSize: '13px', padding: '8px 12px' }}
           >
-            <Icon name="qr" />QR ({workplace.checkinCode})
+            <Icon name="qr" />
+            QR ({workplace.checkinCode})
           </button>
         </div>
 
         {scanNotice && (
-          <p role="status" style={{ fontSize: '13px', color: 'var(--ink-secondary)', marginBottom: '10px' }}>
+          <p
+            role="status"
+            style={{ fontSize: '13px', color: 'var(--ink-secondary)', marginBottom: '10px' }}
+          >
             {scanNotice}
           </p>
         )}
 
         {showQrInput && (
           <div style={{ marginBottom: '12px' }}>
-            <label htmlFor="zone-code-input" style={{ display: 'block', fontSize: '13px', marginBottom: '4px' }}>
+            <label
+              htmlFor="zone-code-input"
+              style={{ display: 'block', fontSize: '13px', marginBottom: '4px' }}
+            >
               Zone / Gate Code
             </label>
             <input
@@ -248,7 +288,9 @@ export const WorkerHome: React.FC<WorkerHomeProps> = ({
             onClick={() => handleCheckInOut('CHECK_IN')}
             style={{ width: '100%', minHeight: '56px', fontSize: '17px' }}
           >
-            <span aria-hidden="true"><Icon name="login" /></span>
+            <span aria-hidden="true">
+              <Icon name="login" />
+            </span>
             <span>{t(lang, 'checkIn')}</span>
           </button>
         )}
@@ -265,14 +307,24 @@ export const WorkerHome: React.FC<WorkerHomeProps> = ({
               onClick={() => handleCheckInOut('CHECK_OUT')}
               style={{ width: '100%', minHeight: '56px', fontSize: '17px' }}
             >
-              <span aria-hidden="true"><Icon name="logout" /></span>
+              <span aria-hidden="true">
+                <Icon name="logout" />
+              </span>
               <span>{t(lang, 'checkOut')}</span>
             </button>
           </div>
         )}
 
         {isCompletedToday && (
-          <div style={{ padding: '12px', background: 'var(--good-soft)', borderRadius: 'var(--radius-sm)', color: 'var(--good)', fontWeight: 600 }}>
+          <div
+            style={{
+              padding: '12px',
+              background: 'var(--good-soft)',
+              borderRadius: 'var(--radius-sm)',
+              color: 'var(--good)',
+              fontWeight: 600,
+            }}
+          >
             ✓ Shift sealed today: {todayShift?.checkInTime} – {todayShift?.checkOutTime}
           </div>
         )}
@@ -280,7 +332,16 @@ export const WorkerHome: React.FC<WorkerHomeProps> = ({
 
       {/* Week at a glance */}
       <section className="card" aria-labelledby="week-glance-heading">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '12px',
+            flexWrap: 'wrap',
+            gap: '8px',
+          }}
+        >
           <h3 id="week-glance-heading">{t(lang, 'weekAtAGlance')}</h3>
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
             <span className={intact ? 'badge badge-good' : 'badge badge-danger'}>
@@ -290,20 +351,47 @@ export const WorkerHome: React.FC<WorkerHomeProps> = ({
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '14px' }}>
-          <div style={{ padding: '12px', background: 'var(--surface-subtle)', borderRadius: 'var(--radius-sm)' }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '10px',
+            marginBottom: '14px',
+          }}
+        >
+          <div
+            style={{
+              padding: '12px',
+              background: 'var(--surface-subtle)',
+              borderRadius: 'var(--radius-sm)',
+            }}
+          >
             <span style={{ fontSize: '12px', color: 'var(--ink-secondary)', display: 'block' }}>
               {t(lang, 'normalHours')}
             </span>
             <strong style={{ fontSize: '20px' }}>{hoursResult.normalHours}h</strong>
           </div>
-          <div style={{ padding: '12px', background: 'var(--surface-subtle)', borderRadius: 'var(--radius-sm)' }}>
+          <div
+            style={{
+              padding: '12px',
+              background: 'var(--surface-subtle)',
+              borderRadius: 'var(--radius-sm)',
+            }}
+          >
             <span style={{ fontSize: '12px', color: 'var(--ink-secondary)', display: 'block' }}>
               {t(lang, 'overtimeHours')}
             </span>
-            <strong style={{ fontSize: '20px', color: 'var(--accent)' }}>{hoursResult.otHours}h</strong>
+            <strong style={{ fontSize: '20px', color: 'var(--accent)' }}>
+              {hoursResult.otHours}h
+            </strong>
           </div>
-          <div style={{ padding: '12px', background: 'var(--surface-subtle)', borderRadius: 'var(--radius-sm)' }}>
+          <div
+            style={{
+              padding: '12px',
+              background: 'var(--surface-subtle)',
+              borderRadius: 'var(--radius-sm)',
+            }}
+          >
             <span style={{ fontSize: '12px', color: 'var(--ink-secondary)', display: 'block' }}>
               {t(lang, 'totalPayThisWeek')}
             </span>
@@ -317,7 +405,9 @@ export const WorkerHome: React.FC<WorkerHomeProps> = ({
           onClick={() => setShowReceipts((v) => !v)}
           style={{ width: '100%' }}
         >
-          <span aria-hidden="true"><Icon name="link" /></span>
+          <span aria-hidden="true">
+            <Icon name="link" />
+          </span>
           <span>
             {t(lang, 'myReceipts')} ({chain.length} SHA-256 events)
           </span>
@@ -326,7 +416,8 @@ export const WorkerHome: React.FC<WorkerHomeProps> = ({
         {showReceipts && (
           <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <p style={{ fontSize: '12px', color: 'var(--ink-secondary)' }}>
-              Client & server SHA-256 chain verification: <strong>{intact ? 'PASSED' : 'FAILED'}</strong>
+              Client & server SHA-256 chain verification:{' '}
+              <strong>{intact ? 'PASSED' : 'FAILED'}</strong>
             </p>
             {shifts.map((s) => (
               <div
@@ -339,7 +430,9 @@ export const WorkerHome: React.FC<WorkerHomeProps> = ({
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600 }}>
-                  <span>{s.date} ({s.zoneCode})</span>
+                  <span>
+                    {s.date} ({s.zoneCode})
+                  </span>
                   <span>
                     {s.checkInTime} – {s.checkOutTime ?? 'Active'}
                   </span>
@@ -355,7 +448,8 @@ export const WorkerHome: React.FC<WorkerHomeProps> = ({
                       fontSize: '12px',
                     }}
                   >
-                    <Icon name="alert" />{ed.oldValue} → {ed.newValue} ({ed.editorName}): "{ed.reason}"{' '}
+                    <Icon name="alert" />
+                    {ed.oldValue} → {ed.newValue} ({ed.editorName}): "{ed.reason}"{' '}
                     {t(lang, 'writtenBySupervisorNote')}
                   </div>
                 ))}

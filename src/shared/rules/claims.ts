@@ -1,9 +1,4 @@
-import type {
-  ShiftRecord,
-  ClaimMatchStatus,
-  ClaimEvidence,
-  SectorId,
-} from '../types.js';
+import type { ShiftRecord, ClaimMatchStatus, ClaimEvidence, SectorId } from '../types.js';
 import { computeShiftDurationHours, roundHours } from './hours.js';
 import { getRule } from './index.js';
 

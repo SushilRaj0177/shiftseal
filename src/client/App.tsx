@@ -42,12 +42,40 @@ const SignInScreen: React.FC<SignInScreenProps> = ({ lang, onSelectLang }) => {
   };
 
   const workers = [
-    { id: 'w-murugan', lang: 'ta' as Language, initials: 'MK', tone: 'amber', title: t(lang, 'muruganCardTitle'), role: t(lang, 'muruganCardRole'), note: t(lang, 'muruganCardNote') },
-    { id: 'w-lakshmi', lang: 'en' as Language, initials: 'LS', tone: 'teal', title: t(lang, 'lakshmiCardTitle'), role: t(lang, 'lakshmiCardRole'), note: t(lang, 'lakshmiCardNote') },
+    {
+      id: 'w-murugan',
+      lang: 'ta' as Language,
+      initials: 'MK',
+      tone: 'amber',
+      title: t(lang, 'muruganCardTitle'),
+      role: t(lang, 'muruganCardRole'),
+      note: t(lang, 'muruganCardNote'),
+    },
+    {
+      id: 'w-lakshmi',
+      lang: 'en' as Language,
+      initials: 'LS',
+      tone: 'teal',
+      title: t(lang, 'lakshmiCardTitle'),
+      role: t(lang, 'lakshmiCardRole'),
+      note: t(lang, 'lakshmiCardNote'),
+    },
   ];
   const admins = [
-    { id: 'wp-tower-b', icon: 'crane' as const, title: t(lang, 'adminTowerTitle'), role: t(lang, 'adminTowerRole'), note: t(lang, 'adminTowerNote') },
-    { id: 'wp-campus', icon: 'building' as const, title: t(lang, 'adminCampusTitle'), role: t(lang, 'adminCampusRole'), note: t(lang, 'adminCampusNote') },
+    {
+      id: 'wp-tower-b',
+      icon: 'crane' as const,
+      title: t(lang, 'adminTowerTitle'),
+      role: t(lang, 'adminTowerRole'),
+      note: t(lang, 'adminTowerNote'),
+    },
+    {
+      id: 'wp-campus',
+      icon: 'building' as const,
+      title: t(lang, 'adminCampusTitle'),
+      role: t(lang, 'adminCampusRole'),
+      note: t(lang, 'adminCampusNote'),
+    },
   ];
 
   return (

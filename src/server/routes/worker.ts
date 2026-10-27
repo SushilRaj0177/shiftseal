@@ -60,11 +60,7 @@ workerRouter.get('/:workerId/overview', async (req, res, next) => {
       (h) => !h.workerId || h.workerId === workerId
     );
     const allFeedback = await store.getFeedback(worker.workplaceId);
-    const feedbackStatus = evaluateGroupAnonymity(
-      worker.workplaceId,
-      worker.team,
-      allFeedback
-    );
+    const feedbackStatus = evaluateGroupAnonymity(worker.workplaceId, worker.team, allFeedback);
 
     const todayShift = shifts.find((s) => s.date === DEMO_TODAY);
 
@@ -105,9 +101,7 @@ workerRouter.post('/check-in-out', async (req, res, next) => {
 
     const chain = await store.getWorkerChain(parsed.workerId);
     const date = parsed.date ?? DEMO_TODAY;
-    const nowTime =
-      parsed.timestamp ??
-      (parsed.action === 'CHECK_IN' ? '08:55' : '18:05');
+    const nowTime = parsed.timestamp ?? (parsed.action === 'CHECK_IN' ? '08:55' : '18:05');
 
     const eventId = `ev-${parsed.workerId}-${date}-${parsed.action.toLowerCase()}-${Date.now()}`;
     const updatedChain = append(chain, {
@@ -323,11 +317,7 @@ workerRouter.post('/feedback', async (req, res, next) => {
     await store.saveFeedback(entry);
 
     const allFeedback = await store.getFeedback(parsed.workplaceId);
-    const groupStatus = evaluateGroupAnonymity(
-      parsed.workplaceId,
-      parsed.team,
-      allFeedback
-    );
+    const groupStatus = evaluateGroupAnonymity(parsed.workplaceId, parsed.team, allFeedback);
 
     res.status(201).json({
       saved: true,

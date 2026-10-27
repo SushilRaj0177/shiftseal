@@ -95,7 +95,10 @@ export function calculatePayslip(input: CalculatePayslipInput): PayslipCalculati
     lines.push({
       id: `line-ded-${ded.id}`,
       kind: 'deduction',
-      labelKey: ded.reason && ded.reason.trim().length > 0 ? `${ded.type}: ${ded.reason}` : `${ded.type} (Unexplained deduction)`,
+      labelKey:
+        ded.reason && ded.reason.trim().length > 0
+          ? `${ded.type}: ${ded.reason}`
+          : `${ded.type} (Unexplained deduction)`,
       amount: -dedAmount,
       flagged: missingReason,
       flagReason: missingReason

@@ -75,8 +75,7 @@ export const hi: Translations = {
   severityFloorNote: 'सुरक्षा नियम लागू: गंभीरता को कम नहीं किया जा सकता।',
   speakUpTitle: 'बिना नाम बताए अपनी बात रखें',
   privacyGuarantee: 'आपकी आवाज़ और मूल शब्द कभी सहेजे नहीं जाते।',
-  anonymityThresholdNote:
-    'प्रबंधन को तभी दिखेगा जब आपके समूह से 5 या अधिक लोग राय देंगे।',
+  anonymityThresholdNote: 'प्रबंधन को तभी दिखेगा जब आपके समूह से 5 या अधिक लोग राय देंगे।',
   anonymityGroupProgress: 'समूह की प्रतिक्रियाएं (प्रबंधन को दिखने के लिए कम से कम 5 आवश्यक)',
   piiScrubSampleLabel: 'पहचान हटाने का उदाहरण:',
   sendAnonymously: 'गुमनाम रूप से भेजें',
@@ -89,8 +88,7 @@ export const hi: Translations = {
   dedCanteen: 'कैंटीन चाय और भोजन: साप्ताहिक कूपन',
   dedEquipmentUnexplained: 'उपकरण शुल्क (बिना कारण बताए कटौती)',
   dedWelfare: 'कर्मचारी कल्याण कोष: मासिक योगदान',
-  dedMissingReasonFlag:
-    'कार्यस्थल नियम के अनुसार वेतन कटौती का स्पष्ट कारण नहीं लिखा गया है।',
+  dedMissingReasonFlag: 'कार्यस्थल नियम के अनुसार वेतन कटौती का स्पष्ट कारण नहीं लिखा गया है।',
   ruleLabelHoursDaily: 'सामान्य घंटे: 8 घंटे/दिन',
   ruleLabelOtWeekly: 'साप्ताहिक सीमा: 48 घंटे/सप्ताह',
   ruleLabelOtMultiplier: 'ओवरटाइम दर: 2× सामान्य वेतन',

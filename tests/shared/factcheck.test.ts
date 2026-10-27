@@ -23,30 +23,18 @@ describe('factcheck.ts', () => {
   });
 
   it('allows ±0.01 tolerance on hour references', () => {
-    const res = check(
-      [{ ref: 'otHours', value: 4.68 }],
-      truth,
-      'Your overtime is 4.68 hours.'
-    );
+    const res = check([{ ref: 'otHours', value: 4.68 }], truth, 'Your overtime is 4.68 hours.');
     expect(res.passed).toBe(true);
   });
 
   it('fails when an hour reference exceeds ±0.01 tolerance', () => {
-    const res = check(
-      [{ ref: 'otHours', value: 4.75 }],
-      truth,
-      'Your overtime is 4.75 hours.'
-    );
+    const res = check([{ ref: 'otHours', value: 4.75 }], truth, 'Your overtime is 4.75 hours.');
     expect(res.passed).toBe(false);
     expect(res.reason).toContain('Hours mismatch');
   });
 
   it('fails when a cited money value is off by even 1 paisa', () => {
-    const res = check(
-      [{ ref: 'netPay', value: 5084.26 }],
-      truth,
-      'Your net pay is ₹5084.26.'
-    );
+    const res = check([{ ref: 'netPay', value: 5084.26 }], truth, 'Your net pay is ₹5084.26.');
     expect(res.passed).toBe(false);
     expect(res.reason).toContain('Money/value mismatch');
   });

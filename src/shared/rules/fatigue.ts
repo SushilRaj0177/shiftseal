@@ -16,8 +16,18 @@ function daysBetweenIsoDates(dateA: string, dateB: string): number {
 
 function formatShortDate(isoDate: string): string {
   const months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
   ];
   const parts = isoDate.split('-');
   if (parts.length !== 3) return isoDate;
@@ -146,7 +156,9 @@ export function evaluateWorkerFatigueAndAttrition(
   const disputedClaims = claims.filter(
     (c) =>
       c.workerId === worker.id &&
-      (c.matchStatus !== 'supported' || c.resolutionStatus === 'pending' || c.resolutionStatus === 'rejected')
+      (c.matchStatus !== 'supported' ||
+        c.resolutionStatus === 'pending' ||
+        c.resolutionStatus === 'rejected')
   );
   if (disputedClaims.length > 0) {
     attritionReasons.push(`${disputedClaims.length} disputed overtime/edit claim(s)`);

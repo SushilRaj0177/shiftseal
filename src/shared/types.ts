@@ -299,12 +299,7 @@ export type FeedbackTheme =
   | 'shift_scheduling'
   | 'other';
 
-export type RemovedPiiCategory =
-  | 'name'
-  | 'place'
-  | 'time'
-  | 'phone_id'
-  | 'personal_detail';
+export type RemovedPiiCategory = 'name' | 'place' | 'time' | 'phone_id' | 'personal_detail';
 
 export interface AnonymousFeedbackEntry {
   id: string;

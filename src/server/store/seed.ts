@@ -471,7 +471,15 @@ export function buildSeedSnapshot(): StoreSnapshot {
   addShiftToChain('w-lakshmi', '2026-10-26', '20:00', '08:00', 'CP-HOSTEL-A');
 
   // Add shifts for other workers so attendance today (2026-10-27) and overtime owed look realistic
-  const otherConstructionWorkers = ['w-rajesh', 'w-senthil', 'w-imran', 'w-Suresh', 'w-velu', 'w-dinesh', 'w-anbu'];
+  const otherConstructionWorkers = [
+    'w-rajesh',
+    'w-senthil',
+    'w-imran',
+    'w-Suresh',
+    'w-velu',
+    'w-dinesh',
+    'w-anbu',
+  ];
   otherConstructionWorkers.forEach((wid, idx) => {
     for (const d of ['2026-10-20', '2026-10-21', '2026-10-22', '2026-10-23', '2026-10-24']) {
       const outTime = idx < 3 ? '19:00' : '17:00';
@@ -483,7 +491,15 @@ export function buildSeedSnapshot(): StoreSnapshot {
     }
   });
 
-  const otherCampusWorkers = ['w-kavitha', 'w-ramesh', 'w-selvi', 'w-prakash', 'w-shanti', 'w-mani', 'w-deepa'];
+  const otherCampusWorkers = [
+    'w-kavitha',
+    'w-ramesh',
+    'w-selvi',
+    'w-prakash',
+    'w-shanti',
+    'w-mani',
+    'w-deepa',
+  ];
   otherCampusWorkers.forEach((wid, idx) => {
     for (const d of ['2026-10-20', '2026-10-21', '2026-10-22', '2026-10-23', '2026-10-24']) {
       const outTime = idx < 2 ? '18:30' : '17:00';
@@ -713,7 +729,8 @@ export function buildSeedSnapshot(): StoreSnapshot {
       workerId: 'w-lakshmi',
       hazardType: 'electrical',
       description: 'हॉस्टल ब्लॉक A में बिजली का तार खुला लटक रहा है',
-      englishSummary: 'Exposed live electrical wire hanging near Hostel Block A ground-floor corridor.',
+      englishSummary:
+        'Exposed live electrical wire hanging near Hostel Block A ground-floor corridor.',
       aiSeverity: 'medium',
       floorSeverity: campusElecFloor.floorSeverity,
       finalSeverity: campusElecFloor.finalSeverity,
@@ -755,8 +772,10 @@ export function buildSeedSnapshot(): StoreSnapshot {
       id: 'fb-tb-1',
       workplaceId: 'wp-tower-b',
       team: 'Structural Crew',
-      cleanText: 'சனிக்கிழமை மாலை கூடுதல் நேரம் வேலை செய்தாலும் பதிவேட்டில் குறைத்து எழுதப்படுகிறது.',
-      cleanTextEnglish: 'Evening overtime hours on Saturdays are being recorded lower than actual checkout times.',
+      cleanText:
+        'சனிக்கிழமை மாலை கூடுதல் நேரம் வேலை செய்தாலும் பதிவேட்டில் குறைத்து எழுதப்படுகிறது.',
+      cleanTextEnglish:
+        'Evening overtime hours on Saturdays are being recorded lower than actual checkout times.',
       removed: ['name', 'time'],
       themes: ['overtime_pay', 'supervisor_conduct'],
       sentiment: -0.7,
@@ -766,8 +785,10 @@ export function buildSeedSnapshot(): StoreSnapshot {
       id: 'fb-tb-2',
       workplaceId: 'wp-tower-b',
       team: 'Structural Crew',
-      cleanText: 'धूप में काम करते समय ऊपरी मंजिल पर पीने के पानी का ड्रम दोपहर तक खाली हो जाता है।',
-      cleanTextEnglish: 'Drinking water drums on upper floors run empty by afternoon during hot shifts.',
+      cleanText:
+        'धूप में काम करते समय ऊपरी मंजिल पर पीने के पानी का ड्रम दोपहर तक खाली हो जाता है।',
+      cleanTextEnglish:
+        'Drinking water drums on upper floors run empty by afternoon during hot shifts.',
       removed: ['place'],
       themes: ['drinking_water_toilets', 'rest_breaks'],
       sentiment: -0.6,
@@ -777,8 +798,10 @@ export function buildSeedSnapshot(): StoreSnapshot {
       id: 'fb-tb-3',
       workplaceId: 'wp-tower-b',
       team: 'Structural Crew',
-      cleanText: 'Safety harness straps on the upper scaffold need replacement before monsoon winds.',
-      cleanTextEnglish: 'Safety harness straps on the upper scaffold need replacement before monsoon winds.',
+      cleanText:
+        'Safety harness straps on the upper scaffold need replacement before monsoon winds.',
+      cleanTextEnglish:
+        'Safety harness straps on the upper scaffold need replacement before monsoon winds.',
       removed: ['name'],
       themes: ['safety_gear'],
       sentiment: -0.5,
@@ -788,8 +811,10 @@ export function buildSeedSnapshot(): StoreSnapshot {
       id: 'fb-tb-4',
       workplaceId: 'wp-tower-b',
       team: 'Structural Crew',
-      cleanText: 'Supervisor asks workers to sign paper sheet without showing overtime calculation.',
-      cleanTextEnglish: 'Supervisor asks workers to sign paper sheet without showing overtime calculation.',
+      cleanText:
+        'Supervisor asks workers to sign paper sheet without showing overtime calculation.',
+      cleanTextEnglish:
+        'Supervisor asks workers to sign paper sheet without showing overtime calculation.',
       removed: ['name', 'personal_detail'],
       themes: ['overtime_pay', 'supervisor_conduct'],
       sentiment: -0.8,
@@ -800,7 +825,8 @@ export function buildSeedSnapshot(): StoreSnapshot {
       workplaceId: 'wp-tower-b',
       team: 'Structural Crew',
       cleanText: 'மதிய உணவு இடைவேளை கான்கிரீட் ஊற்றும் நாட்களில் 15 நிமிடமாகக் குறைக்கப்படுகிறது.',
-      cleanTextEnglish: 'Lunch rest break is cut short to 15 minutes on slab concrete pouring days.',
+      cleanTextEnglish:
+        'Lunch rest break is cut short to 15 minutes on slab concrete pouring days.',
       removed: ['name', 'time'],
       themes: ['rest_breaks'],
       sentiment: -0.6,
@@ -822,8 +848,10 @@ export function buildSeedSnapshot(): StoreSnapshot {
       id: 'fb-cp-1',
       workplaceId: 'wp-campus',
       team: 'Campus Security & Operations',
-      cleanText: 'Night shift guards are scheduled 7 nights continuously without a rotation day off.',
-      cleanTextEnglish: 'Night shift guards are scheduled 7 nights continuously without a rotation day off.',
+      cleanText:
+        'Night shift guards are scheduled 7 nights continuously without a rotation day off.',
+      cleanTextEnglish:
+        'Night shift guards are scheduled 7 nights continuously without a rotation day off.',
       removed: ['name', 'place'],
       themes: ['shift_scheduling', 'rest_breaks'],
       sentiment: -0.7,
@@ -834,7 +862,8 @@ export function buildSeedSnapshot(): StoreSnapshot {
       workplaceId: 'wp-campus',
       team: 'Campus Security & Operations',
       cleanText: 'இரவுப் பணியில் குடிநீர் மற்றும் தேநீர் வசதி விடுதிப் பகுதியில் இல்லை.',
-      cleanTextEnglish: 'Drinking water and hot tea are unavailable near hostel gates during night duty.',
+      cleanTextEnglish:
+        'Drinking water and hot tea are unavailable near hostel gates during night duty.',
       removed: ['place'],
       themes: ['drinking_water_toilets'],
       sentiment: -0.5,
@@ -845,7 +874,8 @@ export function buildSeedSnapshot(): StoreSnapshot {
       workplaceId: 'wp-campus',
       team: 'Campus Security & Operations',
       cleanText: 'When morning relief is late, extra morning hours are not added to monthly slip.',
-      cleanTextEnglish: 'When morning relief is late, extra morning hours are not added to monthly slip.',
+      cleanTextEnglish:
+        'When morning relief is late, extra morning hours are not added to monthly slip.',
       removed: ['name', 'time'],
       themes: ['overtime_pay', 'shift_scheduling'],
       sentiment: -0.65,

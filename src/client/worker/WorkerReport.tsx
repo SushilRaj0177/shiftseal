@@ -19,10 +19,8 @@ interface WorkerReportProps {
   onRefresh: () => void;
 }
 
-const CONSTRUCTION_HAZARD_SAMPLE =
-  'ஸ்காஃபோல்ட் B-ல நாலாவது மாடியில கைப்பிடி கம்பி உடைஞ்சிருக்கு';
-const CAMPUS_HAZARD_SAMPLE =
-  'हॉस्टल ब्लॉक A में बिजली का तार खुला लटक रहा है';
+const CONSTRUCTION_HAZARD_SAMPLE = 'ஸ்காஃபோல்ட் B-ல நாலாவது மாடியில கைப்பிடி கம்பி உடைஞ்சிருக்கு';
+const CAMPUS_HAZARD_SAMPLE = 'हॉस्टल ब्लॉक A में बिजली का तार खुला लटक रहा है';
 
 export const WorkerReport: React.FC<WorkerReportProps> = ({
   lang,
@@ -161,7 +159,10 @@ export const WorkerReport: React.FC<WorkerReportProps> = ({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <section className="card" aria-labelledby="report-hazard-heading">
-        <h3 id="report-hazard-heading"><Icon name="alert" />{t(lang, 'reportHazardTitle')}</h3>
+        <h3 id="report-hazard-heading">
+          <Icon name="alert" />
+          {t(lang, 'reportHazardTitle')}
+        </h3>
 
         <p style={{ fontSize: '13px', fontWeight: 600, marginTop: '12px', marginBottom: '8px' }}>
           {t(lang, 'selectZone')}
@@ -192,7 +193,9 @@ export const WorkerReport: React.FC<WorkerReportProps> = ({
                   fontSize: '13px',
                 }}
               >
-                <span aria-hidden="true"><Icon name={zoneIcon(z.name)} /></span>
+                <span aria-hidden="true">
+                  <Icon name={zoneIcon(z.name)} />
+                </span>
                 <span>{lang === 'ta' ? z.nameTa : lang === 'hi' ? z.nameHi : z.name}</span>
               </button>
             );
@@ -204,7 +207,14 @@ export const WorkerReport: React.FC<WorkerReportProps> = ({
         </p>
 
         <div style={{ marginBottom: '12px' }}>
-          <span style={{ fontSize: '12px', color: 'var(--ink-secondary)', display: 'block', marginBottom: '6px' }}>
+          <span
+            style={{
+              fontSize: '12px',
+              color: 'var(--ink-secondary)',
+              display: 'block',
+              marginBottom: '6px',
+            }}
+          >
             {t(lang, 'samplePromptLabel')}
           </span>
           <button
@@ -224,11 +234,14 @@ export const WorkerReport: React.FC<WorkerReportProps> = ({
                 runStructureHazard({ text: CONSTRUCTION_HAZARD_SAMPLE });
               }
             }}
-            style={{ textAlign: 'left', fontSize: '13px', width: '100%', justifyContent: 'flex-start' }}
+            style={{
+              textAlign: 'left',
+              fontSize: '13px',
+              width: '100%',
+              justifyContent: 'flex-start',
+            }}
           >
-            <span>
-              {worker.sector === 'campus' ? '🇮🇳 हिंदी sample:' : '🇮🇳 தமிழ் sample:'}
-            </span>
+            <span>{worker.sector === 'campus' ? '🇮🇳 हिंदी sample:' : '🇮🇳 தமிழ் sample:'}</span>
             <span style={{ fontWeight: 400 }}>
               "{worker.sector === 'campus' ? CAMPUS_HAZARD_SAMPLE : CONSTRUCTION_HAZARD_SAMPLE}"
             </span>
@@ -294,7 +307,9 @@ export const WorkerReport: React.FC<WorkerReportProps> = ({
             {t(lang, 'addOptionalPhotoButton')}
           </button>
           {photoSizeKb !== null && (
-            <span style={{ fontSize: '12px', color: 'var(--good)', display: 'block', marginTop: '6px' }}>
+            <span
+              style={{ fontSize: '12px', color: 'var(--good)', display: 'block', marginTop: '6px' }}
+            >
               {t(lang, 'photoCompressedNotice')} ({photoSizeKb} KB)
             </span>
           )}
@@ -316,12 +331,22 @@ export const WorkerReport: React.FC<WorkerReportProps> = ({
               gap: '10px',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px' }}>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '6px',
+              }}
+            >
               <span className="badge badge-danger">
                 Severity: {draftHazard.finalSeverity.toUpperCase()}
               </span>
               {draftHazard.floorApplied && (
-                <span className="badge badge-warning"><Icon name="scale" />{t(lang, 'severityFloorNote')}</span>
+                <span className="badge badge-warning">
+                  <Icon name="scale" />
+                  {t(lang, 'severityFloorNote')}
+                </span>
               )}
               {draftHazard.isDemoFallback && (
                 <span className="badge badge-warning">{t(lang, 'demoResponseBadge')}</span>
@@ -357,9 +382,7 @@ export const WorkerReport: React.FC<WorkerReportProps> = ({
                 id="hazard-summary-edit"
                 type="text"
                 value={draftHazard.englishSummary}
-                onChange={(e) =>
-                  setDraftHazard({ ...draftHazard, englishSummary: e.target.value })
-                }
+                onChange={(e) => setDraftHazard({ ...draftHazard, englishSummary: e.target.value })}
                 style={{
                   width: '100%',
                   padding: '6px 8px',
@@ -413,7 +436,15 @@ export const WorkerReport: React.FC<WorkerReportProps> = ({
                 fontSize: '13px',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  gap: '8px',
+                  flexWrap: 'wrap',
+                }}
+              >
                 <strong>
                   {h.zoneName} · {h.hazardType.replace(/_/g, ' ')}
                 </strong>

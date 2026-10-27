@@ -1,9 +1,4 @@
-import type {
-  SectorId,
-  SeverityLevel,
-  HazardType,
-  RuleDefinition,
-} from '../types.js';
+import type { SectorId, SeverityLevel, HazardType, RuleDefinition } from '../types.js';
 import { getRule } from './index.js';
 
 const SEVERITY_ORDER: Record<SeverityLevel, number> = {

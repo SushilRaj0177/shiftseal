@@ -36,7 +36,9 @@ export function createApp() {
     path.resolve(__dirname, '../../client'),
     path.resolve(__dirname, '../../../dist/client'),
   ];
-  const clientDist = clientDistCandidates.find((dir) => fs.existsSync(path.join(dir, 'index.html')));
+  const clientDist = clientDistCandidates.find((dir) =>
+    fs.existsSync(path.join(dir, 'index.html'))
+  );
 
   if (clientDist) {
     app.use(

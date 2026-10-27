@@ -202,8 +202,7 @@ let activeStore: Store | null = null;
 
 export function getStore(): Store {
   if (!activeStore) {
-    activeStore =
-      process.env.STORE === 'firestore' ? new FirestoreStore() : new MemoryStore();
+    activeStore = process.env.STORE === 'firestore' ? new FirestoreStore() : new MemoryStore();
   }
   return activeStore;
 }

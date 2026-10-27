@@ -5,7 +5,6 @@ import { MemoryStore } from '../../src/server/store/memory.js';
 import { setStoreForTests } from '../../src/server/store/firestore.js';
 import { setGeminiGeneratorForTests } from '../../src/server/gemini/client.js';
 
-
 async function adminToken(app: ReturnType<typeof createApp>, workplaceId: string): Promise<string> {
   const res = await request(app).post('/api/session/admin').send({ workplaceId });
   expect(res.status).toBe(200);
@@ -45,14 +44,12 @@ describe('API Routes — Worker, AI (with mocked Gemini & fallback), and Admin s
       .set('Authorization', `Bearer ${tampered}`);
     expect(resTampered.status).toBe(401);
 
-    const resEditRejected = await request(app)
-      .post('/api/admin/shifts/edit')
-      .send({
-        workerId: 'w-murugan',
-        targetEventId: 'ev-1',
-        newTimestamp: '18:00',
-        reason: 'Attempted unauthorized edit',
-      });
+    const resEditRejected = await request(app).post('/api/admin/shifts/edit').send({
+      workerId: 'w-murugan',
+      targetEventId: 'ev-1',
+      newTimestamp: '18:00',
+      reason: 'Attempted unauthorized edit',
+    });
     expect(resEditRejected.status).toBe(401);
   });
 
@@ -296,8 +293,7 @@ describe('API Routes — Worker, AI (with mocked Gemini & fallback), and Admin s
 
   it('serves zone QR SVG on GET /api/qr-svg', async () => {
     const app = createApp();
-    const res = await request(app)
-      .get('/api/qr-svg?code=TB-SCAF-B');
+    const res = await request(app).get('/api/qr-svg?code=TB-SCAF-B');
     expect(res.status).toBe(200);
     expect(res.headers['content-type']).toContain('image/svg+xml');
   });

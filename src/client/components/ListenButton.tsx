@@ -56,7 +56,9 @@ export const ListenButton: React.FC<ListenButtonProps> = ({ text, lang, label })
         aria-label={`${label || t(lang, 'listen')}: ${text}`}
         style={{ minHeight: '40px', padding: '6px 12px', fontSize: '13px' }}
       >
-        <span aria-hidden="true"><Icon name="speaker" /></span>
+        <span aria-hidden="true">
+          <Icon name="speaker" />
+        </span>
         <span>{label || t(lang, 'listen')}</span>
       </button>
       {notice && (

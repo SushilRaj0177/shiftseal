@@ -12,7 +12,10 @@ describe('signed admin sessions', () => {
   it('rejects a token whose payload was altered', () => {
     const [payload, signature] = createSessionToken('admin', 'wp-tower-b', now).split('.');
     const forged = Buffer.from(
-      JSON.stringify({ ...JSON.parse(Buffer.from(payload, 'base64url').toString()), workplaceId: 'wp-campus' })
+      JSON.stringify({
+        ...JSON.parse(Buffer.from(payload, 'base64url').toString()),
+        workplaceId: 'wp-campus',
+      })
     ).toString('base64url');
     expect(verifySessionToken(`${forged}.${signature}`, now)).toBeNull();
   });

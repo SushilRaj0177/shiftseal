@@ -89,8 +89,7 @@ export const ta: Translations = {
   dedCanteen: 'கேண்டீன் தேநீர் & உணவு: வாராந்திர உணவு கூப்பன்',
   dedEquipmentUnexplained: 'உபகரணப் பிடித்தம் (காரணம் குறிப்பிடப்படவில்லை)',
   dedWelfare: 'தொழிலாளர் நல நிதி: மாதாந்திர பங்களிப்பு',
-  dedMissingReasonFlag:
-    'நிறுவன விதியின்படி சம்பளப் பிடித்தத்திற்கான காரணம் குறிப்பிடப்படவில்லை.',
+  dedMissingReasonFlag: 'நிறுவன விதியின்படி சம்பளப் பிடித்தத்திற்கான காரணம் குறிப்பிடப்படவில்லை.',
   ruleLabelHoursDaily: 'சாதாரண நேரம்: 8 மணி/நாள்',
   ruleLabelOtWeekly: 'வாராந்திர வரம்பு: 48 மணி/வாரம்',
   ruleLabelOtMultiplier: 'ஓவர்டைம் விகிதம்: 2× மடங்கு',

@@ -21,10 +21,7 @@ Input: "நேத்து சனிக்கிழமை ஸ்லாப் ப
 Output: {"date":"2026-10-24","extraHours":2,"reason":"Concrete slab pouring overtime","detectedLanguage":"ta","confidence":0.96}`;
 }
 
-export function buildExplainPayPrompt(
-  payFacts: Record<string, number>,
-  lang: Language
-): string {
+export function buildExplainPayPrompt(payFacts: Record<string, number>, lang: Language): string {
   const langName = lang === 'ta' ? 'Tamil (தமிழ்)' : lang === 'hi' ? 'Hindi (हिंदी)' : 'English';
   return `Answer the worker's question about their weekly payslip in plain, short ${langName}.
 You MUST ONLY use numbers from the following ground-truth payFacts JSON:

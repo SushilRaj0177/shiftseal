@@ -8,7 +8,10 @@ import type {
   PayslipCalculationResult,
 } from '../../shared/types.js';
 
-export function buildFallbackStructuredClaim(text: string | undefined, lang: Language): {
+export function buildFallbackStructuredClaim(
+  text: string | undefined,
+  lang: Language
+): {
   date: string;
   extraHours: number;
   reason: string;
@@ -24,16 +27,31 @@ export function buildFallbackStructuredClaim(text: string | undefined, lang: Lan
   const numMatch = raw.match(/(\d+(?:\.\d+)?)\s*(?:hour|hr|மணி|घंटे)/i);
   if (numMatch) {
     extraHours = Math.min(12, Math.max(0.5, Number(numMatch[1])));
-  } else if (raw.includes('ரெண்டு') || raw.includes('இரண்டு') || raw.includes('दो') || raw.includes('two')) {
+  } else if (
+    raw.includes('ரெண்டு') ||
+    raw.includes('இரண்டு') ||
+    raw.includes('दो') ||
+    raw.includes('two')
+  ) {
     extraHours = 2;
   } else if (raw.includes('மூன்று') || raw.includes('तीन') || raw.includes('three')) {
     extraHours = 3;
   }
 
   let date = '2026-10-24'; // Saturday default
-  if (raw.includes('tuesday') || raw.includes('செவ்வாய்') || raw.includes('मंगलवार') || raw.includes('2026-10-20')) {
+  if (
+    raw.includes('tuesday') ||
+    raw.includes('செவ்வாய்') ||
+    raw.includes('मंगलवार') ||
+    raw.includes('2026-10-20')
+  ) {
     date = '2026-10-20';
-  } else if (raw.includes('sunday') || raw.includes('ஞாயிறு') || raw.includes('रविवार') || raw.includes('2026-10-25')) {
+  } else if (
+    raw.includes('sunday') ||
+    raw.includes('ஞாயிறு') ||
+    raw.includes('रविवार') ||
+    raw.includes('2026-10-25')
+  ) {
     date = '2026-10-25';
   }
 
@@ -147,8 +165,7 @@ export function buildFallbackHazard(
         ? 'हॉस्टल ब्लॉक A में बिजली का तार खुला लटक रहा है'
         : 'Exposed live electrical wire hanging in walkway';
 
-  const englishSummary =
-    trimmed.length > 0 ? trimmed.slice(0, 500) : description;
+  const englishSummary = trimmed.length > 0 ? trimmed.slice(0, 500) : description;
 
   return {
     hazardType,
@@ -169,7 +186,9 @@ export function buildFallbackAnonymisedFeedback(
   themes: FeedbackTheme[];
   sentiment: number;
 } {
-  const raw = text?.trim() || 'Supervisor Ravi cut my Tuesday overtime hours near Gate 2 and did not explain the ₹200 deduction.';
+  const raw =
+    text?.trim() ||
+    'Supervisor Ravi cut my Tuesday overtime hours near Gate 2 and did not explain the ₹200 deduction.';
   const removed: RemovedPiiCategory[] = ['name', 'place', 'time'];
   const themes: FeedbackTheme[] = ['supervisor_conduct', 'overtime_pay'];
 

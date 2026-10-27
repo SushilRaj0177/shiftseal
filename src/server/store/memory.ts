@@ -15,9 +15,7 @@ export class MemoryStore implements Store {
   private snapshot: StoreSnapshot;
 
   constructor(initialSnapshot?: StoreSnapshot) {
-    this.snapshot = initialSnapshot
-      ? structuredClone(initialSnapshot)
-      : buildSeedSnapshot();
+    this.snapshot = initialSnapshot ? structuredClone(initialSnapshot) : buildSeedSnapshot();
   }
 
   async init(): Promise<void> {
@@ -65,9 +63,9 @@ export class MemoryStore implements Store {
   }
 
   async getWorkerClaims(workerId: string): Promise<OvertimeClaim[]> {
-    return structuredClone(
-      this.snapshot.claims.filter((c) => c.workerId === workerId)
-    ).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    return structuredClone(this.snapshot.claims.filter((c) => c.workerId === workerId)).sort(
+      (a, b) => b.createdAt.localeCompare(a.createdAt)
+    );
   }
 
   async saveClaim(claim: OvertimeClaim): Promise<void> {
@@ -80,9 +78,9 @@ export class MemoryStore implements Store {
   }
 
   async getWorkerNotifications(workerId: string): Promise<WorkerNotification[]> {
-    return structuredClone(
-      this.snapshot.notifications.filter((n) => n.workerId === workerId)
-    ).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    return structuredClone(this.snapshot.notifications.filter((n) => n.workerId === workerId)).sort(
+      (a, b) => b.createdAt.localeCompare(a.createdAt)
+    );
   }
 
   async saveNotification(notification: WorkerNotification): Promise<void> {

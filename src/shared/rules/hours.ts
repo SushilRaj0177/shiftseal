@@ -1,9 +1,4 @@
-import type {
-  ShiftRecord,
-  SectorId,
-  HoursCalculationResult,
-  DayHoursBreakdown,
-} from '../types.js';
+import type { ShiftRecord, SectorId, HoursCalculationResult, DayHoursBreakdown } from '../types.js';
 import { getRule } from './index.js';
 
 export function parseTimeMinutes(timeStr: string): number {

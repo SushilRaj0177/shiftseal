@@ -18,9 +18,7 @@ export function evaluateGroupAnonymity(
   team: string,
   entries: AnonymousFeedbackEntry[]
 ): GroupFeedbackVisibility {
-  const groupEntries = entries.filter(
-    (e) => e.workplaceId === workplaceId && e.team === team
-  );
+  const groupEntries = entries.filter((e) => e.workplaceId === workplaceId && e.team === team);
   const count = groupEntries.length;
   const visible = count >= ANONYMITY_MIN_RESPONSES;
 

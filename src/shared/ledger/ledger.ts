@@ -20,11 +20,7 @@ export function canonicalJSON(value: unknown): string {
   const keys = Object.keys(obj)
     .filter((k) => obj[k] !== undefined)
     .sort();
-  return (
-    '{' +
-    keys.map((k) => `${JSON.stringify(k)}:${canonicalJSON(obj[k])}`).join(',') +
-    '}'
-  );
+  return '{' + keys.map((k) => `${JSON.stringify(k)}:${canonicalJSON(obj[k])}`).join(',') + '}';
 }
 
 // Pure JS/TS SHA-256 implementation so both Node and browser can compute synchronous deterministic hashes
@@ -114,9 +110,7 @@ export function sha256Hex(ascii: string): string {
     h7 = (h7 + h) >>> 0;
   }
 
-  return [h0, h1, h2, h3, h4, h5, h6, h7]
-    .map((n) => n.toString(16).padStart(8, '0'))
-    .join('');
+  return [h0, h1, h2, h3, h4, h5, h6, h7].map((n) => n.toString(16).padStart(8, '0')).join('');
 }
 
 export async function sha256HexAsync(ascii: string): Promise<string> {

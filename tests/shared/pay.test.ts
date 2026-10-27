@@ -44,10 +44,7 @@ describe('pay.ts', () => {
   });
 
   it('derives hourly rate from dailyWage / 8 when hourlyRate is omitted', () => {
-    const hoursResult = calculateWeekHours(
-      [makeShift('2026-10-20', '09:00', '17:00')],
-      'campus'
-    );
+    const hoursResult = calculateWeekHours([makeShift('2026-10-20', '09:00', '17:00')], 'campus');
     const slip = calculatePayslip({
       workerId: 'w-lakshmi',
       weekLabel: 'Test Week',

@@ -96,7 +96,11 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
         ? `इस सप्ताह का शुद्ध वेतन ${payslip.netPay} रुपये है। सामान्य कार्य ${payslip.normalHours} घंटे, ओवरटाइम ${payslip.otHours} घंटे दोगुनी दर पर, और कुल कटौती ${payslip.totalDeductions} रुपये है।`
         : `Your weekly net pay is ${payslip.netPay} rupees. Normal hours: ${payslip.normalHours}. Overtime hours at double rate: ${payslip.otHours}. Deductions: ${payslip.totalDeductions} rupees.`;
 
-  const runAskWhy = async (payload: { question?: string; audioBase64?: string; audioMimeType?: string }) => {
+  const runAskWhy = async (payload: {
+    question?: string;
+    audioBase64?: string;
+    audioMimeType?: string;
+  }) => {
     setAskLoading(true);
     try {
       const res = await fetch('/api/ai/explain-pay', {
@@ -200,70 +204,94 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
         </div>
 
         <ul className="payslip-lines">
-          {payslip.lines.filter((line) => line.kind !== 'net').map((line) => {
-            const isExpanded = expandedRuleId === line.id;
-            const kindBadgeLabel =
-              line.ruleRef?.kind === 'law' ? t(lang, 'lawBadge') : t(lang, 'policyBadge');
+          {payslip.lines
+            .filter((line) => line.kind !== 'net')
+            .map((line) => {
+              const isExpanded = expandedRuleId === line.id;
+              const kindBadgeLabel =
+                line.ruleRef?.kind === 'law' ? t(lang, 'lawBadge') : t(lang, 'policyBadge');
 
-            return (
-              <li key={line.id} className={line.flagged ? 'payslip-line is-flagged' : 'payslip-line'}>
-                <div className="payslip-row">
-                  <div className="payslip-label">
-                    <span>{translatePayLineLabel(lang, line.labelKey)}</span>
-                    {line.hours !== undefined && line.rate !== undefined && (
-                      <span className="payslip-sub">
-                        {line.hours}h × ₹{line.rate}/hr
-                      </span>
-                    )}
-                  </div>
-                  <span className={line.amount < 0 ? 'payslip-amount is-negative' : 'payslip-amount'}>
-                    {line.amount < 0 ? `-₹${Math.abs(line.amount)}` : `₹${line.amount}`}
-                  </span>
-                </div>
-
-                {line.flagged && line.flagReason && (
-                  <p className="payslip-flag">
-                    <Icon name="alert" />{t(lang, 'dedMissingReasonFlag')}
-                  </p>
-                )}
-
-                {line.ruleRef && (
-                  <>
-                    <button
-                      type="button"
-                      className="rule-chip"
-                      aria-expanded={isExpanded}
-                      onClick={() => setExpandedRuleId(isExpanded ? null : line.id)}
+              return (
+                <li
+                  key={line.id}
+                  className={line.flagged ? 'payslip-line is-flagged' : 'payslip-line'}
+                >
+                  <div className="payslip-row">
+                    <div className="payslip-label">
+                      <span>{translatePayLineLabel(lang, line.labelKey)}</span>
+                      {line.hours !== undefined && line.rate !== undefined && (
+                        <span className="payslip-sub">
+                          {line.hours}h × ₹{line.rate}/hr
+                        </span>
+                      )}
+                    </div>
+                    <span
+                      className={line.amount < 0 ? 'payslip-amount is-negative' : 'payslip-amount'}
                     >
-                      <span className={line.ruleRef.kind === 'law' ? 'rule-chip-kind is-law' : 'rule-chip-kind'}>
-                        {kindBadgeLabel}
-                      </span>
-                      <span>{translateRuleBadgeLabel(lang, line.ruleRef.id)}</span>
-                      <span aria-hidden="true" className="rule-chip-caret">{isExpanded ? '▲' : '▼'}</span>
-                    </button>
+                      {line.amount < 0 ? `-₹${Math.abs(line.amount)}` : `₹${line.amount}`}
+                    </span>
+                  </div>
 
-                    {isExpanded && (
-                      <div className="rule-source">
-                        <div>
-                          <strong>Source:</strong> {line.ruleRef.source}
+                  {line.flagged && line.flagReason && (
+                    <p className="payslip-flag">
+                      <Icon name="alert" />
+                      {t(lang, 'dedMissingReasonFlag')}
+                    </p>
+                  )}
+
+                  {line.ruleRef && (
+                    <>
+                      <button
+                        type="button"
+                        className="rule-chip"
+                        aria-expanded={isExpanded}
+                        onClick={() => setExpandedRuleId(isExpanded ? null : line.id)}
+                      >
+                        <span
+                          className={
+                            line.ruleRef.kind === 'law' ? 'rule-chip-kind is-law' : 'rule-chip-kind'
+                          }
+                        >
+                          {kindBadgeLabel}
+                        </span>
+                        <span>{translateRuleBadgeLabel(lang, line.ruleRef.id)}</span>
+                        <span aria-hidden="true" className="rule-chip-caret">
+                          {isExpanded ? '▲' : '▼'}
+                        </span>
+                      </button>
+
+                      {isExpanded && (
+                        <div className="rule-source">
+                          <div>
+                            <strong>Source:</strong> {line.ruleRef.source}
+                          </div>
+                          {line.ruleRef.note && (
+                            <div className="rule-source-note">{line.ruleRef.note}</div>
+                          )}
                         </div>
-                        {line.ruleRef.note && <div className="rule-source-note">{line.ruleRef.note}</div>}
-                      </div>
-                    )}
-                  </>
-                )}
-              </li>
-            );
-          })}
+                      )}
+                    </>
+                  )}
+                </li>
+              );
+            })}
         </ul>
 
         <div className="payslip-actions">
           <button type="button" className="btn-subtle" onClick={() => setShowAskWhy((v) => !v)}>
-            <span aria-hidden="true"><Icon name="help" /></span>
+            <span aria-hidden="true">
+              <Icon name="help" />
+            </span>
             <span>{t(lang, 'askWhy')}</span>
           </button>
-          <button type="button" className="btn-primary" onClick={() => setShowClaimSheet((v) => !v)}>
-            <span aria-hidden="true"><Icon name="clock" /></span>
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={() => setShowClaimSheet((v) => !v)}
+          >
+            <span aria-hidden="true">
+              <Icon name="clock" />
+            </span>
             <span>{t(lang, 'claimMissedOvertime')}</span>
           </button>
         </div>
@@ -272,17 +300,25 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
       {/* Ask Why Sheet */}
       {showAskWhy && (
         <section className="card" aria-labelledby="ask-why-heading">
-          <h3 id="ask-why-heading"><Icon name="help" />{t(lang, 'askWhy')}</h3>
-          <p style={{ fontSize: '13px', color: 'var(--ink-secondary)', marginTop: '4px', marginBottom: '12px' }}>
+          <h3 id="ask-why-heading">
+            <Icon name="help" />
+            {t(lang, 'askWhy')}
+          </h3>
+          <p
+            style={{
+              fontSize: '13px',
+              color: 'var(--ink-secondary)',
+              marginTop: '4px',
+              marginBottom: '12px',
+            }}
+          >
             Every number in the AI explanation is verified against your shift ledger before display.
           </p>
 
           <HoldToTalk
             lang={lang}
             disabled={askLoading}
-            onRecorded={(audioBase64, audioMimeType) =>
-              runAskWhy({ audioBase64, audioMimeType })
-            }
+            onRecorded={(audioBase64, audioMimeType) => runAskWhy({ audioBase64, audioMimeType })}
           />
 
           <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
@@ -319,9 +355,7 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
             </button>
           </div>
 
-          {askLoading && (
-            <div className="skeleton" style={{ height: '72px', marginTop: '12px' }} />
-          )}
+          {askLoading && <div className="skeleton" style={{ height: '72px', marginTop: '12px' }} />}
 
           {askResult && (
             <div
@@ -354,9 +388,19 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
       {/* Claim Missed Overtime Sheet */}
       {showClaimSheet && (
         <section className="card" aria-labelledby="claim-ot-heading">
-          <h3 id="claim-ot-heading"><Icon name="clock" />{t(lang, 'claimMissedOvertime')}</h3>
+          <h3 id="claim-ot-heading">
+            <Icon name="clock" />
+            {t(lang, 'claimMissedOvertime')}
+          </h3>
           <div style={{ marginTop: '10px', marginBottom: '12px' }}>
-            <span style={{ fontSize: '12px', color: 'var(--ink-secondary)', display: 'block', marginBottom: '6px' }}>
+            <span
+              style={{
+                fontSize: '12px',
+                color: 'var(--ink-secondary)',
+                display: 'block',
+                marginBottom: '6px',
+              }}
+            >
               {t(lang, 'samplePromptLabel')}
             </span>
             <button
@@ -369,11 +413,14 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
                 setClaimText(sample);
                 runStructureClaim({ text: sample });
               }}
-              style={{ textAlign: 'left', fontSize: '13px', width: '100%', justifyContent: 'flex-start' }}
+              style={{
+                textAlign: 'left',
+                fontSize: '13px',
+                width: '100%',
+                justifyContent: 'flex-start',
+              }}
             >
-              <span>
-                {worker.sector === 'campus' ? 'Campus sample:' : 'தமிழ் sample:'}
-              </span>
+              <span>{worker.sector === 'campus' ? 'Campus sample:' : 'தமிழ் sample:'}</span>
               <span style={{ fontWeight: 400 }}>
                 "{worker.sector === 'campus' ? CAMPUS_CLAIM_SAMPLE : CONSTRUCTION_CLAIM_SAMPLE}"
               </span>
@@ -437,7 +484,15 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
                 gap: '10px',
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '6px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: '6px',
+                }}
+              >
                 <span
                   className={
                     draftClaim.matchStatus === 'supported'
@@ -519,8 +574,16 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
                 />
               </div>
 
-              <div style={{ fontSize: '12px', padding: '8px', background: 'var(--surface)', borderRadius: '6px' }}>
-                <strong>{t(lang, 'ledgerEvidenceCheckLabel')}</strong> {draftClaim.evidence.explanation}
+              <div
+                style={{
+                  fontSize: '12px',
+                  padding: '8px',
+                  background: 'var(--surface)',
+                  borderRadius: '6px',
+                }}
+              >
+                <strong>{t(lang, 'ledgerEvidenceCheckLabel')}</strong>{' '}
+                {draftClaim.evidence.explanation}
               </div>
 
               <button
@@ -569,7 +632,14 @@ export const WorkerPay: React.FC<WorkerPayProps> = ({
                   fontSize: '13px',
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                >
                   <strong>
                     {c.date} · +{c.extraHours}h
                   </strong>

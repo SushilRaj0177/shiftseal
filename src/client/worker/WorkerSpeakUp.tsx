@@ -101,12 +101,18 @@ export const WorkerSpeakUp: React.FC<WorkerSpeakUpProps> = ({
     }
   };
 
-  const pct = Math.min(100, Math.round((feedbackGroupStatus.count / feedbackGroupStatus.threshold) * 100));
+  const pct = Math.min(
+    100,
+    Math.round((feedbackGroupStatus.count / feedbackGroupStatus.threshold) * 100)
+  );
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <section className="card" aria-labelledby="speak-up-heading">
-        <h3 id="speak-up-heading"><Icon name="shield" />{t(lang, 'speakUpTitle')}</h3>
+        <h3 id="speak-up-heading">
+          <Icon name="shield" />
+          {t(lang, 'speakUpTitle')}
+        </h3>
         <p
           style={{
             marginTop: '6px',
@@ -117,13 +123,23 @@ export const WorkerSpeakUp: React.FC<WorkerSpeakUpProps> = ({
             fontWeight: 600,
           }}
         >
-          <Icon name="lock" />{t(lang, 'privacyGuarantee')}
+          <Icon name="lock" />
+          {t(lang, 'privacyGuarantee')}
         </p>
 
         {/* Anonymity Group Threshold Progress Bar */}
         <div style={{ marginTop: '14px', marginBottom: '16px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', marginBottom: '6px' }}>
-            <span>Group: <strong>{feedbackGroupStatus.team}</strong></span>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              fontSize: '13px',
+              marginBottom: '6px',
+            }}
+          >
+            <span>
+              Group: <strong>{feedbackGroupStatus.team}</strong>
+            </span>
             <strong>
               {feedbackGroupStatus.count}/{feedbackGroupStatus.threshold} responses
             </strong>
@@ -156,7 +172,14 @@ export const WorkerSpeakUp: React.FC<WorkerSpeakUpProps> = ({
         </div>
 
         <div style={{ marginBottom: '12px' }}>
-          <span style={{ fontSize: '12px', color: 'var(--ink-secondary)', display: 'block', marginBottom: '6px' }}>
+          <span
+            style={{
+              fontSize: '12px',
+              color: 'var(--ink-secondary)',
+              display: 'block',
+              marginBottom: '6px',
+            }}
+          >
             {t(lang, 'samplePromptLabel')}
           </span>
           <button
@@ -167,7 +190,12 @@ export const WorkerSpeakUp: React.FC<WorkerSpeakUpProps> = ({
               setText(ENGLISH_FEEDBACK_SAMPLE);
               runPreview({ text: ENGLISH_FEEDBACK_SAMPLE });
             }}
-            style={{ textAlign: 'left', fontSize: '13px', width: '100%', justifyContent: 'flex-start' }}
+            style={{
+              textAlign: 'left',
+              fontSize: '13px',
+              width: '100%',
+              justifyContent: 'flex-start',
+            }}
           >
             <span>{t(lang, 'piiScrubSampleLabel')}</span>
             <span style={{ fontWeight: 400 }}>"{ENGLISH_FEEDBACK_SAMPLE}"</span>
@@ -177,9 +205,7 @@ export const WorkerSpeakUp: React.FC<WorkerSpeakUpProps> = ({
         <HoldToTalk
           lang={lang}
           disabled={loading}
-          onRecorded={(audioBase64, audioMimeType) =>
-            runPreview({ audioBase64, audioMimeType })
-          }
+          onRecorded={(audioBase64, audioMimeType) => runPreview({ audioBase64, audioMimeType })}
         />
 
         <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
@@ -238,7 +264,10 @@ export const WorkerSpeakUp: React.FC<WorkerSpeakUpProps> = ({
             </div>
 
             <div>
-              <label htmlFor="cleaned-feedback-text" style={{ fontSize: '12px', display: 'block', fontWeight: 600 }}>
+              <label
+                htmlFor="cleaned-feedback-text"
+                style={{ fontSize: '12px', display: 'block', fontWeight: 600 }}
+              >
                 {t(lang, 'cleanedAnonymousTextLabel')}
               </label>
               <textarea
@@ -264,7 +293,8 @@ export const WorkerSpeakUp: React.FC<WorkerSpeakUpProps> = ({
             </div>
 
             <p style={{ fontSize: '12px', color: 'var(--ink-secondary)' }}>
-              <Icon name="lock" />{t(lang, 'privacyGuarantee')}
+              <Icon name="lock" />
+              {t(lang, 'privacyGuarantee')}
             </p>
 
             <button
@@ -273,7 +303,8 @@ export const WorkerSpeakUp: React.FC<WorkerSpeakUpProps> = ({
               disabled={loading}
               onClick={handleSendAnonymously}
             >
-              <Icon name="shield" />{t(lang, 'sendAnonymously')}
+              <Icon name="shield" />
+              {t(lang, 'sendAnonymously')}
             </button>
           </div>
         )}

@@ -107,7 +107,11 @@ export const WorkerApp: React.FC<WorkerAppProps> = ({ lang }) => {
         </span>
         <div className="profile-text">
           <h1 className="profile-name">
-            {lang === 'ta' ? data.worker.nameTa : lang === 'hi' ? data.worker.nameHi : data.worker.name}
+            {lang === 'ta'
+              ? data.worker.nameTa
+              : lang === 'hi'
+                ? data.worker.nameHi
+                : data.worker.name}
           </h1>
           <p className="profile-sub">
             {lang === 'ta'
@@ -121,7 +125,10 @@ export const WorkerApp: React.FC<WorkerAppProps> = ({ lang }) => {
               clientChainValid && data.chainVerification.ok ? 'seal-status ok' : 'seal-status bad'
             }
           >
-            <Icon name={clientChainValid && data.chainVerification.ok ? 'shield' : 'alert'} size={14} />
+            <Icon
+              name={clientChainValid && data.chainVerification.ok ? 'shield' : 'alert'}
+              size={14}
+            />
             {clientChainValid && data.chainVerification.ok
               ? t(lang, 'recordIntact')
               : t(lang, 'recordTampered')}
@@ -142,7 +149,12 @@ export const WorkerApp: React.FC<WorkerAppProps> = ({ lang }) => {
           >
             <Icon name="swap" />
           </button>
-          <Link to="/" className="icon-btn" aria-label={t(lang, 'switchRole')} title={t(lang, 'switchRole')}>
+          <Link
+            to="/"
+            className="icon-btn"
+            aria-label={t(lang, 'switchRole')}
+            title={t(lang, 'switchRole')}
+          >
             <Icon name="logout" />
           </Link>
         </div>
@@ -215,7 +227,9 @@ export const WorkerApp: React.FC<WorkerAppProps> = ({ lang }) => {
           aria-current={tab === 'pay' ? 'page' : undefined}
           onClick={() => setTab('pay')}
         >
-          <span className="tab-icon" aria-hidden="true"><Icon name="wallet" size={22} /></span>
+          <span className="tab-icon" aria-hidden="true">
+            <Icon name="wallet" size={22} />
+          </span>
           <span>{t(lang, 'navPay')}</span>
         </button>
         <button
@@ -224,7 +238,9 @@ export const WorkerApp: React.FC<WorkerAppProps> = ({ lang }) => {
           aria-current={tab === 'report' ? 'page' : undefined}
           onClick={() => setTab('report')}
         >
-          <span className="tab-icon" aria-hidden="true"><Icon name="alert" size={22} /></span>
+          <span className="tab-icon" aria-hidden="true">
+            <Icon name="alert" size={22} />
+          </span>
           <span>{t(lang, 'navReport')}</span>
         </button>
         <button
@@ -233,7 +249,9 @@ export const WorkerApp: React.FC<WorkerAppProps> = ({ lang }) => {
           aria-current={tab === 'speakup' ? 'page' : undefined}
           onClick={() => setTab('speakup')}
         >
-          <span className="tab-icon" aria-hidden="true"><Icon name="shield" size={22} /></span>
+          <span className="tab-icon" aria-hidden="true">
+            <Icon name="shield" size={22} />
+          </span>
           <span>{t(lang, 'navSpeakUp')}</span>
         </button>
       </nav>
