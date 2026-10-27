@@ -6,6 +6,10 @@ import type { Language } from '../../shared/types.js';
 import { t } from '../../shared/i18n/index.js';
 import type { DashboardPayload } from './dashboardTypes.js';
 import { formatCountdown } from './formatCountdown.js';
+import { FeedbackThemesCard } from './FeedbackThemesCard.js';
+import { AttendanceCard } from './AttendanceCard.js';
+import { FatigueSignalsCard } from './FatigueSignalsCard.js';
+import { HotspotsCard } from './HotspotsCard.js';
 
 interface AdminAppProps {
   lang: Language;
@@ -151,7 +155,6 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
   }
 
   const paydayCountdown = formatCountdown(data.workplace.nextPayDate, data.todayDate);
-  const maxHotspotCount = Math.max(5, ...data.hotspots.map((h) => h.reportCount14d));
 
   return (
     <div className="container-wide">
@@ -649,162 +652,10 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
 
           <div className="admin-col">
             {/* 3. Near-miss hotspots (inline SVG bar chart) */}
-            <section className="card" aria-labelledby="card-hotspots">
-              <h3 id="card-hotspots">3. Near-Miss Hotspots by Zone (Last 14 Days)</h3>
-              <p style={{ fontSize: '13px', color: 'var(--ink-secondary)', marginBottom: '14px' }}>
-                Workplace policy threshold: 3 or more reports in 14 days triggers a zone hotspot
-                inspection alert.
-              </p>
-
-              <svg
-                role="img"
-                aria-label={`Bar chart of safety reports by zone for ${data.workplace.name}`}
-                viewBox={`0 0 600 ${data.hotspots.length * 44 + 20}`}
-                style={{ width: '100%', maxWidth: '680px', height: 'auto', display: 'block' }}
-              >
-                {data.hotspots.map((z, idx) => {
-                  const y = idx * 44 + 12;
-                  const barMaxW = 320;
-                  const barW = Math.round((z.reportCount14d / maxHotspotCount) * barMaxW);
-                  const fill = z.isHotspot ? '#b3261e' : '#2b4c8c';
-
-                  return (
-                    <g key={z.zoneId} transform={`translate(0, ${y})`}>
-                      <text
-                        x={4}
-                        y={20}
-                        fill="currentColor"
-                        fontSize="13"
-                        fontWeight={z.isHotspot ? '700' : '500'}
-                      >
-                        <Icon name={zoneIcon(z.zoneName)} /> {z.zoneName}
-                      </text>
-                      <rect
-                        x={175}
-                        y={4}
-                        width={barMaxW}
-                        height={22}
-                        rx={5}
-                        fill="rgba(128,128,128,0.14)"
-                      />
-                      <rect
-                        x={175}
-                        y={4}
-                        width={Math.max(6, barW)}
-                        height={22}
-                        rx={5}
-                        fill={fill}
-                      />
-                      <text x={508} y={20} fill="currentColor" fontSize="13" fontWeight="700">
-                        {z.reportCount14d} {z.isHotspot ? 'HOTSPOT' : ''}
-                      </text>
-                    </g>
-                  );
-                })}
-              </svg>
-            </section>
+            <HotspotsCard data={data} />
 
             {/* 4. Fatigue and attrition signals */}
-            <section className="card" aria-labelledby="card-fatigue">
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'flex-start',
-                  flexWrap: 'wrap',
-                  gap: '8px',
-                  marginBottom: '12px',
-                }}
-              >
-                <div>
-                  <h3 id="card-fatigue">4. Fatigue & Attrition Signals</h3>
-                  <p style={{ fontSize: '13px', color: 'var(--ink-secondary)' }}>
-                    Calculated strictly from shift records (consecutive days, 60h/7d ceiling,
-                    &lt;10h rest gaps, overtime trend, missed shifts, disputed claims).{' '}
-                    <strong>Anonymous feedback is never used for individual worker signals.</strong>
-                  </p>
-                </div>
-              </div>
-
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-                  gap: '12px',
-                }}
-              >
-                {data.fatigueSignals
-                  .filter((s) => s.fatigueLevel !== 'low' || s.attritionLevel !== 'low')
-                  .map((s) => (
-                    <div
-                      key={s.workerId}
-                      style={{
-                        padding: '14px',
-                        borderRadius: 'var(--radius-sm)',
-                        border: '1px solid var(--line)',
-                        background: 'var(--surface-subtle)',
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                        }}
-                      >
-                        <strong>{s.workerName}</strong>
-                        <span style={{ fontSize: '12px', color: 'var(--ink-secondary)' }}>
-                          {s.role}
-                        </span>
-                      </div>
-
-                      <div
-                        style={{ display: 'flex', gap: '6px', marginTop: '8px', flexWrap: 'wrap' }}
-                      >
-                        <span
-                          className={
-                            s.fatigueLevel === 'high'
-                              ? 'badge badge-danger'
-                              : s.fatigueLevel === 'medium'
-                                ? 'badge badge-warning'
-                                : 'badge badge-good'
-                          }
-                        >
-                          Fatigue: {s.fatigueLevel.toUpperCase()}
-                        </span>
-                        <span
-                          className={
-                            s.attritionLevel === 'high'
-                              ? 'badge badge-danger'
-                              : s.attritionLevel === 'medium'
-                                ? 'badge badge-warning'
-                                : 'badge badge-good'
-                          }
-                        >
-                          Attrition risk: {s.attritionLevel.toUpperCase()}
-                        </span>
-                      </div>
-
-                      {s.fatigueReasons.length > 0 && (
-                        <p style={{ fontSize: '13px', marginTop: '8px' }}>
-                          <strong>Fatigue reasons:</strong> {s.fatigueReasons.join(' · ')}
-                        </p>
-                      )}
-                      {s.attritionReasons.length > 0 && (
-                        <p
-                          style={{
-                            fontSize: '13px',
-                            marginTop: '4px',
-                            color: 'var(--ink-secondary)',
-                          }}
-                        >
-                          <strong>Attrition drivers:</strong> {s.attritionReasons.join(' · ')}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-              </div>
-            </section>
+            <FatigueSignalsCard data={data} />
 
             {/* 5. Overtime owed this week summary */}
             <section className="card" aria-labelledby="card-overtime">
@@ -837,171 +688,11 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
             </section>
 
             {/* 7. Attendance today */}
-            <section className="card" aria-labelledby="card-attendance">
-              <h3 id="card-attendance">7. Attendance Today ({data.todayDate})</h3>
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(3, 1fr)',
-                  gap: '12px',
-                  marginTop: '12px',
-                }}
-              >
-                <div
-                  style={{
-                    padding: '14px',
-                    background: 'var(--good-soft)',
-                    borderRadius: 'var(--radius-sm)',
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: '12px',
-                      color: 'var(--good)',
-                      fontWeight: 600,
-                      display: 'block',
-                    }}
-                  >
-                    Checked In
-                  </span>
-                  <strong style={{ fontSize: '24px', color: 'var(--good)' }}>
-                    {data.attendanceToday.checkedIn} / {data.attendanceToday.total}
-                  </strong>
-                </div>
-                <div
-                  style={{
-                    padding: '14px',
-                    background: 'var(--warning-soft)',
-                    borderRadius: 'var(--radius-sm)',
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: '12px',
-                      color: 'var(--warning)',
-                      fontWeight: 600,
-                      display: 'block',
-                    }}
-                  >
-                    Late Arrival
-                  </span>
-                  <strong style={{ fontSize: '24px', color: 'var(--warning)' }}>
-                    {data.attendanceToday.late}
-                  </strong>
-                </div>
-                <div
-                  style={{
-                    padding: '14px',
-                    background: 'var(--surface-subtle)',
-                    borderRadius: 'var(--radius-sm)',
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: '12px',
-                      color: 'var(--ink-secondary)',
-                      fontWeight: 600,
-                      display: 'block',
-                    }}
-                  >
-                    Not Checked In Yet
-                  </span>
-                  <strong style={{ fontSize: '24px' }}>{data.attendanceToday.absent}</strong>
-                </div>
-              </div>
-            </section>
+            <AttendanceCard data={data} />
           </div>
 
           {/* Bottom spanning both columns: 6. Feedback themes & Tamper-Evident Shift Ledger */}
-          <section className="card admin-span-full" aria-labelledby="card-feedback">
-            <h3 id="card-feedback">
-              6. Anonymous Worker Feedback Themes (k-Anonymity Gate: k ≥ 5)
-            </h3>
-            <p style={{ fontSize: '13px', color: 'var(--ink-secondary)', marginBottom: '12px' }}>
-              Original voice and words are never stored. Themes unlock only when a team has 5 or
-              more responses.
-            </p>
-
-            {data.feedbackGroups.map((grp) => (
-              <div
-                key={grp.team}
-                style={{
-                  padding: '14px',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--line)',
-                  background: 'var(--surface-subtle)',
-                  marginBottom: '10px',
-                }}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    flexWrap: 'wrap',
-                    gap: '8px',
-                  }}
-                >
-                  <strong>Team: {grp.team}</strong>
-                  <span className={grp.visible ? 'badge badge-good' : 'badge badge-warning'}>
-                    {grp.visible
-                      ? `✓ ${grp.count}/${grp.threshold} responses (Unlocked)`
-                      : `${grp.count}/${grp.threshold}, hidden to protect anonymity`}
-                  </span>
-                </div>
-
-                {!grp.visible ? (
-                  <p style={{ fontSize: '13px', color: 'var(--ink-secondary)', marginTop: '8px' }}>
-                    {grp.statusMessage}. Individual responses remain hidden until {grp.threshold}{' '}
-                    workers respond.
-                  </p>
-                ) : (
-                  <div style={{ marginTop: '10px' }}>
-                    <div
-                      style={{
-                        display: 'flex',
-                        gap: '8px',
-                        flexWrap: 'wrap',
-                        marginBottom: '10px',
-                      }}
-                    >
-                      {grp.themes.map((tItem) => (
-                        <span key={tItem.theme} className="badge badge-accent">
-                          {tItem.theme.replace(/_/g, ' ')} ({tItem.count})
-                        </span>
-                      ))}
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      {grp.entries.map((entry) => (
-                        <div
-                          key={entry.id}
-                          style={{
-                            padding: '8px 10px',
-                            background: 'var(--surface)',
-                            borderRadius: '6px',
-                            fontSize: '13px',
-                            border: '1px solid var(--line)',
-                          }}
-                        >
-                          "{entry.cleanTextEnglish}"
-                          <span
-                            style={{
-                              display: 'block',
-                              fontSize: '11px',
-                              color: 'var(--ink-secondary)',
-                              marginTop: '2px',
-                            }}
-                          >
-                            Scrubbed PII: {entry.removed.join(', ') || 'none'}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </section>
+          <FeedbackThemesCard data={data} />
 
           <section className="card admin-span-full" aria-labelledby="card-ledger-list">
             <div
