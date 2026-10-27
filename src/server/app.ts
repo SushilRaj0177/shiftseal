@@ -6,6 +6,9 @@ import { fileURLToPath } from 'node:url';
 import { securityHeaders, apiRateLimiter } from './middleware/security.js';
 import { errorHandler } from './middleware/errors.js';
 import { healthRouter } from './routes/health.js';
+import { workerRouter } from './routes/worker.js';
+import { aiRouter } from './routes/ai.js';
+import { adminRouter } from './routes/admin.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -19,6 +22,9 @@ export function createApp() {
 
   app.use('/api', apiRateLimiter);
   app.use('/api/health', healthRouter);
+  app.use('/api/worker', workerRouter);
+  app.use('/api/ai', aiRouter);
+  app.use('/api/admin', adminRouter);
 
   // Serve static frontend in production
   const clientDistCandidates = [

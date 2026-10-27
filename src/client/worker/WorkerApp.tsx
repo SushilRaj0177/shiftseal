@@ -1,10 +1,48 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import type { Language } from '../../shared/types.js';
+import type {
+  Language,
+  WorkerProfile,
+  Workplace,
+  ShiftRecord,
+  LedgerEvent,
+  HoursCalculationResult,
+  PayslipCalculationResult,
+  OvertimeClaim,
+  WorkerNotification,
+  HazardReport,
+} from '../../shared/types.js';
 import { t } from '../../shared/i18n/index.js';
+import { verifyAsync } from '../../shared/ledger/ledger.js';
+import { WorkerHome } from './WorkerHome.js';
+import { WorkerPay } from './WorkerPay.js';
+import { WorkerReport } from './WorkerReport.js';
+import { WorkerSpeakUp } from './WorkerSpeakUp.js';
 
 interface WorkerAppProps {
   lang: Language;
+}
+
+interface WorkerOverviewPayload {
+  worker: WorkerProfile;
+  workplace: Workplace;
+  todayDate: string;
+  todayShift: ShiftRecord | null;
+  chain: LedgerEvent[];
+  chainVerification: { ok: boolean };
+  shifts: ShiftRecord[];
+  hoursResult: HoursCalculationResult;
+  payslip: PayslipCalculationResult;
+  claims: OvertimeClaim[];
+  notifications: WorkerNotification[];
+  hazards: HazardReport[];
+  feedbackGroupStatus: {
+    team: string;
+    count: number;
+    threshold: number;
+    visible: boolean;
+    statusMessage: string;
+  };
 }
 
 export const WorkerApp: React.FC<WorkerAppProps> = ({ lang }) => {
@@ -12,9 +50,49 @@ export const WorkerApp: React.FC<WorkerAppProps> = ({ lang }) => {
   const workerId = searchParams.get('workerId') || 'w-murugan';
   const tab = searchParams.get('tab') || 'home';
 
+  const [data, setData] = useState<WorkerOverviewPayload | null>(null);
+  const [clientChainValid, setClientChainValid] = useState(true);
+
+  const fetchOverview = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/worker/${encodeURIComponent(workerId)}/overview`);
+      if (!res.ok) return;
+      const json = (await res.json()) as WorkerOverviewPayload;
+      setData(json);
+
+      // Keep local receipt copy on the worker's phone and run client-side SHA-256 verification
+      try {
+        localStorage.setItem(`shiftseal_receipts_${workerId}`, JSON.stringify(json.chain));
+      } catch {
+        // ignore quota errors
+      }
+      const verified = await verifyAsync(json.chain);
+      setClientChainValid(verified.ok);
+    } catch {
+      // network error handled gracefully
+    }
+  }, [workerId]);
+
+  useEffect(() => {
+    fetchOverview();
+    const interval = setInterval(fetchOverview, 5000);
+    return () => clearInterval(interval);
+  }, [fetchOverview]);
+
   const setTab = (nextTab: string) => {
     setSearchParams({ workerId, tab: nextTab });
   };
+
+  if (!data) {
+    return (
+      <div className="container-narrow">
+        <div className="card skeleton" style={{ height: '90px', marginBottom: '16px' }} />
+        <div className="card skeleton" style={{ height: '240px' }} />
+      </div>
+    );
+  }
+
+  const unreadNotifs = data.notifications.filter((n) => n.status === 'unread').length;
 
   return (
     <div className="container-narrow">
@@ -25,33 +103,108 @@ export const WorkerApp: React.FC<WorkerAppProps> = ({ lang }) => {
           alignItems: 'center',
           justifyContent: 'space-between',
           marginBottom: '16px',
+          gap: '10px',
+          flexWrap: 'wrap',
         }}
       >
         <div>
-          <span className="badge badge-good">{t(lang, 'recordIntact')}</span>
+          <span
+            className={
+              clientChainValid && data.chainVerification.ok
+                ? 'badge badge-good'
+                : 'badge badge-danger'
+            }
+          >
+            {clientChainValid && data.chainVerification.ok
+              ? t(lang, 'recordIntact')
+              : t(lang, 'recordTampered')}
+          </span>
           <h2 style={{ marginTop: '6px' }}>
-            {workerId === 'w-lakshmi' ? t(lang, 'lakshmiCardTitle') : t(lang, 'muruganCardTitle')}
+            {lang === 'ta'
+              ? data.worker.nameTa
+              : lang === 'hi'
+                ? data.worker.nameHi
+                : data.worker.name}
           </h2>
           <p style={{ fontSize: '13px', color: 'var(--ink-secondary)' }}>
-            {workerId === 'w-lakshmi' ? t(lang, 'lakshmiCardRole') : t(lang, 'muruganCardRole')}
+            {lang === 'ta'
+              ? `${data.worker.roleTa} · ${data.workplace.nameTa}`
+              : lang === 'hi'
+                ? `${data.worker.roleHi} · ${data.workplace.nameHi}`
+                : `${data.worker.role} · ${data.workplace.name}`}
           </p>
         </div>
-        <Link to="/" className="btn-subtle" style={{ textDecoration: 'none', padding: '8px 12px' }}>
-          {t(lang, 'switchRole')}
-        </Link>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button
+            type="button"
+            className="btn-subtle"
+            onClick={() =>
+              setSearchParams({
+                workerId: workerId === 'w-murugan' ? 'w-lakshmi' : 'w-murugan',
+                tab,
+              })
+            }
+            style={{ fontSize: '12px', padding: '6px 10px', minHeight: '38px' }}
+          >
+            ⇄ {workerId === 'w-murugan' ? 'Lakshmi' : 'Murugan'}
+          </button>
+          <Link
+            to="/"
+            className="btn-subtle"
+            style={{ textDecoration: 'none', padding: '6px 10px', minHeight: '38px', fontSize: '12px' }}
+          >
+            {t(lang, 'switchRole')}
+          </Link>
+        </div>
       </div>
 
-      <section aria-live="polite" className="card">
-        <h3>
-          {tab === 'home' && t(lang, 'navHome')}
-          {tab === 'pay' && t(lang, 'navPay')}
-          {tab === 'report' && t(lang, 'navReport')}
-          {tab === 'speakup' && t(lang, 'navSpeakUp')}
-        </h3>
-        <p style={{ marginTop: '8px', color: 'var(--ink-secondary)' }}>
-          {t(lang, 'principleBanner')}
-        </p>
-      </section>
+      {tab === 'home' && (
+        <WorkerHome
+          lang={lang}
+          worker={data.worker}
+          workplace={data.workplace}
+          todayDate={data.todayDate}
+          todayShift={data.todayShift}
+          shifts={data.shifts}
+          chain={data.chain}
+          clientChainValid={clientChainValid}
+          serverChainValid={data.chainVerification.ok}
+          hoursResult={data.hoursResult}
+          payslip={data.payslip}
+          notifications={data.notifications}
+          onRefresh={fetchOverview}
+        />
+      )}
+
+      {tab === 'pay' && (
+        <WorkerPay
+          lang={lang}
+          worker={data.worker}
+          payslip={data.payslip}
+          claims={data.claims}
+          onRefresh={fetchOverview}
+        />
+      )}
+
+      {tab === 'report' && (
+        <WorkerReport
+          lang={lang}
+          worker={data.worker}
+          workplace={data.workplace}
+          hazards={data.hazards}
+          onRefresh={fetchOverview}
+        />
+      )}
+
+      {tab === 'speakup' && (
+        <WorkerSpeakUp
+          lang={lang}
+          worker={data.worker}
+          workplace={data.workplace}
+          feedbackGroupStatus={data.feedbackGroupStatus}
+          onRefresh={fetchOverview}
+        />
+      )}
 
       <nav className="worker-bottom-nav" aria-label="Worker navigation">
         <button
@@ -60,7 +213,9 @@ export const WorkerApp: React.FC<WorkerAppProps> = ({ lang }) => {
           aria-current={tab === 'home' ? 'page' : undefined}
           onClick={() => setTab('home')}
         >
-          <span aria-hidden="true">🏠</span>
+          <span aria-hidden="true">
+            🏠{unreadNotifs > 0 ? ` (${unreadNotifs})` : ''}
+          </span>
           <span>{t(lang, 'navHome')}</span>
         </button>
         <button
