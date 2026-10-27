@@ -141,7 +141,7 @@ Each industry is a **configuration, not a code fork**: a ruleset JSON, zones, ha
   - Acts are cited by name. Thresholds are configurable per state and sector in `src/shared/rules/rulesets/*.json`.
   - Values marked `"policy"` (rest gaps, fatigue limits, hazard deadlines, the deduction-reason requirement) are **employer settings, not law**, and the UI labels them that way.
 - **Pay:** wages are the employer's agreed hourly or daily rate. **We don't claim statutory minimum-wage figures without a verified source.**
-- **Sign-in:** this is a demo sign-in, with role cards instead of real authentication. Admin routes still enforce the role on the server.
+- **Sign-in:** the demo sign-in issues a signed admin session per workplace instead of asking for a password. Every admin route verifies the token's signature, expiry and workplace on the server.
 - **Demo data:** about 16 workers across 2 workplaces with 3 weeks of shifts. Today is fixed at 27 Oct 2026, so the stories (an edited checkout, a fatigue case, the Scaffold B hotspot) are reproducible.
 - **Without Gemini:** if Gemini is unavailable, every AI feature uses a clearly labelled **"Demo response"** so the app never breaks. Numbers still come from the rules engine.
 - **Photos:** these are optional, compressed on the phone, and only their description is used.
@@ -153,6 +153,8 @@ Each industry is a **configuration, not a code fork**: a ruleset JSON, zones, ha
 - **Security:**
   - No secrets in the repo or its history.
   - Vertex AI uses the service account (no keys).
+  - Admin routes require an HMAC-SHA256 signed, expiring, workplace-scoped session (`Authorization: Bearer`), verified with a constant-time comparison. Role headers are never trusted.
+  - The container runs as the non-root `node` user.
   - zod validation on every request.
   - helmet with a strict CSP, rate limits (AI routes 20 per minute), upload size limits.
   - Generic error messages, with logs that contain only the error type and status, never content.
@@ -163,13 +165,13 @@ Each industry is a **configuration, not a code fork**: a ruleset JSON, zones, ha
   - Visible `:focus-visible`, Esc closes sheets, and everything works by keyboard.
   - WCAG AA contrast, `prefers-reduced-motion` respected, read-aloud.
 - **Testing:**
-  - **65 Vitest tests in 11 files:** hours (night shifts, no double-counted overtime), pay, ledger tamper detection, claims tolerance, severity floor, anonymity threshold, fact check, fatigue, zod schemas.
-  - API tests with Gemini mocked: admin routes reject workers, feedback never stores the original, a fact-check failure falls back to the template.
+  - **71 Vitest tests in 12 files:** hours (night shifts, no double-counted overtime), pay, ledger tamper detection, claims tolerance, severity floor, anonymity threshold, fact check, fatigue, zod schemas.
+  - API tests with Gemini mocked: admin routes reject missing, spoofed, tampered and wrong-workplace sessions, feedback never stores the original, a fact-check failure falls back to the template.
   - CI runs lint, tests and the build on every push.
 
 ```bash
 npm ci
-npm test        # 65 tests
+npm test        # 71 tests
 npm run lint
 npm run build
 npm start       # http://localhost:8080 (STORE=memory by default)

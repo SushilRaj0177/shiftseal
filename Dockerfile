@@ -15,4 +15,5 @@ RUN npm ci --omit=dev --no-audit --no-fund && npm cache clean --force
 COPY --from=builder /app/dist ./dist
 COPY src/shared/rules/rulesets ./dist/server/shared/rules/rulesets
 EXPOSE 8080
+USER node
 CMD ["node", "dist/server/server/index.js"]

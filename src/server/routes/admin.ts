@@ -1,8 +1,7 @@
 import { Router } from 'express';
-import QRCode from 'qrcode';
 import { getStore } from '../store/firestore.js';
 import { DEMO_TODAY } from '../store/seed.js';
-import { requireAdminRole } from '../middleware/security.js';
+import { requireAdminRole, requireWorkplaceScope } from '../middleware/security.js';
 import { AppError } from '../middleware/errors.js';
 import {
   adminEditShiftSchema,
@@ -21,10 +20,10 @@ export const adminRouter = Router();
 
 adminRouter.use(requireAdminRole);
 
-adminRouter.get('/dashboard/:workplaceId', async (req, res, next) => {
+adminRouter.get('/dashboard/:workplaceId', requireWorkplaceScope, async (req, res, next) => {
   try {
     const store = getStore();
-    const workplaceId = req.params.workplaceId;
+    const workplaceId = String(req.params.workplaceId);
     const workplace = await store.getWorkplace(workplaceId);
     if (!workplace) {
       throw new AppError(404, 'WORKPLACE_NOT_FOUND', 'Workplace not found.');
@@ -268,25 +267,6 @@ adminRouter.post('/hazards/status', async (req, res, next) => {
 
     await store.saveHazard(hazard);
     res.json({ hazard });
-  } catch (err) {
-    next(err);
-  }
-});
-
-adminRouter.get('/qr-svg', async (req, res, next) => {
-  try {
-    const code = String(req.query.code || 'SHIFTSEAL').slice(0, 120);
-    const svg = await QRCode.toString(code, {
-      type: 'svg',
-      margin: 1,
-      width: 148,
-      color: {
-        dark: '#1b1b1f',
-        light: '#ffffff',
-      },
-    });
-    res.setHeader('Content-Type', 'image/svg+xml');
-    res.send(svg);
   } catch (err) {
     next(err);
   }

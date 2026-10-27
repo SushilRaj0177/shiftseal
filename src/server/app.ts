@@ -9,6 +9,8 @@ import { healthRouter } from './routes/health.js';
 import { workerRouter } from './routes/worker.js';
 import { aiRouter } from './routes/ai.js';
 import { adminRouter } from './routes/admin.js';
+import { sessionRouter } from './routes/session.js';
+import { qrRouter } from './routes/qr.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -16,6 +18,7 @@ export function createApp() {
   const app = express();
 
   app.set('trust proxy', 1);
+  app.disable('x-powered-by');
   app.use(securityHeaders);
   app.use(compression());
   app.use(express.json({ limit: '4mb' }));
@@ -24,6 +27,8 @@ export function createApp() {
   app.use('/api/health', healthRouter);
   app.use('/api/worker', workerRouter);
   app.use('/api/ai', aiRouter);
+  app.use('/api/session', sessionRouter);
+  app.use('/api/qr-svg', qrRouter);
   app.use('/api/admin', adminRouter);
 
   // Serve static frontend in production

@@ -5,6 +5,13 @@ import { MemoryStore } from '../../src/server/store/memory.js';
 import { setStoreForTests } from '../../src/server/store/firestore.js';
 import { setGeminiGeneratorForTests } from '../../src/server/gemini/client.js';
 
+
+async function adminToken(app: ReturnType<typeof createApp>, workplaceId: string): Promise<string> {
+  const res = await request(app).post('/api/session/admin').send({ workplaceId });
+  expect(res.status).toBe(200);
+  return res.body.token as string;
+}
+
 describe('API Routes — Worker, AI (with mocked Gemini & fallback), and Admin security/privacy', () => {
   let memStore: MemoryStore;
 
@@ -21,33 +28,49 @@ describe('API Routes — Worker, AI (with mocked Gemini & fallback), and Admin s
     vi.restoreAllMocks();
   });
 
-  it('rejects admin routes when called with worker or missing credentials', async () => {
+  it('rejects admin routes without a valid signed session, including spoofed role headers', async () => {
     const app = createApp();
-    const resNoHeader = await request(app).get('/api/admin/dashboard/wp-tower-b');
-    expect(resNoHeader.status).toBe(403);
+    const resNoAuth = await request(app).get('/api/admin/dashboard/wp-tower-b');
+    expect(resNoAuth.status).toBe(401);
 
-    const resWorkerHeader = await request(app)
+    const resSpoofedHeader = await request(app)
       .get('/api/admin/dashboard/wp-tower-b')
-      .set('x-shiftseal-role', 'worker');
-    expect(resWorkerHeader.status).toBe(403);
+      .set('x-shiftseal-role', 'admin');
+    expect(resSpoofedHeader.status).toBe(401);
+
+    const token = await adminToken(app, 'wp-tower-b');
+    const tampered = `${token.slice(0, -2)}xx`;
+    const resTampered = await request(app)
+      .get('/api/admin/dashboard/wp-tower-b')
+      .set('Authorization', `Bearer ${tampered}`);
+    expect(resTampered.status).toBe(401);
 
     const resEditRejected = await request(app)
       .post('/api/admin/shifts/edit')
-      .set('x-shiftseal-role', 'worker')
       .send({
         workerId: 'w-murugan',
         targetEventId: 'ev-1',
         newTimestamp: '18:00',
         reason: 'Attempted unauthorized edit',
       });
-    expect(resEditRejected.status).toBe(403);
+    expect(resEditRejected.status).toBe(401);
   });
 
-  it('allows admin routes when x-shiftseal-role: admin is set', async () => {
+  it('scopes admin sessions to a single workplace', async () => {
     const app = createApp();
+    const campusToken = await adminToken(app, 'wp-campus');
     const res = await request(app)
       .get('/api/admin/dashboard/wp-tower-b')
-      .set('x-shiftseal-role', 'admin');
+      .set('Authorization', `Bearer ${campusToken}`);
+    expect(res.status).toBe(403);
+  });
+
+  it('allows admin routes with a valid signed session for that workplace', async () => {
+    const app = createApp();
+    const token = await adminToken(app, 'wp-tower-b');
+    const res = await request(app)
+      .get('/api/admin/dashboard/wp-tower-b')
+      .set('Authorization', `Bearer ${token}`);
     expect(res.status).toBe(200);
     expect(res.body.workplace.id).toBe('wp-tower-b');
     expect(res.body.hotspots.length).toBeGreaterThan(0);
@@ -261,7 +284,7 @@ describe('API Routes — Worker, AI (with mocked Gemini & fallback), and Admin s
     // Admin resolves the created dispute
     const resolveRes = await request(app)
       .post('/api/admin/disputes/resolve')
-      .set('x-shiftseal-role', 'admin')
+      .set('Authorization', `Bearer ${await adminToken(app, 'wp-tower-b')}`)
       .send({
         claimId: disagreeRes.body.dispute.id,
         decision: 'approved',
@@ -271,12 +294,17 @@ describe('API Routes — Worker, AI (with mocked Gemini & fallback), and Admin s
     expect(resolveRes.body.claim.resolutionStatus).toBe('approved');
   });
 
-  it('serves zone QR SVG on GET /api/admin/qr-svg', async () => {
+  it('serves zone QR SVG on GET /api/qr-svg', async () => {
     const app = createApp();
     const res = await request(app)
-      .get('/api/admin/qr-svg?code=TB-SCAF-B')
-      .set('x-shiftseal-role', 'admin');
+      .get('/api/qr-svg?code=TB-SCAF-B');
     expect(res.status).toBe(200);
     expect(res.headers['content-type']).toContain('image/svg+xml');
+  });
+
+  it('rejects QR codes with unexpected characters', async () => {
+    const app = createApp();
+    const res = await request(app).get('/api/qr-svg?code=%3Cscript%3E');
+    expect(res.status).toBe(400);
   });
 });

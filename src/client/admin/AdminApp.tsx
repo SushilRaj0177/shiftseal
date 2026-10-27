@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { adminAuthHeaders } from './adminSession.js';
 import { Icon, zoneIcon } from '../components/Icon.js';
 import { useSearchParams, Link } from 'react-router-dom';
 import type {
@@ -104,7 +105,7 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
   const fetchDashboard = useCallback(async () => {
     try {
       const res = await fetch(`/api/admin/dashboard/${encodeURIComponent(workplaceId)}`, {
-        headers: { 'x-shiftseal-role': 'admin' },
+        headers: await adminAuthHeaders(workplaceId),
       });
       if (res.ok) {
         const json = (await res.json()) as DashboardPayload;
@@ -145,7 +146,7 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-shiftseal-role': 'admin',
+          ...(await adminAuthHeaders(workplaceId)),
         },
         body: JSON.stringify({
           claimId,
@@ -170,7 +171,7 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-shiftseal-role': 'admin',
+          ...(await adminAuthHeaders(workplaceId)),
         },
         body: JSON.stringify({ hazardId, status }),
       });
@@ -190,7 +191,7 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-shiftseal-role': 'admin',
+          ...(await adminAuthHeaders(workplaceId)),
         },
         body: JSON.stringify({
           workerId: editingShift.workerId,
@@ -335,7 +336,7 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
               <span className="badge badge-accent">SHIFT CHECK-IN / OUT</span>
               <h4 style={{ marginTop: '8px' }}>{data.workplace.name}</h4>
               <img
-                src={`/api/admin/qr-svg?code=${encodeURIComponent(data.workplace.checkinCode)}`}
+                src={`/api/qr-svg?code=${encodeURIComponent(data.workplace.checkinCode)}`}
                 alt={`QR code for ${data.workplace.checkinCode}`}
                 width={148}
                 height={148}
@@ -364,7 +365,7 @@ export const AdminApp: React.FC<AdminAppProps> = ({ lang }) => {
                   {z.nameTa} · {z.nameHi}
                 </p>
                 <img
-                  src={`/api/admin/qr-svg?code=${encodeURIComponent(z.code)}`}
+                  src={`/api/qr-svg?code=${encodeURIComponent(z.code)}`}
                   alt={`QR code for zone ${z.name} (${z.code})`}
                   width={148}
                   height={148}

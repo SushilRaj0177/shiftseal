@@ -26,7 +26,7 @@ export function check(
     }
 
     const truthValue = truthMap[cited.ref];
-    const isHours = cited.ref.toLowerCase().includes('hour') || cited.ref.toLowerCase().includes('ot');
+    const isHours = /hours$/i.test(cited.ref);
     const diff = Math.abs(cited.value - truthValue);
 
     if (isHours) {
