@@ -114,4 +114,39 @@ describe('API Routes — Worker, AI (with fallback/mock), and Admin security & p
     expect(editRes.body.notification.oldValue).toBe('18:00');
     expect(editRes.body.notification.newValue).toBe('17:00');
   });
+
+  it('Live demo flow: worker overview reflects admin shift edit andPOST /api/ai/explain-pay returns fact-checked explanation', async () => {
+    const app = createApp();
+
+    // 1. Check worker overview
+    const ovRes = await request(app).get('/api/worker/w-murugan/overview');
+    expect(ovRes.status).toBe(200);
+    expect(ovRes.body.chainVerification.ok).toBe(true);
+    expect(ovRes.body.notifications.length).toBeGreaterThanOrEqual(1);
+
+    // 2. Check explain-pay fact check
+    const payRes = await request(app).post('/api/ai/explain-pay').send({
+      workerId: 'w-murugan',
+      lang: 'ta',
+      question: 'என் சம்பள கணக்கு என்ன?',
+    });
+    expect(payRes.status).toBe(200);
+    expect(payRes.body.verificationStatus).toBe('checked');
+    expect(payRes.body.citedFacts.length).toBeGreaterThan(0);
+
+    // 3. Submit hazard from worker and verify it appears at top of admin hazard queue
+    const hazRes = await request(app).post('/api/worker/hazards').send({
+      workplaceId: 'wp-tower-b',
+      zoneId: 'z-scaffold-b',
+      workerId: 'w-murugan',
+      hazardType: 'electrical',
+      description: 'Live cable near scaffold base',
+      englishSummary: 'Live cable near scaffold base',
+      aiSeverity: 'low', // floor will raise to high!
+      detectedLanguage: 'en',
+    });
+    expect(hazRes.status).toBe(201);
+    expect(hazRes.body.hazard.finalSeverity).toBe('high');
+    expect(hazRes.body.hazard.floorApplied).toBe(true);
+  });
 });
