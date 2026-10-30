@@ -3,14 +3,14 @@ import type {
   SectorId,
   HazardType,
   SeverityLevel,
-  RemovedPiiCategory,
-  FeedbackTheme,
   PayslipCalculationResult,
 } from '../../shared/types.js';
+import { recentWeekdays } from './prompts.js';
 
 export function buildFallbackStructuredClaim(
   text: string | undefined,
-  lang: Language
+  lang: Language,
+  todayIso: string
 ): {
   date: string;
   extraHours: number;
@@ -38,38 +38,30 @@ export function buildFallbackStructuredClaim(
     extraHours = 3;
   }
 
-  let date = '2026-10-24'; // Saturday default
-  if (
-    raw.includes('tuesday') ||
-    raw.includes('செவ்வாய்') ||
-    raw.includes('मंगलवार') ||
-    raw.includes('2026-10-20')
-  ) {
-    date = '2026-10-20';
-  } else if (
-    raw.includes('sunday') ||
-    raw.includes('ஞாயிறு') ||
-    raw.includes('रविवार') ||
-    raw.includes('2026-10-25')
-  ) {
-    date = '2026-10-25';
-  }
+  // Weekday words in English, Tamil and Hindi, resolved to the most recent past date.
+  const recent = recentWeekdays(todayIso);
+  const words: [string, string[]][] = [
+    ['Sunday', ['sunday', 'ஞாயிறு', 'रविवार']],
+    ['Monday', ['monday', 'திங்கள்', 'सोमवार']],
+    ['Tuesday', ['tuesday', 'செவ்வாய்', 'मंगलवार']],
+    ['Wednesday', ['wednesday', 'புதன்', 'बुधवार']],
+    ['Thursday', ['thursday', 'வியாழன்', 'गुरुवार']],
+    ['Friday', ['friday', 'வெள்ளி', 'शुक्रवार']],
+    ['Saturday', ['saturday', 'சனி', 'शनिवार']],
+  ];
+  const hit = words.find(([, ws]) => ws.some((w) => raw.includes(w)));
+  const date = hit ? recent[hit[0]] : todayIso;
 
-  const reason =
-    detectedLanguage === 'ta'
-      ? 'சனிக்கிழமை கான்கிரீட் ஸ்லாப் பணி (Saturday concrete slab pouring)'
-      : detectedLanguage === 'hi'
-        ? 'शनिवार अतिरिक्त साइट कार्य (Saturday extra shift work)'
-        : text && text.trim().length > 0
-          ? text.trim().slice(0, 180)
-          : 'Extra hours worked on Saturday slab pouring shift';
+  // Without the AI, keep the worker's own words rather than inventing a reason.
+  const reason = text && text.trim().length > 0 ? text.trim().slice(0, 180) : 'Extra hours';
 
   return {
     date,
     extraHours,
     reason,
     detectedLanguage,
-    confidence: 0.94,
+    // Keyword matching is a guess: low confidence makes the app ask the worker to check it.
+    confidence: 0.4,
   };
 }
 
@@ -126,8 +118,9 @@ export function buildFallbackHazard(
   const isHindi = /[\u0900-\u097F]/.test(text ?? '');
   const detectedLanguage: Language = isTamil ? 'ta' : isHindi ? 'hi' : lang;
 
-  let hazardType: HazardType = 'electrical';
-  let aiSeverity: SeverityLevel = 'medium'; // Let the deterministic severity floor raise it to high!
+  // Unknown until a keyword matches; the worker confirms the type before sending.
+  let hazardType: HazardType = 'other';
+  let aiSeverity: SeverityLevel = 'medium'; // The severity floor can still raise it.
 
   if (
     raw.includes('wire') ||
@@ -158,12 +151,7 @@ export function buildFallbackHazard(
   }
 
   const trimmed = (text ?? '').trim();
-  const description =
-    trimmed.length > 0
-      ? trimmed.slice(0, 500)
-      : detectedLanguage === 'hi'
-        ? 'हॉस्टल ब्लॉक A में बिजली का तार खुला लटक रहा है'
-        : 'Exposed live electrical wire hanging in walkway';
+  const description = trimmed.length > 0 ? trimmed.slice(0, 500) : 'Voice report (not transcribed)';
 
   const englishSummary = trimmed.length > 0 ? trimmed.slice(0, 500) : description;
 
@@ -173,44 +161,5 @@ export function buildFallbackHazard(
     aiSeverity,
     englishSummary,
     detectedLanguage,
-  };
-}
-
-export function buildFallbackAnonymisedFeedback(
-  text: string | undefined,
-  lang: Language
-): {
-  cleanText: string;
-  cleanTextEnglish: string;
-  removed: RemovedPiiCategory[];
-  themes: FeedbackTheme[];
-  sentiment: number;
-} {
-  const raw =
-    text?.trim() ||
-    'Supervisor Ravi cut my Tuesday overtime hours near Gate 2 and did not explain the ₹200 deduction.';
-  const removed: RemovedPiiCategory[] = ['name', 'place', 'time'];
-  const themes: FeedbackTheme[] = ['supervisor_conduct', 'overtime_pay'];
-
-  // Strip common names/places/times deterministically for fallback
-  const scrubbedEn = raw
-    .replace(/\b(Supervisor\s+\w+|Ravi|Meenakshi|Murugan|Lakshmi|Rajesh)\b/gi, 'a supervisor')
-    .replace(/\b(Gate\s*\d+|Block\s*[A-Z]|Scaffold\s*[A-Z])\b/gi, 'the work area')
-    .replace(/\b(\d{1,2}:\d{2}\s*(?:AM|PM)?|Tuesday|Saturday)\b/gi, 'during the shift');
-
-  const cleanText =
-    lang === 'ta'
-      ? 'பணி நேரத்தின் போது ஓவர்டைம் கணக்கு மற்றும் சம்பளப் பிடித்தம் குறித்து மேற்பார்வையாளர் முறையான விளக்கம் அளிக்கவில்லை.'
-      : lang === 'hi'
-        ? 'शिफ्ट के दौरान ओवरटाइम घंटों और वेतन कटौती के बारे में पूछने पर सुपरवाइजर ने स्पष्ट जानकारी नहीं दी।'
-        : scrubbedEn;
-
-  return {
-    cleanText,
-    cleanTextEnglish:
-      'Workers report that overtime checkout adjustments and equipment deductions are made without clear explanation from supervision.',
-    removed,
-    themes,
-    sentiment: -0.72,
   };
 }

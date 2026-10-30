@@ -1,3 +1,4 @@
+import { AppError } from '../middleware/errors.js';
 import { GoogleGenAI, Type, type Schema } from '@google/genai';
 import type {
   Language,
@@ -26,9 +27,7 @@ import {
   buildFallbackStructuredClaim,
   buildTemplatePayExplanation,
   buildFallbackHazard,
-  buildFallbackAnonymisedFeedback,
-} from './demo-fallbacks.js';
-import { DEMO_TODAY } from '../store/seed.js';
+} from './fallbacks.js';
 
 const TIMEOUT_MS = 15_000;
 export const DEFAULT_GEMINI_MODEL = 'gemini-3.8-flash';
@@ -139,7 +138,8 @@ async function callGeminiWithRetry(
 
 export async function structureClaim(
   input: { text?: string; audioBase64?: string; audioMimeType?: string },
-  lang: Language
+  lang: Language,
+  todayIso: string
 ): Promise<{
   date: string;
   extraHours: number;
@@ -163,7 +163,7 @@ export async function structureClaim(
   try {
     const raw = await callGeminiWithRetry(
       'structureClaim',
-      buildStructureClaimPrompt(DEMO_TODAY, lang),
+      buildStructureClaimPrompt(todayIso, lang),
       schema,
       input
     );
@@ -171,7 +171,7 @@ export async function structureClaim(
     return { ...parsed, isDemoFallback: false };
   } catch (err) {
     logSafeGeminiFailure('structureClaim_fallback', err);
-    const fallback = buildFallbackStructuredClaim(input.text, lang);
+    const fallback = buildFallbackStructuredClaim(input.text, lang, todayIso);
     return { ...fallback, isDemoFallback: true };
   }
 }
@@ -371,8 +371,12 @@ export async function anonymiseFeedback(
     const parsed = anonymisedFeedbackOutputSchema.parse(raw);
     return { ...parsed, isDemoFallback: false };
   } catch (err) {
-    logSafeGeminiFailure('anonymiseFeedback_fallback', err);
-    const fallback = buildFallbackAnonymisedFeedback(input.text, lang);
-    return { ...fallback, isDemoFallback: true };
+    // Without the model we cannot reliably remove names and places, so nothing is saved.
+    logSafeGeminiFailure('anonymiseFeedback_unavailable', err);
+    throw new AppError(
+      503,
+      'ANONYMISER_UNAVAILABLE',
+      'We could not make your message anonymous right now. Nothing was saved. Please try again in a few minutes.'
+    );
   }
 }

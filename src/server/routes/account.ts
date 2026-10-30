@@ -1,0 +1,219 @@
+import { Router } from 'express';
+import type { MemberRecord, UserAccount, WorkplaceRecord } from '../../shared/model.js';
+import {
+  acceptInviteSchema,
+  createWorkplaceSchema,
+  inviteCodeSchema,
+  updateProfileSchema,
+} from '../../shared/apiSchemas.js';
+import { requireIdentity, type Identity } from '../auth/identity.js';
+import { getConfig } from '../config.js';
+import { getRepo } from '../data/index.js';
+import { receiptPublicJwk } from '../keys.js';
+import { AppError } from '../middleware/errors.js';
+import { newId, newInviteCode } from '../services/ids.js';
+
+export const publicRouter = Router();
+
+/** Public settings the web app needs before sign-in. */
+publicRouter.get('/config', (_req, res) => {
+  const c = getConfig();
+  res.json({
+    authMode: c.AUTH_MODE,
+    firebase: {
+      apiKey: c.FIREBASE_WEB_API_KEY ?? null,
+      authDomain: c.FIREBASE_AUTH_DOMAIN ?? null,
+      projectId: c.FIREBASE_PROJECT_ID ?? c.GOOGLE_CLOUD_PROJECT ?? null,
+    },
+  });
+});
+
+/** The key that signs receipts and daily fingerprints, for independent verification. */
+publicRouter.get('/receipts/key', (_req, res) => {
+  res.json({ alg: 'EdDSA', key: receiptPublicJwk() });
+});
+
+export const accountRouter = Router();
+accountRouter.use(requireIdentity);
+
+async function ensureUser(identity: Identity): Promise<UserAccount> {
+  const repo = getRepo();
+  const existing = await repo.getUser(identity.uid);
+  if (existing) return existing;
+  const user: UserAccount = {
+    uid: identity.uid,
+    phone: identity.phone,
+    email: identity.email,
+    name: identity.name ?? '',
+    language: 'en',
+    createdAt: new Date().toISOString(),
+    memberships: [],
+  };
+  await repo.saveUser(user);
+  return user;
+}
+
+accountRouter.get('/me', async (req, res, next) => {
+  try {
+    const repo = getRepo();
+    const user = await ensureUser(req.identity!);
+    const workplaces = await Promise.all(
+      user.memberships.map(async (m) => {
+        const [wp, member] = await Promise.all([
+          repo.getWorkplace(m.workplaceId),
+          repo.getMember(m.workplaceId, user.uid),
+        ]);
+        if (!wp || !member || member.status !== 'active') return null;
+        return { id: wp.id, name: wp.name, sector: wp.sector, role: member.role };
+      })
+    );
+    res.json({ user, workplaces: workplaces.filter(Boolean) });
+  } catch (err) {
+    next(err);
+  }
+});
+
+accountRouter.patch('/me', async (req, res, next) => {
+  try {
+    const body = updateProfileSchema.parse(req.body);
+    const user = await ensureUser(req.identity!);
+    const updated = { ...user, ...body };
+    await getRepo().saveUser(updated);
+    res.json({ user: updated });
+  } catch (err) {
+    next(err);
+  }
+});
+
+accountRouter.post('/workplaces', async (req, res, next) => {
+  try {
+    const body = createWorkplaceSchema.parse(req.body);
+    const repo = getRepo();
+    const user = await ensureUser(req.identity!);
+    const codes = new Set(body.zones.map((z) => z.code));
+    if (codes.size !== body.zones.length) {
+      throw new AppError(400, 'DUPLICATE_ZONE', 'Each zone needs its own code.');
+    }
+
+    const now = new Date().toISOString();
+    const { ownerName, ...settings } = body;
+    const wp: WorkplaceRecord = {
+      ...settings,
+      id: newId('wp'),
+      ownerUid: user.uid,
+      inviteCode: newInviteCode(body.name),
+      createdAt: now,
+    };
+    const owner: MemberRecord = {
+      uid: user.uid,
+      workplaceId: wp.id,
+      role: 'owner',
+      name: ownerName,
+      phone: user.phone,
+      title: 'Owner',
+      team: 'Management',
+      hourlyRate: 0,
+      dailyWage: 0,
+      language: user.language,
+      joinedAt: now,
+      status: 'active',
+    };
+    await repo.saveWorkplace(wp);
+    await repo.saveMember(owner);
+    await repo.saveInvite({
+      code: wp.inviteCode,
+      workplaceId: wp.id,
+      role: 'worker',
+      createdBy: user.uid,
+      createdAt: now,
+    });
+    await repo.saveUser({
+      ...user,
+      name: user.name || ownerName,
+      memberships: [...user.memberships, { workplaceId: wp.id, role: 'owner' }],
+    });
+    res.status(201).json({ workplace: wp });
+  } catch (err) {
+    next(err);
+  }
+});
+
+async function usableInvite(code: string, identity: Identity) {
+  const repo = getRepo();
+  const invite = await repo.getInvite(code.toUpperCase());
+  if (!invite || invite.revoked) {
+    throw new AppError(
+      404,
+      'INVITE_NOT_FOUND',
+      'That code was not found. Check it with your supervisor.'
+    );
+  }
+  if (invite.phone && invite.phone !== identity.phone) {
+    throw new AppError(
+      403,
+      'INVITE_PHONE_MISMATCH',
+      'This invite was sent to a different phone number.'
+    );
+  }
+  const wp = await repo.getWorkplace(invite.workplaceId);
+  if (!wp) throw new AppError(404, 'INVITE_NOT_FOUND', 'That workplace no longer exists.');
+  return { invite, wp };
+}
+
+accountRouter.post('/invites/preview', async (req, res, next) => {
+  try {
+    const { code } = inviteCodeSchema.parse(req.body);
+    const { invite, wp } = await usableInvite(code, req.identity!);
+    const inviter = await getRepo().getMember(wp.id, invite.createdBy);
+    res.json({
+      workplace: { id: wp.id, name: wp.name, sector: wp.sector },
+      role: invite.role,
+      invitedBy: inviter?.name ?? null,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+accountRouter.post('/invites/accept', async (req, res, next) => {
+  try {
+    const body = acceptInviteSchema.parse(req.body);
+    const repo = getRepo();
+    const { invite, wp } = await usableInvite(body.code, req.identity!);
+    const user = await ensureUser(req.identity!);
+    const existing = await repo.getMember(wp.id, user.uid);
+    if (existing?.status === 'active') {
+      res.json({ workplace: { id: wp.id, name: wp.name }, member: existing });
+      return;
+    }
+    const member: MemberRecord = {
+      uid: user.uid,
+      workplaceId: wp.id,
+      role: invite.role,
+      name: body.name,
+      phone: req.identity!.phone,
+      title: invite.role === 'supervisor' ? 'Supervisor' : 'Worker',
+      team: 'General',
+      hourlyRate: 0,
+      dailyWage: 0,
+      language: body.language,
+      joinedAt: new Date().toISOString(),
+      status: 'active',
+    };
+    await repo.saveMember(member);
+    // A personal (phone-bound) invite is single use.
+    if (invite.phone) await repo.saveInvite({ ...invite, revoked: true });
+    await repo.saveUser({
+      ...user,
+      name: user.name || body.name,
+      language: body.language,
+      memberships: [
+        ...user.memberships.filter((m) => m.workplaceId !== wp.id),
+        { workplaceId: wp.id, role: invite.role },
+      ],
+    });
+    res.status(201).json({ workplace: { id: wp.id, name: wp.name }, member });
+  } catch (err) {
+    next(err);
+  }
+});

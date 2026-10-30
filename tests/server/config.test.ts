@@ -35,4 +35,18 @@ describe('runtime configuration', () => {
       expect.objectContaining({ message: expect.not.stringContaining('tiny-secret') })
     );
   });
+
+  it('refuses development sign-in and missing secrets in production', () => {
+    expect(() => parseConfig({ NODE_ENV: 'production', AUTH_MODE: 'dev' })).toThrow(/AUTH_MODE/);
+    expect(() => parseConfig({ NODE_ENV: 'production', GOOGLE_CLOUD_PROJECT: 'p' })).toThrow(
+      /SESSION_SECRET/
+    );
+    expect(
+      parseConfig({
+        NODE_ENV: 'production',
+        GOOGLE_CLOUD_PROJECT: 'p',
+        SESSION_SECRET: 'a'.repeat(40),
+      }).AUTH_MODE
+    ).toBe('firebase');
+  });
 });

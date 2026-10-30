@@ -3,14 +3,19 @@ import compression from 'compression';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { securityHeaders, apiRateLimiter, permissionsPolicy } from './middleware/security.js';
+import {
+  securityHeaders,
+  apiRateLimiter,
+  inviteRateLimiter,
+  permissionsPolicy,
+} from './middleware/security.js';
 import { errorHandler } from './middleware/errors.js';
+import { requireIdentity } from './auth/identity.js';
+import { loadMembership } from './auth/membership.js';
 import { healthRouter } from './routes/health.js';
-import { workerRouter } from './routes/worker.js';
-import { aiRouter } from './routes/ai.js';
-import { adminRouter } from './routes/admin.js';
-import { sessionRouter } from './routes/session.js';
-import { qrRouter } from './routes/qr.js';
+import { accountRouter, publicRouter } from './routes/account.js';
+import { workplaceRouter } from './routes/workplace.js';
+import { reportsRouter } from './routes/reports.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -26,11 +31,10 @@ export function createApp() {
 
   app.use('/api', apiRateLimiter);
   app.use('/api/health', healthRouter);
-  app.use('/api/worker', workerRouter);
-  app.use('/api/ai', aiRouter);
-  app.use('/api/session', sessionRouter);
-  app.use('/api/qr-svg', qrRouter);
-  app.use('/api/admin', adminRouter);
+  app.use('/api', publicRouter);
+  app.use('/api/invites', inviteRateLimiter);
+  app.use('/api', accountRouter);
+  app.use('/api/workplaces/:wp', requireIdentity, loadMembership, workplaceRouter, reportsRouter);
 
   // Serve static frontend in production
   const clientDistCandidates = [

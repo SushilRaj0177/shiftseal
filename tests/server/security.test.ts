@@ -15,11 +15,14 @@ describe('HTTP security hardening', () => {
   it('restricts powerful browser features to this origin', async () => {
     const res = await request(app).get('/api/health');
     expect(res.headers['permissions-policy']).toContain('microphone=(self)');
-    expect(res.headers['permissions-policy']).toContain('geolocation=()');
+    expect(res.headers['permissions-policy']).toContain('geolocation=(self)');
   });
 
   it('returns a generic 400 for invalid input without leaking internals', async () => {
-    const res = await request(app).post('/api/ai/claim').send({ workerId: '', text: 'x' });
+    const res = await request(app)
+      .patch('/api/me')
+      .set('Authorization', 'Bearer dev:sec-user')
+      .send({ language: 'fr' });
     expect(res.status).toBe(400);
     expect(res.body.error).toBe('VALIDATION_ERROR');
     expect(JSON.stringify(res.body)).not.toMatch(/at \w+ \(|node_modules/);
@@ -27,18 +30,27 @@ describe('HTTP security hardening', () => {
 
   it('rejects malformed JSON bodies with a client error, not a crash', async () => {
     const res = await request(app)
-      .post('/api/ai/claim')
+      .patch('/api/me')
+      .set('Authorization', 'Bearer dev:sec-user')
       .set('Content-Type', 'application/json')
-      .send('{"workerId":');
+      .send('{"name":');
     expect(res.status).toBeGreaterThanOrEqual(400);
     expect(res.status).toBeLessThan(500);
   });
 
   it('rejects oversized text input', async () => {
     const res = await request(app)
-      .post('/api/ai/claim')
-      .send({ workerId: 'w-murugan', text: 'a'.repeat(5000) });
+      .patch('/api/me')
+      .set('Authorization', 'Bearer dev:sec-user')
+      .send({ name: 'a'.repeat(5000) });
     expect(res.status).toBe(400);
+  });
+
+  it('requires sign-in for account and workplace routes', async () => {
+    expect((await request(app).get('/api/me')).status).toBe(401);
+    expect((await request(app).get('/api/workplaces/wp_x/me')).status).toBe(401);
+    const bad = await request(app).get('/api/me').set('Authorization', 'Bearer not-a-token');
+    expect(bad.status).toBe(401);
   });
 });
 
@@ -46,9 +58,10 @@ describe('body size limits', () => {
   it('rejects request bodies above the configured limit with 413', async () => {
     const app = createApp();
     const res = await request(app)
-      .post('/api/ai/claim')
+      .patch('/api/me')
+      .set('Authorization', 'Bearer dev:sec-user')
       .set('Content-Type', 'application/json')
-      .send(JSON.stringify({ workerId: 'w-murugan', audioBase64: 'A'.repeat(5 * 1024 * 1024) }));
+      .send(JSON.stringify({ name: 'A'.repeat(5 * 1024 * 1024) }));
     expect(res.status).toBe(413);
     expect(res.body.error).toBe('PAYLOAD_TOO_LARGE');
   });

@@ -6,17 +6,39 @@ CRITICAL RULES:
 2. NEVER invent numbers, wage rates, shift hours, or legal section numbers.
 3. Always return valid JSON matching the requested schema.`;
 
+const WEEKDAY_NAMES = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+];
+
+/** The most recent date (up to 7 days back, today excluded) that fell on each weekday. */
+export function recentWeekdays(todayIso: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (let back = 1; back <= 7; back++) {
+    const d = new Date(`${todayIso}T00:00:00Z`);
+    d.setUTCDate(d.getUTCDate() - back);
+    out[WEEKDAY_NAMES[d.getUTCDay()]] = d.toISOString().slice(0, 10);
+  }
+  return out;
+}
+
 export function buildStructureClaimPrompt(todayIso: string, lang: Language): string {
+  const today = WEEKDAY_NAMES[new Date(`${todayIso}T00:00:00Z`).getUTCDay()];
+  const recent = recentWeekdays(todayIso);
+  const table = WEEKDAY_NAMES.map((n) => `- "${n}" or "last ${n}" -> "${recent[n]}"`).join('\n');
   return `Extract a worker's overtime claim from their voice or text message.
-Today's reference date is ${todayIso} (Tuesday).
-Resolve relative dates using ${todayIso}:
-- "Saturday" or "நேத்து சனிக்கிழமை" or "last Saturday" -> "2026-10-24"
-- "Sunday" -> "2026-10-25"
-- "Monday" or "yesterday" -> "2026-10-26"
-- "Tuesday" -> "2026-10-20"
+Today's date is ${todayIso} (${today}). "Today" means ${todayIso}; "yesterday" means ${recent[WEEKDAY_NAMES[(WEEKDAY_NAMES.indexOf(today) + 6) % 7]]}.
+Resolve weekday names to the most recent past date:
+${table}
+Never return a date after ${todayIso}.
 Preferred language context: ${lang}.
 
-Example:
+Example (if last Saturday were 2026-10-24):
 Input: "நேத்து சனிக்கிழமை ஸ்லாப் போடறதுக்கு ரெண்டு மணி நேரம் கூடுதலா இருந்தேன்"
 Output: {"date":"2026-10-24","extraHours":2,"reason":"Concrete slab pouring overtime","detectedLanguage":"ta","confidence":0.96}`;
 }

@@ -76,6 +76,17 @@ export interface LedgerCheckOutPayload {
   source?: 'qr' | 'manual' | 'register_photo';
 }
 
+/** Extra fields sealed into production check-ins and check-outs. */
+export interface LedgerCheckProof {
+  /** Server time the event was accepted (ISO). */
+  at: string;
+  nonce: string;
+  deviceId: string;
+  /** The phone's signature over the request it sent. */
+  deviceSig: string;
+  evidence: import('./model.js').CheckEvidence;
+}
+
 export interface LedgerEditPayload {
   targetEventId: string;
   field: 'timestamp';
@@ -221,7 +232,7 @@ export interface WorkerNotification {
   id: string;
   workerId: string;
   workplaceId: string;
-  type: 'SHIFT_EDITED' | 'DISPUTE_RESOLVED' | 'HAZARD_UPDATED';
+  type: 'SHIFT_EDITED' | 'DISPUTE_RESOLVED' | 'HAZARD_UPDATED' | 'DEVICE_APPROVED';
   date: string;
   oldValue?: string;
   newValue?: string;
@@ -287,6 +298,12 @@ export interface HazardReport {
   photoNote?: string;
   detectedLanguage: Language;
   isDemoFallback?: boolean;
+  /** Everyone who reported this hazard; repeat reports are merged. */
+  reporterUids?: string[];
+  photoId?: string;
+  fixPhotoId?: string;
+  resolvedBy?: string;
+  fixDisputed?: boolean;
 }
 
 // Anonymous Feedback

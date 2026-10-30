@@ -2,31 +2,49 @@ import { describe, it, expect } from 'vitest';
 import {
   buildFallbackStructuredClaim,
   buildFallbackHazard,
-  buildFallbackAnonymisedFeedback,
-} from '../../src/server/gemini/demo-fallbacks.js';
+} from '../../src/server/gemini/fallbacks.js';
+import { buildStructureClaimPrompt, recentWeekdays } from '../../src/server/gemini/prompts.js';
 
-describe('demo fallbacks (used only when Gemini is unavailable)', () => {
-  it('produces a well-formed claim with a valid ISO date and bounded hours', () => {
-    const claim = buildFallbackStructuredClaim('I stayed 2 extra hours on Saturday', 'en');
-    expect(claim.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-    expect(claim.extraHours).toBeGreaterThan(0);
-    expect(claim.extraHours).toBeLessThanOrEqual(16);
-    expect(claim.confidence).toBeGreaterThanOrEqual(0);
-    expect(claim.confidence).toBeLessThanOrEqual(1);
+describe('fallbacks (used only when Gemini is unavailable)', () => {
+  it('resolves weekday words to the most recent past date, in any language', () => {
+    // 2026-10-27 is a Tuesday.
+    expect(
+      buildFallbackStructuredClaim('I stayed 2 extra hours on Saturday', 'en', '2026-10-27').date
+    ).toBe('2026-10-24');
+    expect(
+      buildFallbackStructuredClaim('சனிக்கிழமை ரெண்டு மணி நேரம்', 'en', '2026-10-27')
+    ).toMatchObject({
+      date: '2026-10-24',
+      extraHours: 2,
+      detectedLanguage: 'ta',
+    });
+    expect(buildFallbackStructuredClaim('stayed late', 'en', '2026-10-27').date).toBe('2026-10-27');
+    expect(recentWeekdays('2026-10-27').Tuesday).toBe('2026-10-20');
   });
 
-  it('builds the hazard summary from the worker’s own words', () => {
-    const text = 'Loose plank on scaffold level four';
-    const hazard = buildFallbackHazard(text, 'construction', 'en');
+  it("keeps the worker's own words and asks them to check the guess", () => {
+    const claim = buildFallbackStructuredClaim(
+      'three hours on friday for the slab',
+      'en',
+      '2026-10-27'
+    );
+    expect(claim.reason).toBe('three hours on friday for the slab');
+    expect(claim.extraHours).toBe(3);
+    expect(claim.confidence).toBeLessThan(0.5);
+  });
+
+  it('builds the hazard summary from the worker’s own words and does not guess a type', () => {
+    const hazard = buildFallbackHazard('Loose plank on scaffold level four', 'construction', 'en');
     expect(hazard.description).toContain('Loose plank');
-    expect(['low', 'medium', 'high', 'critical']).toContain(hazard.aiSeverity);
+    expect(hazard.hazardType).toBe('scaffold');
+    expect(buildFallbackHazard('something is wrong', 'construction', 'en').hazardType).toBe(
+      'other'
+    );
   });
 
-  it('returns de-identified feedback in the expected shape', () => {
-    const fb = buildFallbackAnonymisedFeedback('Supervisor Ravi shouted at me near Gate 2', 'en');
-    expect(fb.cleanText.length).toBeGreaterThan(0);
-    expect(Array.isArray(fb.removed)).toBe(true);
-    expect(fb.sentiment).toBeGreaterThanOrEqual(-1);
-    expect(fb.sentiment).toBeLessThanOrEqual(1);
+  it('gives the model the real date to resolve relative days against', () => {
+    const prompt = buildStructureClaimPrompt('2026-10-27', 'ta');
+    expect(prompt).toContain('2026-10-27 (Tuesday)');
+    expect(prompt).toContain('"Saturday" or "last Saturday" -> "2026-10-24"');
   });
 });
