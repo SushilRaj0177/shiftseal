@@ -125,7 +125,12 @@ reportsRouter.get('/me', async (req, res, next) => {
         .filter((h) => h.status !== 'resolved' || h.reporterUids?.includes(member.uid))
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
         .slice(0, 30),
-      feedbackGroup: evaluateGroupAnonymity(workplace.id, member.team, feedback),
+      feedbackGroup: (({ team, count, threshold, visible }) => ({
+        team,
+        count,
+        threshold,
+        visible,
+      }))(evaluateGroupAnonymity(workplace.id, member.team, feedback)),
       flags: visibleFlags(flags, member.uid, false),
     });
   } catch (err) {

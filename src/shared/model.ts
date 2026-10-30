@@ -144,6 +144,7 @@ export type FlagCode =
   | 'SIGNATURE_INVALID'
   | 'INTEGRITY_FAILED'
   | 'CLOCK_SKEW'
+  | 'SENT_LATE'
   // employer side
   | 'EDIT_CONTRADICTS_EVIDENCE'
   | 'EDIT_NEAR_PAYDAY'

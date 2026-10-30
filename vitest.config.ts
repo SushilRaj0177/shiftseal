@@ -7,7 +7,7 @@ export default defineConfig({
     env: { NODE_ENV: 'test', AUTH_MODE: 'dev', STORE: 'memory' },
     coverage: {
       provider: 'v8',
-      include: ['src/shared/**', 'src/server/**', 'src/client/admin/formatCountdown.ts'],
+      include: ['src/shared/**', 'src/server/**', 'src/client/i18n/strings.ts'],
       exclude: [
         'src/server/index.ts', // process entry point
         'src/shared/types.ts', // type declarations only

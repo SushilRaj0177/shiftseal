@@ -1,86 +1,75 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Icon } from './Icon.js';
-import type { Language } from '../../shared/types.js';
-import { t } from '../../shared/i18n/index.js';
+import { useLang } from '../i18n/LangProvider.js';
 
-interface HoldToTalkProps {
-  lang: Language;
-  onRecorded: (audioBase64: string, mimeType: string) => void;
+interface Props {
+  onRecorded(audioBase64: string, mimeType: string): void;
   disabled?: boolean;
 }
 
-export const HoldToTalk: React.FC<HoldToTalkProps> = ({ lang, onRecorded, disabled }) => {
+/** Press and hold to record a voice note; release to send it. */
+export const HoldToTalk: React.FC<Props> = ({ onRecorded, disabled }) => {
+  const { t } = useLang();
   const [recording, setRecording] = useState(false);
-  const [micError, setMicError] = useState<string | null>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<Blob[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const recorder = useRef<MediaRecorder | null>(null);
+  const chunks = useRef<Blob[]>([]);
 
-  const startRecording = async () => {
-    setMicError(null);
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      setMicError('Microphone not available on this browser. Use a 1-tap sample or type below.');
-      return;
-    }
-
+  const start = async () => {
+    if (disabled || recording) return;
+    setError(null);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
         ? 'audio/webm;codecs=opus'
-        : 'audio/webm';
-      const recorder = new MediaRecorder(stream, { mimeType });
-      chunksRef.current = [];
-
-      recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) {
-          chunksRef.current.push(e.data);
-        }
-      };
-
-      recorder.onstop = () => {
+        : 'audio/mp4';
+      const rec = new MediaRecorder(stream, { mimeType });
+      chunks.current = [];
+      rec.ondataavailable = (e) => e.data.size > 0 && chunks.current.push(e.data);
+      rec.onstop = () => {
         stream.getTracks().forEach((tr) => tr.stop());
-        const blob = new Blob(chunksRef.current, { type: mimeType });
         const reader = new FileReader();
         reader.onloadend = () => {
-          const res = String(reader.result || '');
-          const commaIdx = res.indexOf(',');
-          const b64 = commaIdx >= 0 ? res.slice(commaIdx + 1) : res;
-          if (b64.length > 0) {
-            onRecorded(b64, mimeType);
-          }
+          const b64 = String(reader.result ?? '').split(',')[1] ?? '';
+          if (b64) onRecorded(b64, mimeType);
         };
-        reader.readAsDataURL(blob);
+        reader.readAsDataURL(new Blob(chunks.current, { type: mimeType }));
       };
-
-      mediaRecorderRef.current = recorder;
-      recorder.start();
+      recorder.current = rec;
+      rec.start();
       setRecording(true);
     } catch {
-      setMicError('Microphone permission denied. Use a 1-tap sample or type below.');
+      setError('Microphone permission is needed to record. You can type instead.');
     }
   };
 
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && recording) {
-      mediaRecorderRef.current.stop();
-      setRecording(false);
-    }
+  const stop = () => {
+    if (!recording) return;
+    recorder.current?.stop();
+    setRecording(false);
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+    <div className="stack-sm">
       <button
         type="button"
-        className={recording ? 'btn-danger' : 'btn-primary'}
+        className={`mic-bar${recording ? ' recording' : ''}`}
         disabled={disabled}
-        onClick={() => (recording ? stopRecording() : startRecording())}
-        style={{ width: '100%', minHeight: '52px', fontSize: '15px' }}
+        onPointerDown={start}
+        onPointerUp={stop}
+        onPointerLeave={stop}
+        onKeyDown={(e) => (e.key === ' ' || e.key === 'Enter') && !e.repeat && start()}
+        onKeyUp={(e) => (e.key === ' ' || e.key === 'Enter') && stop()}
+        aria-pressed={recording}
       >
-        <Icon name={recording ? 'stop' : 'mic'} />
-        <span>{recording ? t(lang, 'recordingReleaseToSend') : t(lang, 'holdToTalk')}</span>
+        <span className="tile">
+          <Icon name={recording ? 'stop' : 'mic'} />
+        </span>
+        <span>{recording ? t('releaseToSend') : t('holdToTalk')}</span>
       </button>
-      {micError && (
-        <p role="status" style={{ fontSize: '12px', color: 'var(--warning)' }}>
-          {micError}
+      {error && (
+        <p className="t-caption c-warn" role="status">
+          {error}
         </p>
       )}
     </div>

@@ -1,262 +1,160 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { NavLink, Route, Routes, useParams } from 'react-router-dom';
+import type { WorkplaceRecord } from '../../shared/model.js';
+import { useApi } from '../lib/useApi.js';
+import { registerDevice } from '../lib/device.js';
+import { flush } from '../lib/queue.js';
+import type { WorkerOverview, WorkplaceResponse } from '../lib/types.js';
+import { useLang } from '../i18n/LangProvider.js';
 import { Icon } from '../components/Icon.js';
-import { useSearchParams, Link } from 'react-router-dom';
-import type {
-  Language,
-  WorkerProfile,
-  Workplace,
-  ShiftRecord,
-  LedgerEvent,
-  HoursCalculationResult,
-  PayslipCalculationResult,
-  OvertimeClaim,
-  WorkerNotification,
-  HazardReport,
-} from '../../shared/types.js';
-import { t } from '../../shared/i18n/index.js';
-import { verifyAsync } from '../../shared/ledger/ledger.js';
-import { WorkerHome } from './WorkerHome.js';
-import { WorkerPay } from './WorkerPay.js';
-import { WorkerReport } from './WorkerReport.js';
-import { WorkerSpeakUp } from './WorkerSpeakUp.js';
+import { Notice, Skeleton } from '../ui/index.js';
+import { rememberWorkplace } from '../App.js';
+import { Home } from './Home.js';
+import { Pay } from './Pay.js';
+import { Report } from './Report.js';
+import { SpeakUp } from './SpeakUp.js';
+import { Claim } from './Claim.js';
+import { Shift } from './Shift.js';
+import { CheckFlow } from './CheckFlow.js';
+import { Notifications } from './Notifications.js';
+import { Settings } from './Settings.js';
 
-interface WorkerAppProps {
-  lang: Language;
+interface WorkerContextValue {
+  wp: WorkplaceRecord;
+  me: WorkplaceResponse['member'];
+  overview: WorkerOverview | null;
+  offline: boolean;
+  deviceStatus: 'bound' | 'pending' | 'unknown';
+  reload(): Promise<void>;
 }
 
-interface WorkerOverviewPayload {
-  worker: WorkerProfile;
-  workplace: Workplace;
-  todayDate: string;
-  todayShift: ShiftRecord | null;
-  chain: LedgerEvent[];
-  chainVerification: { ok: boolean };
-  shifts: ShiftRecord[];
-  hoursResult: HoursCalculationResult;
-  payslip: PayslipCalculationResult;
-  claims: OvertimeClaim[];
-  notifications: WorkerNotification[];
-  hazards: HazardReport[];
-  feedbackGroupStatus: {
-    team: string;
-    count: number;
-    threshold: number;
-    visible: boolean;
-    statusMessage: string;
-  };
+const WorkerContext = createContext<WorkerContextValue | null>(null);
+
+export function useWorker(): WorkerContextValue {
+  const ctx = useContext(WorkerContext);
+  if (!ctx) throw new Error('useWorker outside WorkerApp');
+  return ctx;
 }
 
-export const WorkerApp: React.FC<WorkerAppProps> = ({ lang }) => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const workerId = searchParams.get('workerId') || 'w-murugan';
-  const tab = searchParams.get('tab') || 'home';
+const CACHE = (wp: string) => `shiftseal.overview.${wp}`;
 
-  const [data, setData] = useState<WorkerOverviewPayload | null>(null);
-  const [clientChainValid, setClientChainValid] = useState(true);
-
-  const fetchOverview = useCallback(async () => {
-    try {
-      const res = await fetch(`/api/worker/${encodeURIComponent(workerId)}/overview`);
-      if (!res.ok) return;
-      const json = (await res.json()) as WorkerOverviewPayload;
-      setData(json);
-
-      // Keep local receipt copy on the worker's phone and run client-side SHA-256 verification
-      try {
-        localStorage.setItem(`shiftseal_receipts_${workerId}`, JSON.stringify(json.chain));
-      } catch {
-        // ignore quota errors
-      }
-      const verified = await verifyAsync(json.chain);
-      setClientChainValid(verified.ok);
-    } catch {
-      // network error handled gracefully
-    }
-  }, [workerId]);
-
-  useEffect(() => {
-    fetchOverview();
-    const interval = setInterval(fetchOverview, 5000);
-    return () => clearInterval(interval);
-  }, [fetchOverview]);
-
-  const setTab = (nextTab: string) => {
-    setSearchParams({ workerId, tab: nextTab });
-  };
-
-  if (!data) {
-    return (
-      <div className="container-narrow">
-        <div className="card skeleton" style={{ height: '90px', marginBottom: '16px' }} />
-        <div className="card skeleton" style={{ height: '240px' }} />
-      </div>
-    );
+function readCache(wp: string): WorkerOverview | null {
+  try {
+    const s = localStorage.getItem(CACHE(wp));
+    return s ? (JSON.parse(s) as WorkerOverview) : null;
+  } catch {
+    return null;
   }
+}
 
-  const unreadNotifs = data.notifications.filter((n) => n.status === 'unread').length;
-
+export const TabBar: React.FC = () => {
+  const { t } = useLang();
+  const { wp } = useParams();
+  const tabs = [
+    { to: `/w/${wp}`, label: t('navHome'), icon: 'home' as const, end: true },
+    { to: `/w/${wp}/pay`, label: t('navPay'), icon: 'wallet' as const },
+    { to: `/w/${wp}/report`, label: t('navReport'), icon: 'alert' as const },
+    { to: `/w/${wp}/speak`, label: t('navSpeak'), icon: 'chat' as const },
+  ];
   return (
-    <div className="container-narrow">
-      <header className="profile-bar">
-        <span className="avatar avatar-amber" aria-hidden="true">
-          {data.worker.name
-            .split(' ')
-            .map((p) => p[0])
-            .join('')
-            .slice(0, 2)}
-        </span>
-        <div className="profile-text">
-          <h1 className="profile-name">
-            {lang === 'ta'
-              ? data.worker.nameTa
-              : lang === 'hi'
-                ? data.worker.nameHi
-                : data.worker.name}
-          </h1>
-          <p className="profile-sub">
-            {lang === 'ta'
-              ? `${data.worker.roleTa} · ${data.workplace.nameTa}`
-              : lang === 'hi'
-                ? `${data.worker.roleHi} · ${data.workplace.nameHi}`
-                : `${data.worker.role} · ${data.workplace.name}`}
-          </p>
-          <span
-            className={
-              clientChainValid && data.chainVerification.ok ? 'seal-status ok' : 'seal-status bad'
-            }
-          >
-            <Icon
-              name={clientChainValid && data.chainVerification.ok ? 'shield' : 'alert'}
-              size={14}
-            />
-            {clientChainValid && data.chainVerification.ok
-              ? t(lang, 'recordIntact')
-              : t(lang, 'recordTampered')}
-          </span>
-        </div>
-        <div className="profile-actions">
-          <button
-            type="button"
-            className="icon-btn"
-            aria-label={t(lang, 'switchDemoWorker')}
-            title={t(lang, 'switchDemoWorker')}
-            onClick={() =>
-              setSearchParams({
-                workerId: workerId === 'w-murugan' ? 'w-lakshmi' : 'w-murugan',
-                tab,
-              })
-            }
-          >
-            <Icon name="swap" />
-          </button>
-          <Link
-            to="/"
-            className="icon-btn"
-            aria-label={t(lang, 'switchRole')}
-            title={t(lang, 'switchRole')}
-          >
-            <Icon name="logout" />
-          </Link>
-        </div>
-      </header>
-
-      {tab === 'home' && (
-        <WorkerHome
-          lang={lang}
-          worker={data.worker}
-          workplace={data.workplace}
-          todayDate={data.todayDate}
-          todayShift={data.todayShift}
-          shifts={data.shifts}
-          chain={data.chain}
-          clientChainValid={clientChainValid}
-          serverChainValid={data.chainVerification.ok}
-          hoursResult={data.hoursResult}
-          payslip={data.payslip}
-          notifications={data.notifications}
-          onRefresh={fetchOverview}
-        />
-      )}
-
-      {tab === 'pay' && (
-        <WorkerPay
-          lang={lang}
-          worker={data.worker}
-          payslip={data.payslip}
-          claims={data.claims}
-          onRefresh={fetchOverview}
-        />
-      )}
-
-      {tab === 'report' && (
-        <WorkerReport
-          lang={lang}
-          worker={data.worker}
-          workplace={data.workplace}
-          hazards={data.hazards}
-          onRefresh={fetchOverview}
-        />
-      )}
-
-      {tab === 'speakup' && (
-        <WorkerSpeakUp
-          lang={lang}
-          worker={data.worker}
-          workplace={data.workplace}
-          feedbackGroupStatus={data.feedbackGroupStatus}
-          onRefresh={fetchOverview}
-        />
-      )}
-
-      <nav className="worker-bottom-nav" aria-label="Worker navigation">
-        <button
-          type="button"
-          className="worker-tab-btn"
-          aria-current={tab === 'home' ? 'page' : undefined}
-          onClick={() => setTab('home')}
-        >
-          <span className="tab-icon" aria-hidden="true">
-            <Icon name="home" size={22} />
-            {unreadNotifs > 0 && <span className="tab-dot">{unreadNotifs}</span>}
-          </span>
-          <span>{t(lang, 'navHome')}</span>
-        </button>
-        <button
-          type="button"
-          className="worker-tab-btn"
-          aria-current={tab === 'pay' ? 'page' : undefined}
-          onClick={() => setTab('pay')}
-        >
-          <span className="tab-icon" aria-hidden="true">
-            <Icon name="wallet" size={22} />
-          </span>
-          <span>{t(lang, 'navPay')}</span>
-        </button>
-        <button
-          type="button"
-          className="worker-tab-btn"
-          aria-current={tab === 'report' ? 'page' : undefined}
-          onClick={() => setTab('report')}
-        >
-          <span className="tab-icon" aria-hidden="true">
-            <Icon name="alert" size={22} />
-          </span>
-          <span>{t(lang, 'navReport')}</span>
-        </button>
-        <button
-          type="button"
-          className="worker-tab-btn"
-          aria-current={tab === 'speakup' ? 'page' : undefined}
-          onClick={() => setTab('speakup')}
-        >
-          <span className="tab-icon" aria-hidden="true">
-            <Icon name="shield" size={22} />
-          </span>
-          <span>{t(lang, 'navSpeakUp')}</span>
-        </button>
-      </nav>
-    </div>
+    <nav className="tabbar" aria-label="Main">
+      <div className="tabbar-inner">
+        {tabs.map((tab) => (
+          <NavLink key={tab.to} to={tab.to} end={tab.end}>
+            <Icon name={tab.icon} size={22} />
+            {tab.label}
+          </NavLink>
+        ))}
+      </div>
+    </nav>
   );
 };
 
-export default WorkerApp;
+export default function WorkerApp() {
+  const { wp = '' } = useParams();
+  const base = useApi<WorkplaceResponse>(`/workplaces/${wp}`);
+  const live = useApi<WorkerOverview>(`/workplaces/${wp}/me`, 15_000);
+  const [deviceStatus, setDeviceStatus] = useState<'bound' | 'pending' | 'unknown'>('unknown');
+  const [online, setOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    rememberWorkplace(wp);
+    registerDevice(wp)
+      .then(setDeviceStatus)
+      .catch(() => setDeviceStatus('unknown'));
+  }, [wp]);
+
+  useEffect(() => {
+    const up = () => {
+      setOnline(true);
+      void flush().then((n) => {
+        if (n > 0) void live.reload();
+      });
+    };
+    const down = () => setOnline(false);
+    window.addEventListener('online', up);
+    window.addEventListener('offline', down);
+    void flush().then((n) => {
+      if (n > 0) void live.reload();
+    });
+    return () => {
+      window.removeEventListener('online', up);
+      window.removeEventListener('offline', down);
+    };
+  }, [live.reload]);
+
+  useEffect(() => {
+    if (!live.data) return;
+    try {
+      localStorage.setItem(CACHE(wp), JSON.stringify(live.data));
+    } catch {
+      // cache is a convenience only
+    }
+  }, [live.data, wp]);
+
+  if (base.error && !base.data) {
+    return (
+      <main className="screen">
+        <div className="screen-body">
+          <Notice kind="error">{base.error}</Notice>
+        </div>
+      </main>
+    );
+  }
+  if (!base.data) {
+    return (
+      <main className="screen">
+        <div className="screen-body">
+          <Skeleton height={56} />
+          <Skeleton height={180} />
+          <Skeleton height={120} />
+        </div>
+      </main>
+    );
+  }
+
+  const value: WorkerContextValue = {
+    wp: base.data.workplace,
+    me: base.data.member,
+    overview: live.data ?? readCache(wp),
+    offline: !online || Boolean(live.error && !live.data),
+    deviceStatus,
+    reload: live.reload,
+  };
+
+  return (
+    <WorkerContext.Provider value={value}>
+      <Routes>
+        <Route index element={<Home />} />
+        <Route path="pay" element={<Pay />} />
+        <Route path="report" element={<Report />} />
+        <Route path="speak" element={<SpeakUp />} />
+        <Route path="claim" element={<Claim />} />
+        <Route path="shift/:date" element={<Shift />} />
+        <Route path="check" element={<CheckFlow />} />
+        <Route path="notifications" element={<Notifications />} />
+        <Route path="settings" element={<Settings />} />
+      </Routes>
+    </WorkerContext.Provider>
+  );
+}

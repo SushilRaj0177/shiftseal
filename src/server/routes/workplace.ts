@@ -19,8 +19,9 @@ import {
   assessEdit,
   assessEditorPattern,
   reducesHours,
+  type FlagDraft,
 } from '../../shared/rules/flags.js';
-import { localParts, payPeriodFor } from '../../shared/time.js';
+import { localParts, minutesBetween, payPeriodFor } from '../../shared/time.js';
 import { atLeast, ctx, requireRole } from '../auth/membership.js';
 import { getRepo } from '../data/index.js';
 import { qrSecret } from '../keys.js';
@@ -31,6 +32,20 @@ import { newId, newInviteCode } from '../services/ids.js';
 import { verifyIntegrity } from '../services/integrity.js';
 import { issueReceipt, sealDigest } from '../services/receipts.js';
 import { checkToken, printedToken, rotatingToken } from '../qr/tokens.js';
+
+/** A check counts as sent late after 5 minutes; after 12 hours the gate code no longer vouches for it. */
+const LATE_AFTER_MS = 5 * 60_000;
+/** No corrected shift may be longer than this. */
+const MAX_SHIFT_MINUTES = 20 * 60;
+const MAX_LATE_MS = 12 * 3600_000;
+
+/** QR codes open the app's check-in page, so a plain phone camera works too. */
+function checkInUrl(
+  req: { protocol: string; get(name: string): string | undefined },
+  token: string
+) {
+  return `${req.protocol}://${req.get('host')}/c#${token}`;
+}
 
 /** Routes for one workplace, mounted at /api/workplaces/:wp after membership is loaded. */
 export const workplaceRouter = Router({ mergeParams: true });
@@ -210,7 +225,7 @@ workplaceRouter.get('/gate', requireRole('supervisor'), async (req, res, next) =
       throw new AppError(404, 'ZONE_NOT_FOUND', 'Zone not found.');
     const { token, expiresInS } = rotatingToken(qrSecret(workplace.id), workplace.id, zone);
     res.setHeader('Cache-Control', 'no-store');
-    res.json({ token, expiresInS, svg: await qrSvg(token, 320) });
+    res.json({ token, expiresInS, svg: await qrSvg(checkInUrl(req, token), 320) });
   } catch (err) {
     next(err);
   }
@@ -224,7 +239,15 @@ workplaceRouter.get('/poster', requireRole('supervisor'), async (req, res, next)
     if (!workplace.zones.some((z) => z.code === zone))
       throw new AppError(404, 'ZONE_NOT_FOUND', 'Zone not found.');
     const token = printedToken(qrSecret(workplace.id), workplace.id, zone);
-    res.json({ token, svg: await qrSvg(token, 480), inviteCode: workplace.inviteCode });
+    res.json({
+      token,
+      svg: await qrSvg(checkInUrl(req, token), 480),
+      inviteCode: workplace.inviteCode,
+      joinSvg: await qrSvg(
+        `${req.protocol}://${req.get('host')}/join?code=${workplace.inviteCode}`,
+        320
+      ),
+    });
   } catch (err) {
     next(err);
   }
@@ -270,9 +293,22 @@ workplaceRouter.post('/checks', async (req, res, next) => {
     }
 
     const now = new Date();
-    const serverTime = now.toISOString();
-    const local = localParts(now, workplace.timezone);
-    const qr = checkToken(qrSecret(workplace.id), p.qrToken, workplace.id, now.getTime());
+    const secret = qrSecret(workplace.id);
+    let qr = checkToken(secret, p.qrToken, workplace.id, now.getTime());
+    // A check made offline arrives late. If the gate code it carries was valid at the
+    // phone's stated time, that code (not the phone's clock) vouches for when it happened.
+    let acceptedAt = now;
+    const lateMs = now.getTime() - Date.parse(p.clientTime);
+    if (!qr.valid && qr.kind === 'rotating' && lateMs > LATE_AFTER_MS && lateMs < MAX_LATE_MS) {
+      const atScan = checkToken(secret, p.qrToken, workplace.id, Date.parse(p.clientTime));
+      if (atScan.valid) {
+        qr = atScan;
+        acceptedAt = new Date(p.clientTime);
+      }
+    }
+    const sentLate = acceptedAt !== now;
+    const serverTime = acceptedAt.toISOString();
+    const local = localParts(acceptedAt, workplace.timezone);
     const zoneCode =
       qr.valid && qr.zoneCode && workplace.zones.some((z) => z.code === qr.zoneCode)
         ? qr.zoneCode
@@ -314,6 +350,7 @@ workplaceRouter.post('/checks', async (req, res, next) => {
         zoneCode,
         source: qr.valid ? 'qr' : 'manual',
         at: serverTime,
+        receivedAt: now.toISOString(),
         nonce: p.nonce,
         deviceId: p.deviceId,
         deviceSig: body.signature,
@@ -328,7 +365,19 @@ workplaceRouter.post('/checks', async (req, res, next) => {
       }).at(-1)!;
     });
 
-    const flags = await raiseFlags(workplace.id, assessed.flags);
+    const lateNote: FlagDraft[] = sentLate
+      ? [
+          {
+            code: 'SENT_LATE',
+            severity: 'info',
+            concerns: 'worker',
+            subject: { kind: 'event', id: eventId, workerUid: member.uid },
+            message: `Recorded offline and sent ${Math.round(lateMs / 60000)} minutes later. The time comes from the gate code scanned.`,
+            facts: { minutesLate: Math.round(lateMs / 60000) },
+          },
+        ]
+      : [];
+    const flags = await raiseFlags(workplace.id, [...assessed.flags, ...lateNote]);
     const receipt = await issueReceipt(workplace.id, member.uid, event, seq);
     res.status(201).json({ event, receipt, evidence: assessed.evidence, flags });
   } catch (err) {
@@ -365,6 +414,18 @@ workplaceRouter.post('/shifts/edit', requireRole('supervisor'), async (req, res,
         (kind === 'in' ? shift?.checkInTime : shift?.checkOutTime) ?? target.timestamp;
       if (oldValue === body.newTime)
         throw new AppError(400, 'NO_CHANGE', 'That is already the recorded time.');
+      // The other end of the shift stays as recorded; the corrected shift must still be a real shift.
+      const otherEnd = kind === 'in' ? shift?.checkOutTime : shift?.checkInTime;
+      if (otherEnd) {
+        const [from, to] = kind === 'in' ? [body.newTime, otherEnd] : [otherEnd, body.newTime];
+        if (minutesBetween(from, to) > MAX_SHIFT_MINUTES) {
+          throw new AppError(
+            400,
+            'IMPOSSIBLE_SHIFT',
+            `That would make the shift ${from} to ${to}, which is not possible. Check the time.`
+          );
+        }
+      }
       const payload: LedgerEditPayload = {
         targetEventId: t.id,
         field: 'timestamp',

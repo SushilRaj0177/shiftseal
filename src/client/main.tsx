@@ -12,3 +12,8 @@ if (rootEl) {
     </React.StrictMode>
   );
 }
+
+// Offline app shell (web only; the Android app ships its files inside the APK).
+if ('serviceWorker' in navigator && import.meta.env.PROD && location.protocol === 'https:') {
+  window.addEventListener('load', () => void navigator.serviceWorker.register('/sw.js'));
+}

@@ -1,66 +1,62 @@
+/* Design tokens. Mirrors the Figma file "Shiftseal — App design" (Foundations page). */
 :root {
-  --bg: #f7f5f0;
+  --bg: #f6f4ef;
   --surface: #ffffff;
-  --surface-subtle: #efece4;
-  --ink: #1b1b1f;
-  --ink-secondary: #45444c;
-  --line: #d6d1c4;
+  --subtle: #efece5;
+  --ink: #17171b;
+  --ink-2: #5a5963;
+  --ink-3: #8a8892;
+  --line: #e3dfd5;
+  --line-strong: #cfc9bb;
   --accent: #2b4c8c;
-  --accent-hover: #213c70;
-  --accent-soft: #e8eef7;
-  --good: #256643;
-  --good-soft: #e6f3ec;
-  --warning: #8a5000;
-  --warning-soft: #fcf1de;
+  --accent-pressed: #213c70;
+  --accent-soft: #e9eef7;
+  --on-accent: #ffffff;
+  --good: #24663f;
+  --good-soft: #e7f2eb;
+  --warn: #8a5000;
+  --warn-soft: #fbf0dc;
   --danger: #a11f17;
-  --danger-soft: #fbe9e7;
+  --danger-soft: #fae8e6;
 
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  --text-xl: 28px;
-  --text-lg: 22px;
-  --text-md: 17px;
-  --text-base: 15px;
-  --text-sm: 13px;
-
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-
-  --shadow-sm: 0 1px 3px rgba(27, 27, 31, 0.05);
-  --shadow-md: 0 4px 12px rgba(27, 27, 31, 0.08);
-
-  --transition-fast: 160ms cubic-bezier(0.2, 0, 0, 1);
-  --transition-med: 220ms cubic-bezier(0.2, 0, 0, 1);
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --shadow: 0 1px 2px rgba(23, 23, 27, 0.04), 0 4px 16px rgba(23, 23, 27, 0.05);
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --tabbar-h: 64px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #121215;
-    --surface: #1b1b20;
-    --surface-subtle: #24242b;
+    --bg: #111114;
+    --surface: #1a1a1f;
+    --subtle: #23232a;
     --ink: #f2efe9;
-    --ink-secondary: #c5c3ce;
-    --line: #383842;
-    --accent: #7da1ea;
-    --accent-hover: #96b4f0;
-    --accent-soft: #1e2940;
-    --good: #68cc94;
-    --good-soft: #172e22;
-    --warning: #f5b44f;
-    --warning-soft: #332510;
-    --danger: #f7827b;
-    --danger-soft: #361918;
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.45);
+    --ink-2: #b9b7c2;
+    --ink-3: #82808c;
+    --line: #2e2e36;
+    --line-strong: #43434d;
+    --accent: #86a6ea;
+    --accent-pressed: #a0b9f0;
+    --accent-soft: #1d2840;
+    --on-accent: #0e1526;
+    --good: #6ccb95;
+    --good-soft: #16291f;
+    --warn: #f2b451;
+    --warn-soft: #30230f;
+    --danger: #f5857e;
+    --danger-soft: #331817;
+    --shadow: none;
   }
 }
 
 html[lang='ta'] body {
-  font-family: 'Noto Sans Tamil', var(--font-sans);
+  font-family: 'Noto Sans Tamil', var(--font);
 }
-
 html[lang='hi'] body {
-  font-family: 'Noto Sans Devanagari', var(--font-sans);
+  font-family: 'Noto Sans Devanagari', var(--font);
 }

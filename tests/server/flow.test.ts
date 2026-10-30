@@ -246,12 +246,46 @@ describe('check-in evidence', () => {
     phone = newPhone;
     (globalThis as { __device?: string }).__device = newId;
   });
+  it('accepts a check sent late from offline, timed by the gate code it scanned', async () => {
+    const device = (globalThis as { __device?: string }).__device!;
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(Date.now() - 40 * 60_000));
+    const gate = await request(app)
+      .get(`/api/workplaces/${wp}/gate?zone=GATE`)
+      .set('Authorization', owner);
+    expect(gate.body.svg).toContain('<svg');
+    const then = new Date().toISOString();
+    vi.useRealTimers();
+    const payload = {
+      workplaceId: wp,
+      action: 'CHECK_IN' as const,
+      qrToken: gate.body.token,
+      location: { ...ON_SITE, at: then },
+      clientTime: then,
+      deviceId: device,
+      nonce: randomBytes(12).toString('base64url'),
+    };
+    const signature = await signPayload(phone.privateKey, payload);
+    const res = await request(app)
+      .post(`/api/workplaces/${wp}/checks`)
+      .set('Authorization', worker)
+      .send({ payload, signature });
+    expect(res.status).toBe(201);
+    expect(res.body.evidence.qrValid).toBe(true);
+    expect(res.body.event.payload.at).toBe(then);
+    expect(res.body.flags.map((f: { code: string }) => f.code)).toEqual(['SENT_LATE']);
+    await check(worker, 'CHECK_OUT', { device });
+  });
 });
 
 describe('employer edits and worker protection', () => {
   it('flags an edit that cuts a signed on-site checkout, and tells the worker', async () => {
     const device = (globalThis as { __device?: string }).__device!;
+    // A three-hour shift, so cutting 30 minutes off the end is a real correction.
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(Date.now() - 3 * 3600 * 1000));
     await check(worker, 'CHECK_IN', { device });
+    vi.useRealTimers();
     const out = await check(worker, 'CHECK_OUT', { device });
     const edit = await request(app)
       .post(`/api/workplaces/${wp}/shifts/edit`)
@@ -279,6 +313,23 @@ describe('employer edits and worker protection', () => {
       .set('Authorization', worker)
       .send({ notificationId: note.id, response: 'disputed', note: 'I was at the gate' });
     expect(dispute.body.claim.matchStatus).toBe('supported');
+  });
+
+  it('refuses a correction that would make an impossible shift', async () => {
+    const device = (globalThis as { __device?: string }).__device!;
+    await check(worker, 'CHECK_IN', { device });
+    const out = await check(worker, 'CHECK_OUT', { device });
+    const res = await request(app)
+      .post(`/api/workplaces/${wp}/shifts/edit`)
+      .set('Authorization', owner)
+      .send({
+        workerUid: 'worker1',
+        targetEventId: out.body.event.id,
+        newTime: minus30(out.body.event.payload.timestamp),
+        reason: 'Before the check-in',
+      });
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe('IMPOSSIBLE_SHIFT');
   });
 
   it('stops supervisors editing their own shifts and workers editing anyone', async () => {

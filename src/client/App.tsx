@@ -1,209 +1,155 @@
-import React, { useState, Suspense, lazy } from 'react';
-import { Icon } from './components/Icon.js';
-import { BrowserRouter, Routes, Route, useNavigate, Link } from 'react-router-dom';
-import type { Language } from '../shared/types.js';
-import { t } from '../shared/i18n/index.js';
-import { LangSwitch } from './components/LangSwitch.js';
+import React, { Suspense, lazy, useEffect } from 'react';
+import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './auth/AuthProvider.js';
+import { LangProvider } from './i18n/LangProvider.js';
+import { useApi } from './lib/useApi.js';
+import type { MeResponse } from './lib/types.js';
+import { Notice, Spinner } from './ui/index.js';
+import { Welcome } from './auth/Welcome.js';
+import { SignIn } from './auth/SignIn.js';
+import { Join } from './auth/Join.js';
 
 const WorkerApp = lazy(() => import('./worker/WorkerApp.js'));
-const AdminApp = lazy(() => import('./admin/AdminApp.js'));
+const EmployerApp = lazy(() => import('./employer/EmployerApp.js'));
+const CreateWorkplace = lazy(() => import('./employer/CreateWorkplace.js'));
 
-const STORAGE_LANG_KEY = 'shiftseal_lang';
+const LAST_WP = 'shiftseal.workplace';
 
-function getInitialLang(): Language {
-  try {
-    const saved = localStorage.getItem(STORAGE_LANG_KEY);
-    if (saved === 'en' || saved === 'ta' || saved === 'hi') {
-      return saved;
-    }
-  } catch {
-    // ignore storage errors
-  }
-  return 'en';
-}
-
-interface SignInScreenProps {
-  lang: Language;
-  onSelectLang: (lang: Language) => void;
-}
-
-const SignInScreen: React.FC<SignInScreenProps> = ({ lang, onSelectLang }) => {
-  const navigate = useNavigate();
-
-  const handleWorkerSignIn = (workerId: string, preferredLang?: Language) => {
-    if (preferredLang) {
-      onSelectLang(preferredLang);
-    }
-    navigate(`/worker?workerId=${workerId}`);
-  };
-
-  const handleAdminSignIn = (workplaceId: string) => {
-    navigate(`/admin?workplaceId=${workplaceId}`);
-  };
-
-  const workers = [
-    {
-      id: 'w-murugan',
-      lang: 'ta' as Language,
-      initials: 'MK',
-      tone: 'amber',
-      title: t(lang, 'muruganCardTitle'),
-      role: t(lang, 'muruganCardRole'),
-      note: t(lang, 'muruganCardNote'),
-    },
-    {
-      id: 'w-lakshmi',
-      lang: 'en' as Language,
-      initials: 'LS',
-      tone: 'teal',
-      title: t(lang, 'lakshmiCardTitle'),
-      role: t(lang, 'lakshmiCardRole'),
-      note: t(lang, 'lakshmiCardNote'),
-    },
-  ];
-  const admins = [
-    {
-      id: 'wp-tower-b',
-      icon: 'crane' as const,
-      title: t(lang, 'adminTowerTitle'),
-      role: t(lang, 'adminTowerRole'),
-      note: t(lang, 'adminTowerNote'),
-    },
-    {
-      id: 'wp-campus',
-      icon: 'building' as const,
-      title: t(lang, 'adminCampusTitle'),
-      role: t(lang, 'adminCampusRole'),
-      note: t(lang, 'adminCampusNote'),
-    },
-  ];
-
+function Splash() {
   return (
-    <div className="container-narrow signin">
-      <section className="signin-hero">
-        <span className="signin-mark" aria-hidden="true">
-          <Icon name="shield" size={30} />
-        </span>
-        <h1>{t(lang, 'tagline')}</h1>
-        <p>{t(lang, 'pitchLine')}</p>
-      </section>
-
-      <section aria-labelledby="worker-roles-heading" className="account-group">
-        <h2 id="worker-roles-heading" className="group-label">
-          {t(lang, 'workerRoles')}
-        </h2>
-        <div className="account-list">
-          {workers.map((w) => (
-            <button
-              key={w.id}
-              type="button"
-              className="account-row"
-              onClick={() => handleWorkerSignIn(w.id, w.lang)}
-            >
-              <span className={`avatar avatar-${w.tone}`} aria-hidden="true">
-                {w.initials}
-              </span>
-              <span className="account-text">
-                <strong>{w.title}</strong>
-                <span>{w.role}</span>
-                <small>{w.note}</small>
-              </span>
-              <Icon name="arrowRight" className="chevron" />
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section aria-labelledby="admin-roles-heading" className="account-group">
-        <h2 id="admin-roles-heading" className="group-label">
-          {t(lang, 'adminRoles')}
-        </h2>
-        <div className="account-list">
-          {admins.map((a) => (
-            <button
-              key={a.id}
-              type="button"
-              className="account-row"
-              onClick={() => handleAdminSignIn(a.id)}
-            >
-              <span className="avatar avatar-accent" aria-hidden="true">
-                <Icon name={a.icon} size={22} />
-              </span>
-              <span className="account-text">
-                <strong>{a.title}</strong>
-                <span>{a.role}</span>
-                <small>{a.note}</small>
-              </span>
-              <Icon name="arrowRight" className="chevron" />
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <p className="signin-foot">
-        <Icon name="lock" size={14} />
-        {t(lang, 'principleBanner')}
-      </p>
-      <p className="signin-foot muted">{t(lang, 'demoSignIn')}</p>
+    <div className="screen" style={{ display: 'grid', placeItems: 'center' }}>
+      <Spinner />
     </div>
   );
-};
+}
 
-export const App: React.FC = () => {
-  const [lang, setLangState] = useState<Language>(getInitialLang);
-
-  const handleChangeLang = (next: Language) => {
-    setLangState(next);
-    try {
-      localStorage.setItem(STORAGE_LANG_KEY, next);
-    } catch {
-      // ignore storage errors
+/** Sends a signed-in person to the right place: join, create, or their workplace. */
+function Home() {
+  const { data, error } = useApi<MeResponse>('/me');
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!data) return;
+    const intent = sessionStorage.getItem('shiftseal.intent');
+    if (data.workplaces.length === 0) {
+      navigate(intent === 'employer' ? '/new-workplace' : '/join', { replace: true });
+      return;
     }
-  };
-
-  return (
-    <BrowserRouter>
-      <a href="#main-content" className="skip-link">
-        {t(lang, 'skipToContent')}
-      </a>
-      <header className="app-header">
-        <div className="app-header-inner">
-          <Link to="/" className="brand-mark">
-            <span className="brand-seal" aria-hidden="true">
-              <Icon name="shield" size={20} />
-            </span>
-            <div>
-              <strong style={{ fontSize: '17px', display: 'block', lineHeight: 1.1 }}>
-                {t(lang, 'appName')}
-              </strong>
-              <span style={{ fontSize: '12px', color: 'var(--ink-secondary)' }}>
-                FairShift · SDG 8
-              </span>
-            </div>
-          </Link>
-          <LangSwitch lang={lang} onChange={handleChangeLang} />
+    let last: string | null = null;
+    try {
+      last = localStorage.getItem(LAST_WP);
+    } catch {
+      // storage unavailable
+    }
+    const wp = data.workplaces.find((w) => w.id === last) ?? data.workplaces[0];
+    navigate(wp.role === 'worker' ? `/w/${wp.id}` : `/e/${wp.id}`, { replace: true });
+  }, [data, navigate]);
+  if (error)
+    return (
+      <div className="screen">
+        <div className="screen-body">
+          <Notice kind="error">{error}</Notice>
         </div>
-      </header>
-      <main id="main-content">
-        <Suspense
-          fallback={
-            <div className="container-narrow">
-              <div className="card skeleton" style={{ height: '140px' }} />
-            </div>
-          }
-        >
-          <Routes>
-            <Route
-              path="/"
-              element={<SignInScreen lang={lang} onSelectLang={handleChangeLang} />}
-            />
-            <Route path="/worker/*" element={<WorkerApp lang={lang} />} />
-            <Route path="/admin/*" element={<AdminApp lang={lang} />} />
-          </Routes>
-        </Suspense>
-      </main>
-    </BrowserRouter>
-  );
-};
+      </div>
+    );
+  return <Splash />;
+}
 
-export default App;
+/** A gate QR opened with the phone's camera app lands here. */
+function CheckLink() {
+  const location = useLocation();
+  const token = location.hash.slice(1);
+  const wp = token.split('.')[2];
+  if (!wp) return <Navigate to="/" replace />;
+  sessionStorage.setItem('shiftseal.pendingScan', token);
+  return <Navigate to={`/w/${wp}/check`} replace />;
+}
+
+function Gate({ children }: { children: React.ReactNode }) {
+  const { ready, user, configError } = useAuth();
+  const location = useLocation();
+  if (!ready) return <Splash />;
+  if (configError)
+    return (
+      <div className="screen">
+        <div className="screen-body">
+          <Notice kind="error">{configError}</Notice>
+        </div>
+      </div>
+    );
+  if (!user)
+    return <Navigate to="/welcome" replace state={{ from: location.pathname + location.hash }} />;
+  return <>{children}</>;
+}
+
+export function rememberWorkplace(id: string): void {
+  try {
+    localStorage.setItem(LAST_WP, id);
+  } catch {
+    // storage unavailable
+  }
+}
+
+export default function App() {
+  return (
+    <LangProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <Suspense fallback={<Splash />}>
+            <Routes>
+              <Route path="/welcome" element={<Welcome />} />
+              <Route path="/sign-in" element={<SignIn />} />
+              <Route
+                path="/c"
+                element={
+                  <Gate>
+                    <CheckLink />
+                  </Gate>
+                }
+              />
+              <Route
+                path="/join"
+                element={
+                  <Gate>
+                    <Join />
+                  </Gate>
+                }
+              />
+              <Route
+                path="/new-workplace"
+                element={
+                  <Gate>
+                    <CreateWorkplace />
+                  </Gate>
+                }
+              />
+              <Route
+                path="/w/:wp/*"
+                element={
+                  <Gate>
+                    <WorkerApp />
+                  </Gate>
+                }
+              />
+              <Route
+                path="/e/:wp/*"
+                element={
+                  <Gate>
+                    <EmployerApp />
+                  </Gate>
+                }
+              />
+              <Route
+                path="*"
+                element={
+                  <Gate>
+                    <Home />
+                  </Gate>
+                }
+              />
+            </Routes>
+          </Suspense>
+        </BrowserRouter>
+      </AuthProvider>
+    </LangProvider>
+  );
+}

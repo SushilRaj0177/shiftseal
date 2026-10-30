@@ -78,8 +78,10 @@ export interface LedgerCheckOutPayload {
 
 /** Extra fields sealed into production check-ins and check-outs. */
 export interface LedgerCheckProof {
-  /** Server time the event was accepted (ISO). */
+  /** When the check happened (ISO): server time, or the gate code's time if sent late. */
   at: string;
+  /** When the server received it. */
+  receivedAt?: string;
   nonce: string;
   deviceId: string;
   /** The phone's signature over the request it sent. */
