@@ -285,6 +285,7 @@ export const fr: WorkerDict = {
   sealed: 'Registre scellé',
   last7: '7 derniers jours',
   hoursUnit: 'h',
+  minLeave: 'Congés que votre employeur doit vous faire prendre cette année : {0} sur {1} jours',
   lineRestDay: 'Travail le jour de repos',
   lineHoliday: 'Travail un jour férié',
   lineSeventhDay: 'Septième jour consécutif',

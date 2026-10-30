@@ -144,3 +144,17 @@ export function leaveOn(
       (!types || types.includes(r.type))
   );
 }
+
+/**
+ * Where the law makes the employer ensure some annual leave is actually
+ * taken (Japan: 5 of the year's days), how much has been taken so far.
+ */
+export function minLeaveTaken(
+  where: WorkplaceHours,
+  balances: LeaveBalance[]
+): { required: number; taken: number } | null {
+  const rule = countryPack(where).leave.minTaken;
+  const annual = balances.find((b) => b.type === 'earned');
+  if (!rule || !annual || annual.entitled < rule.ifEntitledAtLeast) return null;
+  return { required: rule.days, taken: annual.used };
+}

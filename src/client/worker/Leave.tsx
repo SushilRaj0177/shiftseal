@@ -44,7 +44,7 @@ export const STATUS_KEY: Record<LeaveRequest['status'], StringKey> = {
 
 export const Leave: React.FC = () => {
   const { t, lang } = useLang();
-  const { wp, reload: reloadOverview } = useWorker();
+  const { wp, overview, reload: reloadOverview } = useWorker();
   const data = useApi<LeaveResponse>(`/workplaces/${wp.id}/leave`);
   const [open, setOpen] = useState(false);
   const [type, setType] = useState<LeaveType>('earned');
@@ -121,6 +121,21 @@ export const Leave: React.FC = () => {
           </div>
         )}
         <p className="t-caption muted">{t('leaveLawNote')}</p>
+        {overview?.leave.minTaken && (
+          <Card tone="subtle">
+            <span className="t-caption">
+              {t('minLeave', overview.leave.minTaken.taken, overview.leave.minTaken.required)}
+            </span>
+            <div className="limit-track">
+              <span
+                style={{
+                  width: `${Math.min(100, (overview.leave.minTaken.taken / overview.leave.minTaken.required) * 100)}%`,
+                  background: 'var(--seal)',
+                }}
+              />
+            </div>
+          </Card>
+        )}
         <button type="button" className="btn btn-primary" onClick={() => setOpen(true)}>
           {t('applyLeave')}
         </button>

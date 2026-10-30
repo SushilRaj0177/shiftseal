@@ -45,7 +45,8 @@ import {
 } from '../../shared/rules/flags.js';
 import { addDays, localParts, minutesBetween, periodFor } from '../../shared/time.js';
 import { evaluateBurnout } from '../../shared/rules/burnout.js';
-import { leaveOn } from '../../shared/rules/leave.js';
+import { leaveBalances, leaveOn, minLeaveTaken } from '../../shared/rules/leave.js';
+import type { FlagDraft } from '../../shared/rules/flags.js';
 import { assessComplaintCompliance } from '../../shared/rules/flags.js';
 import { complaintCounts } from './complaints.js';
 import { balancesFor } from './leave.js';
@@ -152,6 +153,7 @@ reportsRouter.get('/me', async (req, res, next) => {
       leave: {
         types: leaveKinds,
         balances,
+        minTaken: minLeaveTaken(workplace, balances),
         pending: leave.filter((r) => r.status === 'pending').length,
         today: leaveOn(leave, date) ?? null,
         upcoming: leave
@@ -211,6 +213,7 @@ reportsRouter.get('/dashboard', requireRole('supervisor'), async (req, res, next
     const burnout = [];
     let otOwed = 0;
     let onSite = 0;
+    const leaveDrafts: FlagDraft[] = [];
     for (const m of workers) {
       const chain = await repo.getChain(workplace.id, m.uid);
       const shifts = latestView(chain);
@@ -219,6 +222,28 @@ reportsRouter.get('/dashboard', requireRole('supervisor'), async (req, res, next
       if (open) onSite += 1;
       const mine = claims.filter((c) => c.workerId === m.uid);
       const theirLeave = leave.filter((r) => r.workerUid === m.uid);
+      // Japan: from October, flag anyone not yet given their 5 days of annual leave.
+      if (date.slice(5, 7) >= '10') {
+        const year = date.slice(0, 4);
+        const min = minLeaveTaken(
+          workplace,
+          leaveBalances(theirLeave, year, workplace.leavePolicy, workplace, 0, {
+            from: m.serviceFrom ?? m.joinedAt.slice(0, 10),
+            today: date,
+          })
+        );
+        const id = `${m.uid}:minleave:${year}`;
+        if (min && min.taken < min.required && !flags.some((f) => f.subject.id === id)) {
+          leaveDrafts.push({
+            code: 'LEAVE_MIN_NOT_TAKEN',
+            severity: 'review',
+            concerns: 'employer',
+            subject: { kind: 'workplace', id, workerUid: m.uid },
+            message: `${m.name} has taken ${min.taken} of the ${min.required} days of annual leave the law requires the employer to ensure this year.`,
+            facts: { taken: min.taken, required: min.required },
+          });
+        }
+      }
       const slip = payslipFor(m, workplace, shifts, mine, deductions, period, theirLeave);
       const b = evaluateBurnout(
         shifts,
@@ -293,7 +318,7 @@ reportsRouter.get('/dashboard', requireRole('supervisor'), async (req, res, next
       counts.overdue,
       complaintRules.inquiryDays
     ).filter((d) => !flags.some((f) => f.code === d.code && f.status === 'open'));
-    flags.push(...(await raiseFlags(workplace.id, poshDrafts)));
+    flags.push(...(await raiseFlags(workplace.id, [...poshDrafts, ...leaveDrafts])));
 
     res.json({
       today: date,

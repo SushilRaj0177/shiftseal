@@ -286,6 +286,7 @@ export const es: WorkerDict = {
   sealed: 'Registro sellado',
   last7: 'Últimos 7 días',
   hoursUnit: 'h',
+  minLeave: 'Vacaciones que tu empleador debe asegurarse de que tomes este año: {0} de {1} días',
   lineRestDay: 'Trabajo en día de descanso',
   lineHoliday: 'Trabajo en día festivo',
   lineSeventhDay: 'Séptimo día seguido',

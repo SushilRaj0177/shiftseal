@@ -269,6 +269,7 @@ export const zh: WorkerDict = {
   sealed: '已封存的记录',
   last7: '最近 7 天',
   hoursUnit: '小时',
+  minLeave: '单位今年必须安排你休的年假:已休 {0} / {1} 天',
   lineRestDay: '休息日加班',
   lineHoliday: '法定节假日加班',
   lineSeventhDay: '连续第七天',

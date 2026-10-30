@@ -286,6 +286,7 @@ export const de: WorkerDict = {
   sealed: 'Versiegelter Nachweis',
   last7: 'Letzte 7 Tage',
   hoursUnit: 'h',
+  minLeave: 'Urlaub, den Ihr Arbeitgeber Sie dieses Jahr nehmen lassen muss: {0} von {1} Tagen',
   lineRestDay: 'Arbeit am Ruhetag',
   lineHoliday: 'Arbeit am Feiertag',
   lineSeventhDay: 'Siebter Tag in Folge',

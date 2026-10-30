@@ -28,6 +28,7 @@ export const employer_de: EmployerDict = {
   ft_SALARY_LATE: 'Lohn nach der gesetzlichen Frist',
   ft_COMPLAINT_OVERDUE: 'Prüfung einer Beschwerde überfällig',
   ft_LIMIT_EXCEEDED: 'Über einer gesetzlichen Arbeitszeitgrenze',
+  ft_LEAVE_MIN_NOT_TAKEN: 'Pflichturlaub noch nicht genommen',
   why_streak: '{0} Tage am Stück',
   why_rolling: '{0} Std. in den letzten 7 Tagen',
   why_restGap: 'nur {0} Std. Ruhe zwischen Schichten',

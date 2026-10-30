@@ -59,6 +59,7 @@ export const JP: CountryPack = {
       { type: 'wfh', paid: true },
     ],
     annualByService: japanAnnualLeave,
+    minTaken: { days: 5, ifEntitledAtLeast: 10, rule: 'leave.mustTake5' },
   },
   complaints: {
     handlersRequiredFrom: 1,
@@ -137,6 +138,12 @@ export const JP: CountryPack = {
       'days/year, by service',
       '労働基準法 第39条 (Art. 39): 6か月継続勤務・8割以上出勤で10日、勤続に応じて最大20日',
       'Employers must make sure at least 5 days are taken each year (Art. 39(7)).'
+    ),
+    law(
+      'leave.mustTake5',
+      5,
+      'days/year',
+      '労働基準法 第39条第7項: 年10日以上の年休がある人に、年5日を時季を指定して取得させる義務 (違反は罰則あり)'
     ),
     policy('leave.casual', 0, 'days', '就業規則: 特別休暇 (慶弔休暇など)'),
     policy(

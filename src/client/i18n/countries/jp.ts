@@ -8,7 +8,7 @@ export const JP_TEXT: CountryStrings = {
     leaveBody: '休暇や在宅勤務を申請できます。承認・却下はすべてあなたの記録に封印されます。',
     balanceCasual: '特別休暇',
     balanceSick: '病気休暇',
-    balanceEarned: '年次有給休暇',
+    balanceEarned: '年休',
     balanceCompOff: '代休',
     typeCasual: '特別休暇(慶弔など)',
     typeSick: '病気休暇',

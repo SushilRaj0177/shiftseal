@@ -27,6 +27,7 @@ export const employerEn = {
   ft_SALARY_LATE: 'Pay arrived after the legal deadline',
   ft_COMPLAINT_OVERDUE: 'Complaint inquiry overdue',
   ft_LIMIT_EXCEEDED: 'Over a legal working-time limit',
+  ft_LEAVE_MIN_NOT_TAKEN: 'Statutory leave not yet taken',
   why_streak: '{0} days in a row',
   why_rolling: '{0} h in the last 7 days',
   why_restGap: 'only {0} h rest between shifts',

@@ -28,6 +28,7 @@ export const employer_zh: EmployerDict = {
   ft_SALARY_LATE: '工资晚于法定期限',
   ft_COMPLAINT_OVERDUE: '投诉调查超期',
   ft_LIMIT_EXCEEDED: '超过法定工时上限',
+  ft_LEAVE_MIN_NOT_TAKEN: '法定年假尚未安排',
   why_streak: '连续工作 {0} 天',
   why_rolling: '最近 7 天 {0} 小时',
   why_restGap: '两班之间只休息 {0} 小时',

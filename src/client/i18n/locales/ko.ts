@@ -276,6 +276,7 @@ export const ko: WorkerDict = {
   sealed: '봉인된 기록',
   last7: '최근 7일',
   hoursUnit: '시간',
+  minLeave: '회사가 올해 사용하게 해야 하는 연차: {1}일 중 {0}일 사용',
   lineRestDay: '휴일근로',
   lineHoliday: '공휴일 근로',
   lineSeventhDay: '7일 연속 근무',

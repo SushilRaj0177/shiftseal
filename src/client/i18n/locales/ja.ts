@@ -278,6 +278,7 @@ export const ja: WorkerDict = {
   sealed: '封印された記録',
   last7: '過去7日間',
   hoursUnit: '時間',
+  minLeave: '会社が今年取得させる義務のある年休:{1}日中{0}日取得',
   lineRestDay: '休日労働',
   lineHoliday: '祝日労働',
   lineSeventhDay: '7日連続勤務',

@@ -28,6 +28,7 @@ export const employer_fr: EmployerDict = {
   ft_SALARY_LATE: 'Paie versée après le délai légal',
   ft_COMPLAINT_OVERDUE: 'Enquête sur un signalement en retard',
   ft_LIMIT_EXCEEDED: 'Au-delà d’une durée maximale légale',
+  ft_LEAVE_MIN_NOT_TAKEN: 'Congés obligatoires pas encore pris',
   why_streak: '{0} jours d’affilée',
   why_rolling: '{0} h sur les 7 derniers jours',
   why_restGap: 'seulement {0} h de repos entre deux services',

@@ -28,6 +28,7 @@ export const employer_pt: EmployerDict = {
   ft_SALARY_LATE: 'Pagamento após o prazo legal',
   ft_COMPLAINT_OVERDUE: 'Apuração de denúncia atrasada',
   ft_LIMIT_EXCEEDED: 'Acima de um limite legal de jornada',
+  ft_LEAVE_MIN_NOT_TAKEN: 'Férias obrigatórias ainda não tiradas',
   why_streak: '{0} dias seguidos',
   why_rolling: '{0} h nos últimos 7 dias',
   why_restGap: 'só {0} h de descanso entre jornadas',

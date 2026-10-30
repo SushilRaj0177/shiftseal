@@ -28,6 +28,7 @@ export const employer_hi: EmployerDict = {
   ft_SALARY_LATE: 'क़ानूनी समय-सीमा के बाद भुगतान',
   ft_COMPLAINT_OVERDUE: 'शिकायत की जाँच में देरी',
   ft_LIMIT_EXCEEDED: 'क़ानूनी काम के घंटों की सीमा पार',
+  ft_LEAVE_MIN_NOT_TAKEN: 'क़ानूनी छुट्टी अभी तक नहीं ली गई',
   why_streak: 'लगातार {0} दिन',
   why_rolling: 'पिछले 7 दिनों में {0} घंटे',
   why_restGap: 'शिफ़्टों के बीच सिर्फ़ {0} घंटे आराम',

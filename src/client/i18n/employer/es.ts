@@ -28,6 +28,7 @@ export const employer_es: EmployerDict = {
   ft_SALARY_LATE: 'Pago después del plazo legal',
   ft_COMPLAINT_OVERDUE: 'Investigación de denuncia fuera de plazo',
   ft_LIMIT_EXCEEDED: 'Por encima de un límite legal de jornada',
+  ft_LEAVE_MIN_NOT_TAKEN: 'Vacaciones obligatorias aún sin tomar',
   why_streak: '{0} días seguidos',
   why_rolling: '{0} h en los últimos 7 días',
   why_restGap: 'solo {0} h de descanso entre turnos',

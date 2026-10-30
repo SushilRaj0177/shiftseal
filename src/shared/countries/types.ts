@@ -68,6 +68,8 @@ export interface LeaveTypeConfig {
 
 export interface LeaveConfig {
   types: LeaveTypeConfig[];
+  /** Annual leave the employer must make sure is actually taken each year (Japan: 5 days). */
+  minTaken?: { days: number; ifEntitledAtLeast: number; rule: string };
   /** Statutory annual leave from length of service, as of `today`. */
   annualByService?: (serviceFrom: string, today: string) => number;
 }

@@ -28,6 +28,7 @@ export const employer_ko: EmployerDict = {
   ft_SALARY_LATE: '법정 기한 후 임금 지급',
   ft_COMPLAINT_OVERDUE: '신고 조사 기한 초과',
   ft_LIMIT_EXCEEDED: '법정 근로시간 한도 초과',
+  ft_LEAVE_MIN_NOT_TAKEN: '의무 연차 미사용',
   why_streak: '{0}일 연속 근무',
   why_rolling: '최근 7일 {0}시간',
   why_restGap: '근무 사이 휴식 {0}시간뿐',

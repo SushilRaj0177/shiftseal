@@ -315,3 +315,34 @@ describe('India stays as it was', () => {
     expect(b).toEqual({ 'overtime@2': 2 });
   });
 });
+
+describe('Japan: five days of annual leave must be taken', () => {
+  it('applies only to people with 10 or more days, counting days taken', async () => {
+    const { minLeaveTaken } = await import('../../src/shared/rules/leave.js');
+    const jp: WorkplaceHours = { sector: 'office', country: 'JP' };
+    const req = (days: number) => ({
+      id: 'l',
+      workplaceId: 'w',
+      workerUid: 'u',
+      workerName: 'n',
+      type: 'earned' as const,
+      from: '2026-05-01',
+      to: '2026-05-02',
+      days,
+      reason: 'r',
+      status: 'approved' as const,
+      createdAt: '2026-04-01',
+    });
+    const b = leaveBalances([req(2)], '2026', undefined, jp, 0, {
+      from: '2024-01-01',
+      today: '2026-10-30',
+    });
+    expect(minLeaveTaken(jp, b)).toEqual({ required: 5, taken: 2 });
+    const newcomer = leaveBalances([], '2026', undefined, jp, 0, {
+      from: '2026-08-01',
+      today: '2026-10-30',
+    });
+    expect(minLeaveTaken(jp, newcomer)).toBeNull();
+    expect(minLeaveTaken({ sector: 'office', country: 'FR' }, b)).toBeNull();
+  });
+});

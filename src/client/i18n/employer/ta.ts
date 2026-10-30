@@ -28,6 +28,7 @@ export const employer_ta: EmployerDict = {
   ft_SALARY_LATE: 'சட்டக் கெடுவுக்குப் பின் சம்பளம்',
   ft_COMPLAINT_OVERDUE: 'புகார் விசாரணை தாமதம்',
   ft_LIMIT_EXCEEDED: 'சட்டப்படியான வேலை நேர வரம்பைத் தாண்டியது',
+  ft_LEAVE_MIN_NOT_TAKEN: 'சட்டப்படியான விடுப்பு இன்னும் எடுக்கப்படவில்லை',
   why_streak: 'தொடர்ந்து {0} நாள்',
   why_rolling: 'கடந்த 7 நாளில் {0} மணி',
   why_restGap: 'ஷிஃப்ட்களுக்கு இடையே {0} மணி ஓய்வு மட்டும்',

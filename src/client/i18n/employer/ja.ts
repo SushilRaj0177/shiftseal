@@ -28,6 +28,7 @@ export const employer_ja: EmployerDict = {
   ft_SALARY_LATE: '法定期日後の支払い',
   ft_COMPLAINT_OVERDUE: '相談対応の期限超過',
   ft_LIMIT_EXCEEDED: '法定の労働時間上限を超過',
+  ft_LEAVE_MIN_NOT_TAKEN: '年5日の年休取得が未達',
   why_streak: '{0}日連続勤務',
   why_rolling: '直近7日間で{0}時間',
   why_restGap: '勤務間の休息が{0}時間のみ',

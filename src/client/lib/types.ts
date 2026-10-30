@@ -97,6 +97,8 @@ export interface WorkerOverview {
   leave: {
     types: LeaveKind[];
     balances: LeaveBalance[];
+    /** Leave the employer must ensure is taken this year (Japan), if it applies. */
+    minTaken: { required: number; taken: number } | null;
     pending: number;
     today: LeaveRequest | null;
     upcoming: LeaveRequest[];
