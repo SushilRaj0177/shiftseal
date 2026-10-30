@@ -55,8 +55,17 @@ export const PersonRecord: React.FC = () => {
   if (!rec.data) return <Skeleton height={300} />;
   const w = rec.data.worker;
   const val = (k: string, fallback: string | number) => form[k] ?? String(fallback);
-  const payType = (form.payType ?? w.payType ?? (w.hourlyRate > 0 ? 'hourly' : 'daily')) as
-    'hourly' | 'daily' | 'monthly';
+  // With nothing set yet, offices default to a monthly salary and other sites to an hourly rate.
+  const unset = !w.payType && w.hourlyRate <= 0 && w.dailyWage <= 0;
+  const payType = (form.payType ??
+    w.payType ??
+    (unset
+      ? wp.payCycle === 'monthly'
+        ? 'monthly'
+        : 'hourly'
+      : w.hourlyRate > 0
+        ? 'hourly'
+        : 'daily')) as 'hourly' | 'daily' | 'monthly';
 
   const run = async (fn: () => Promise<void>, ok: string) => {
     setBusy(true);

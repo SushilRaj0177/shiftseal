@@ -68,3 +68,9 @@ export function timeAgo(iso: string): string {
   if (s < 86400) return `${Math.round(s / 3600)} h ago`;
   return `${Math.round(s / 86400)} d ago`;
 }
+
+/** What to call someone in a greeting: the first name, or the full name if it starts with an initial. */
+export function firstName(name: string): string {
+  const first = name.trim().split(/\s+/)[0] ?? '';
+  return first.replace(/\./g, '').length <= 2 ? name.trim() : first;
+}

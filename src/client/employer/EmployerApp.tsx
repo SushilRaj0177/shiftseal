@@ -90,14 +90,13 @@ export default function EmployerApp() {
             <div className="dash">
               <aside className="dash-side" aria-label="Main">
                 <Brand />
-                <div
-                  className="card tone-subtle"
-                  style={{ padding: '10px 12px', gap: 0, marginBottom: 12 }}
-                >
-                  <span className="t-strong">{base.data.workplace.name}</span>
-                  <span className="t-caption muted">
+                <div className="workplace-chip">
+                  <span className="t-strong" style={{ display: 'block' }}>
+                    {base.data.workplace.name}
+                  </span>
+                  <span className="t-caption" style={{ color: 'var(--on-navy-2)' }}>
                     {dash.data
-                      ? `${dash.data.kpis.workers} ${dash.data.kpis.workers === 1 ? 'worker' : 'workers'}`
+                      ? `${dash.data.kpis.workers} ${dash.data.kpis.workers === 1 ? 'person' : 'people'}`
                       : ' '}
                   </span>
                 </div>

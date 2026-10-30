@@ -2,10 +2,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import type { FlagRecord } from '../../shared/model.js';
 import { money, timeAgo } from '../lib/format.js';
+import { firstName } from '../lib/format.js';
 import { periodLabel } from '../lib/period.js';
 import { Icon, type IconName } from '../components/Icon.js';
 import { Card, Empty, Notice, Pill, SectionHead, Skeleton, Tile, type Tone } from '../ui/index.js';
 import { useEmployer } from './EmployerApp.js';
+import { Guilloche, Ring } from '../ui/visuals.js';
 
 export const FLAG_TITLES: Record<string, string> = {
   OUTSIDE_SITE: 'Checked in away from site',
@@ -54,6 +56,8 @@ interface ActionItem {
 export const Overview: React.FC = () => {
   const { base, dash, error } = useEmployer();
   const wp = base.workplace;
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   if (!dash) return error ? <Notice kind="error">{error}</Notice> : <Skeleton height={300} />;
 
   const nameOf = (uid?: string) => dash.people.find((p) => p.uid === uid)?.name ?? 'Someone';
@@ -165,9 +169,12 @@ export const Overview: React.FC = () => {
 
   return (
     <>
-      <header className="between" style={{ flexWrap: 'wrap' }}>
+      <header className="dash-greeting">
         <div className="stack-sm">
-          <h1 className="t-title">{wp.name}</h1>
+          <span className="t-eyebrow">{wp.name}</span>
+          <h1 className="t-display" style={{ fontSize: 30, lineHeight: '36px' }}>
+            {greeting}, {firstName(base.member.name)}
+          </h1>
           <span className="muted">
             Pay period {periodLabel(dash.period)} · payday{' '}
             {new Date(`${dash.period.payDate}T00:00:00Z`).toUTCString().slice(0, 11)}
@@ -175,42 +182,72 @@ export const Overview: React.FC = () => {
         </div>
         <div className="row-flex">
           <Link className="btn btn-secondary btn-sm" to="invite">
-            Invite workers
+            <Icon name="plus" size={16} />
+            Invite
           </Link>
           <Link className="btn btn-primary btn-sm" to="gate" target="_blank">
-            Open gate screen
+            <Icon name="qr" size={16} />
+            Gate screen
           </Link>
         </div>
       </header>
 
       <div className="kpis">
+        <section className="hero" style={{ padding: 18 }}>
+          <Guilloche className="guilloche" />
+          <div className="row-flex" style={{ gap: 16 }}>
+            <Ring
+              value={dash.kpis.workers ? dash.kpis.onSite / dash.kpis.workers : 0}
+              size={64}
+              stroke={7}
+              color="var(--on-navy)"
+              label="On site now"
+            >
+              <span className="t-strong t-num">{dash.kpis.onSite}</span>
+            </Ring>
+            <div className="stack-sm">
+              <span className="t-label">On site now</span>
+              <span className="t-caption">
+                {dash.kpis.onSite} of {dash.kpis.workers}
+                {dash.leave.today.length ? ` · ${dash.leave.today.length} away` : ''}
+              </span>
+            </div>
+          </div>
+        </section>
         {(
           [
             [
-              'On site now',
-              `${dash.kpis.onSite} / ${dash.kpis.workers}`,
-              `${dash.kpis.workers - dash.kpis.onSite} not checked in`,
-              'muted',
-            ],
-            [
+              'clock',
               'Open claims',
               dash.kpis.openClaims,
               'Decide before payday',
-              dash.kpis.openClaims ? 'c-warn' : 'muted',
+              dash.kpis.openClaims ? 'warn' : undefined,
             ],
             [
+              'alert',
               'Open hazards',
               dash.kpis.openHazards,
               'Each has a deadline',
-              dash.kpis.openHazards ? 'c-danger' : 'muted',
+              dash.kpis.openHazards ? 'danger' : undefined,
             ],
-            ['Overtime owed', money(dash.kpis.overtimeOwed), 'This pay period', 'muted'],
+            [
+              'wallet',
+              'Overtime owed',
+              money(dash.kpis.overtimeOwed),
+              'This pay period',
+              undefined,
+            ],
           ] as const
-        ).map(([label, value, sub, cls]) => (
+        ).map(([icon, label, value, sub, tone]) => (
           <Card key={label}>
-            <span className="t-caption muted">{label}</span>
-            <span className="t-title">{value}</span>
-            <span className={`t-caption ${cls}`}>{sub}</span>
+            <div className="kpi-tile">
+              <Tile icon={icon} tone={tone} />
+              <div className="stack-sm">
+                <span className="t-caption muted">{label}</span>
+                <span className="t-title t-num">{value}</span>
+                <span className="t-caption faint">{sub}</span>
+              </div>
+            </div>
           </Card>
         ))}
       </div>

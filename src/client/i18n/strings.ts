@@ -275,6 +275,13 @@ export const en = {
   lawNote:
     'Complaints are usually made within 3 months of the incident; the committee can accept later ones. An inquiry must finish within 90 days.',
   committeeInbox: 'Committee inbox',
+  goodMorning: 'Good morning',
+  goodAfternoon: 'Good afternoon',
+  goodEvening: 'Good evening',
+  ofShift: 'of shift',
+  sealed: 'Sealed record',
+  last7: 'Last 7 days',
+  hoursUnit: 'h',
 } as const;
 
 export type StringKey = keyof typeof en;
@@ -549,6 +556,13 @@ export const ta: Dict = {
   lawNote:
     'புகார்கள் பொதுவாக நிகழ்விலிருந்து 3 மாதங்களுக்குள் அளிக்கப்படும்; தாமதமானவற்றையும் குழு ஏற்கலாம். விசாரணை 90 நாட்களுக்குள் முடிய வேண்டும்.',
   committeeInbox: 'குழு உள்பெட்டி',
+  goodMorning: 'காலை வணக்கம்',
+  goodAfternoon: 'மதிய வணக்கம்',
+  goodEvening: 'மாலை வணக்கம்',
+  ofShift: 'ஷிஃப்டில்',
+  sealed: 'முத்திரையிட்ட பதிவு',
+  last7: 'கடந்த 7 நாட்கள்',
+  hoursUnit: 'ம',
 };
 
 export const hi: Dict = {
@@ -812,6 +826,13 @@ export const hi: Dict = {
   lawNote:
     'शिकायत आम तौर पर घटना के 3 महीने के अंदर की जाती है; समिति देर से आई शिकायत भी ले सकती है। जाँच 90 दिन में पूरी होनी चाहिए।',
   committeeInbox: 'समिति इनबॉक्स',
+  goodMorning: 'सुप्रभात',
+  goodAfternoon: 'नमस्ते',
+  goodEvening: 'शुभ संध्या',
+  ofShift: 'शिफ्ट का',
+  sealed: 'सील रिकॉर्ड',
+  last7: 'पिछले 7 दिन',
+  hoursUnit: 'घं',
 };
 
 export const dictionaries: Record<Language, Dict> = { en, ta, hi };

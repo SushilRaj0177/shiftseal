@@ -8,6 +8,7 @@ import { useLang } from '../i18n/LangProvider.js';
 import type { StringKey } from '../i18n/strings.js';
 import { Card, Field, Notice, Pill, Sheet, Skeleton, type Tone } from '../ui/index.js';
 import { TabBar, useWorker } from './WorkerApp.js';
+import { Ring } from '../ui/visuals.js';
 
 export const TYPE_KEY: Record<LeaveType, StringKey> = {
   casual: 'typeCasual',
@@ -97,11 +98,23 @@ export const Leave: React.FC = () => {
               .filter((b) => b.type !== 'comp_off' || b.entitled > 0)
               .map((b) => (
                 <Card key={b.type}>
-                  <span className="t-label">{t(BALANCE_KEY[b.type])}</span>
-                  <span className="t-title">{b.available}</span>
-                  <span className="t-caption muted">
-                    {b.used} / {b.entitled}
-                  </span>
+                  <div className="row-flex">
+                    <Ring
+                      value={b.entitled ? b.available / b.entitled : 0}
+                      size={52}
+                      stroke={6}
+                      track="var(--subtle)"
+                      color="var(--accent)"
+                    >
+                      <span className="t-strong t-num">{b.available}</span>
+                    </Ring>
+                    <div className="stack-sm">
+                      <span className="t-label">{t(BALANCE_KEY[b.type])}</span>
+                      <span className="t-caption muted">
+                        {b.used} / {b.entitled}
+                      </span>
+                    </div>
+                  </div>
                 </Card>
               ))}
           </div>

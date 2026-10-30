@@ -9,6 +9,7 @@ import { HoldToTalk } from '../components/HoldToTalk.js';
 import { ListenButton } from '../components/ListenButton.js';
 import { Icon } from '../components/Icon.js';
 import { Card, Field, Kv, Notice, Pill, Skeleton, Tile } from '../ui/index.js';
+import { Composition, Guilloche } from '../ui/visuals.js';
 import { TabBar, useWorker } from './WorkerApp.js';
 
 interface Explanation {
@@ -117,6 +118,17 @@ export const Pay: React.FC = () => {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const slip = overview?.payslip ?? null;
+  const sum = (kinds: string[]) =>
+    slip?.lines.filter((l) => kinds.includes(l.kind)).reduce((n, l) => n + l.amount, 0) ?? 0;
+  const parts = [
+    {
+      label: overview?.payType === 'monthly' ? t('lineSalary') : t('lineRegular'),
+      value: sum(['salary', 'normal', 'unpaid_leave']),
+      color: '#dfe6f5',
+    },
+    { label: t('lineOvertime'), value: sum(['overtime', 'claim_overtime']), color: 'var(--brass)' },
+    { label: t('lineDeduction'), value: -sum(['deduction']), color: '#f19a8f' },
+  ];
 
   const ask = async (body: Record<string, string>) => {
     setBusy(true);
@@ -138,20 +150,42 @@ export const Pay: React.FC = () => {
         <header className="stack-sm" style={{ paddingTop: 8 }}>
           <h1 className="t-title">{t('pay')}</h1>
           {overview && (
-            <span className="muted">{t('periodOf', periodLabel(overview.period, lang))}</span>
+            <span className="muted">
+              {t(
+                overview.payType === 'monthly' ? 'monthOf' : 'periodOf',
+                periodLabel(overview.period, lang)
+              )}
+            </span>
           )}
         </header>
         {!overview && <Skeleton height={160} />}
         {overview && !slip && <Notice kind="info">{t('rateNotSet')}</Notice>}
         {slip && (
           <>
-            <Card>
+            <section className="hero stack">
+              <Guilloche className="guilloche" />
               <span className="t-label">{t('netPay')}</span>
-              <span className="t-number">{money(slip.netPay, lang)}</span>
-              <span className="t-caption muted">
+              <span
+                className="t-number"
+                style={{ color: 'var(--on-navy)', fontSize: 44, lineHeight: '48px' }}
+              >
+                {money(slip.netPay, lang)}
+              </span>
+              <span className="t-caption">
                 {t('paidOn', dayLabel(overview!.period.payDate, lang))}
               </span>
-            </Card>
+              <Composition parts={parts} />
+              <div className="legend">
+                {parts
+                  .filter((p) => p.value > 0)
+                  .map((p) => (
+                    <span key={p.label}>
+                      <i style={{ background: p.color }} />
+                      {p.label} {money(p.value, lang)}
+                    </span>
+                  ))}
+              </div>
+            </section>
             <Card>
               <div className="between">
                 <h2 className="t-headline">{t('howItAddsUp')}</h2>

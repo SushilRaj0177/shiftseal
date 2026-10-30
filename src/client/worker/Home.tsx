@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { calculateWeekHours } from '../../shared/rules/hours.js';
-import { isWithin } from '../../shared/time.js';
+import { addDays, isWithin } from '../../shared/time.js';
+import { computeShiftDurationHours } from '../../shared/rules/hours.js';
 import { getRule } from '../../shared/rules/index.js';
 import { api, errorMessage } from '../lib/api.js';
 import { dayLabel, hoursLabel, initials, minutesSince, nowHHMM } from '../lib/format.js';
+import { firstName } from '../lib/format.js';
 import { queuedCount } from '../lib/queue.js';
 import { useLang } from '../i18n/LangProvider.js';
 import { Icon } from '../components/Icon.js';
 import { Card, Notice, Pill, SectionHead, Skeleton, Tile } from '../ui/index.js';
+import { DayBars, Guilloche, Ring } from '../ui/visuals.js';
 import { TabBar, useWorker } from './WorkerApp.js';
 import { PaymentPrompt } from './Pay.js';
 import { TYPE_KEY } from './Leave.js';
@@ -42,6 +45,28 @@ export const Home: React.FC = () => {
   const weeklyLimit = getRule(wp.sector, 'ot.weekly').value;
   const pending = queuedCount(wp.id);
   const elapsed = open ? minutesSince(open.checkInTime, nowHHMM(wp.timezone)) / 60 : 0;
+  const shiftLen = Math.max(1, minutesSince(wp.shiftStart, wp.shiftEnd) / 60);
+  const progress = Math.min(1, elapsed / shiftLen);
+  const dailyLimit = getRule(wp.sector, 'hours.daily').value;
+  const hour = Number(nowHHMM(wp.timezone).slice(0, 2));
+  const greeting = hour < 12 ? t('goodMorning') : hour < 17 ? t('goodAfternoon') : t('goodEvening');
+  const last7 = overview
+    ? Array.from({ length: 7 }, (_, i) => {
+        const date = addDays(overview.today, i - 6);
+        const s = overview.shifts.find((x) => x.date === date);
+        const hours = s?.checkOutTime
+          ? computeShiftDurationHours(s.checkInTime, s.checkOutTime).hours
+          : 0;
+        return {
+          label: new Intl.DateTimeFormat(lang === 'en' ? 'en-IN' : `${lang}-IN`, {
+            weekday: 'narrow',
+            timeZone: 'UTC',
+          }).format(new Date(`${date}T00:00:00Z`)),
+          hours,
+          today: i === 6,
+        };
+      })
+    : [];
   const away = overview?.leave.today ?? null;
   const wfh = away?.type === 'wfh';
 
@@ -53,14 +78,31 @@ export const Home: React.FC = () => {
             {initials(me.name)}
           </span>
           <div className="grow stack-sm" style={{ gap: 0 }}>
-            <span className="t-headline">{me.name}</span>
-            <span className="t-caption muted">
-              {wp.name} · {me.title}
-            </span>
+            <span className="t-caption muted">{greeting}</span>
+            <span className="t-headline">{firstName(me.name)}</span>
           </div>
-          <Link to={`${base}/notifications`} className="icon-btn" aria-label={t('notifications')}>
+          <Link
+            to={`${base}/notifications`}
+            className="icon-btn"
+            aria-label={t('notifications')}
+            style={{ position: 'relative' }}
+          >
             <Icon name="bell" size={22} />
-            {unread.length > 0 && <span className="sr-only">{unread.length}</span>}
+            {unread.length > 0 && (
+              <span
+                aria-label={String(unread.length)}
+                style={{
+                  position: 'absolute',
+                  top: 9,
+                  right: 10,
+                  width: 8,
+                  height: 8,
+                  borderRadius: 4,
+                  background: 'var(--danger)',
+                  boxShadow: '0 0 0 2px var(--bg)',
+                }}
+              />
+            )}
           </Link>
           <Link to={`${base}/settings`} className="icon-btn" aria-label={t('settings')}>
             <Icon name="settings" size={22} />
@@ -126,7 +168,8 @@ export const Home: React.FC = () => {
         {!overview ? (
           <Skeleton height={200} />
         ) : (
-          <Card>
+          <section className="hero stack" aria-label={t('today')}>
+            <Guilloche className="guilloche" />
             <div className="between">
               <span className="t-label">
                 {t('today')} · {dayLabel(overview.today, lang)}
@@ -135,50 +178,80 @@ export const Home: React.FC = () => {
             </div>
             {open ? (
               <>
-                <div className="stack-sm">
-                  <span className="t-number">{hoursLabel(elapsed)}</span>
-                  <span className="t-caption muted">
-                    {t('checkedInAt', open.checkInTime, wp.shiftEnd)}
-                  </span>
+                <div className="row-flex" style={{ gap: 20 }}>
+                  <Ring
+                    value={progress}
+                    size={112}
+                    stroke={9}
+                    color="var(--on-navy)"
+                    label={`${Math.round(progress * 100)}% ${t('ofShift')}`}
+                  >
+                    <span
+                      style={{ fontSize: 22, fontWeight: 650, letterSpacing: '-0.5px' }}
+                      className="t-num"
+                    >
+                      {Math.round(progress * 100)}%
+                    </span>
+                    <span className="t-caption">{t('ofShift')}</span>
+                  </Ring>
+                  <div className="stack-sm grow">
+                    <span className="t-number" style={{ color: 'var(--on-navy)' }}>
+                      {hoursLabel(elapsed)}
+                    </span>
+                    <span className="t-caption">
+                      {t('checkedInAt', open.checkInTime, wp.shiftEnd)}
+                    </span>
+                  </div>
                 </div>
-                <div className="progress" aria-hidden="true">
-                  <span
-                    style={{
-                      width: `${Math.min(100, (elapsed / Math.max(1, minutesSince(wp.shiftStart, wp.shiftEnd) / 60)) * 100)}%`,
-                    }}
-                  />
-                </div>
-                <Link className="btn btn-secondary" to={`${base}/check`}>
+                <Link className="btn btn-light" to={`${base}/check`}>
                   {t('checkOut')}
                 </Link>
               </>
             ) : (
               <>
-                <span className="t-caption muted">
-                  {t('shiftHours', wp.shiftStart, wp.shiftEnd)}
-                </span>
-                <Link className="btn btn-primary" to={`${base}/check`}>
+                <div className="stack-sm">
+                  <span className="t-number" style={{ color: 'var(--on-navy)' }}>
+                    {wp.shiftStart}
+                    <span style={{ opacity: 0.45 }}> – {wp.shiftEnd}</span>
+                  </span>
+                  <span className="seal-line">
+                    <Icon name="lock" size={14} />
+                    {t('sealed')} · {overview.chain.length}
+                  </span>
+                </div>
+                <Link className="btn btn-light" to={`${base}/check`}>
                   <Icon name={wfh ? 'home' : 'qr'} />
                   {wfh ? t('startWfh') : t('checkIn')}
                 </Link>
               </>
             )}
-          </Card>
+          </section>
         )}
 
         {overview && (
-          <div className="grid-2">
-            <Card>
-              <span className="t-label">{t('thisWeek')}</span>
-              <span className="t-title">{week.totalHours} h</span>
+          <Card>
+            <div className="between">
+              <span className="t-label">{t('last7')}</span>
               <span className="t-caption muted">{t('ofLimit', weeklyLimit)}</span>
-            </Card>
-            <Card>
-              <span className="t-label">{t('overtime')}</span>
-              <span className="t-title">{week.otHours} h</span>
-              <span className="t-caption c-good">{t('paidAt2x')}</span>
-            </Card>
-          </div>
+            </div>
+            <div className="row-flex" style={{ gap: 28 }}>
+              <div className="stat">
+                <span className="t-caption muted">{t('thisWeek')}</span>
+                <b>
+                  {week.totalHours}
+                  <small className="muted"> {t('hoursUnit')}</small>
+                </b>
+              </div>
+              <div className="stat">
+                <span className="t-caption muted">{t('overtime')}</span>
+                <b style={{ color: week.otHours ? 'var(--brass)' : undefined }}>
+                  {week.otHours}
+                  <small className="muted"> {t('hoursUnit')}</small>
+                </b>
+              </div>
+            </div>
+            <DayBars days={last7} limit={dailyLimit} />
+          </Card>
         )}
 
         <SectionHead title={t('shiftReceipts')} />

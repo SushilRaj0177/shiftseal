@@ -103,7 +103,7 @@ export const Brand: React.FC = () => (
     <span className="brand-mark" aria-hidden="true">
       <Icon name="shield" size={18} />
     </span>
-    Shiftseal
+    <span style={{ letterSpacing: '-0.2px' }}>Shiftseal</span>
   </span>
 );
 

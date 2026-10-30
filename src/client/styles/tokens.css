@@ -1,56 +1,81 @@
 /* Design tokens. Mirrors the Figma file "Shiftseal — App design" (Foundations page). */
 :root {
-  --bg: #f6f4ef;
+  --bg: #f4f2ec;
   --surface: #ffffff;
-  --subtle: #efece5;
-  --ink: #17171b;
-  --ink-2: #5a5963;
+  --surface-2: #fbfaf7;
+  --subtle: #ece9e1;
+  --ink: #15161b;
+  --ink-2: #565560;
   --ink-3: #8a8892;
-  --line: #e3dfd5;
+  --line: #e6e2d8;
   --line-strong: #cfc9bb;
+
   --accent: #2b4c8c;
-  --accent-pressed: #213c70;
-  --accent-soft: #e9eef7;
+  --accent-pressed: #223e74;
+  --accent-soft: #e8eef8;
+  --accent-ink: #1f3a70;
   --on-accent: #ffffff;
-  --good: #24663f;
-  --good-soft: #e7f2eb;
+
+  /* Deep navy used for hero surfaces and the employer sidebar. */
+  --navy: #13213f;
+  --navy-2: #1b2d55;
+  --on-navy: #f4f6fb;
+  --on-navy-2: #a9b6d3;
+  --ring-track: rgba(255, 255, 255, 0.14);
+
+  /* A warm brass accent, used sparingly for the seal and highlights. */
+  --brass: #b78a3e;
+  --brass-soft: #f6eedd;
+
+  --good: #1f6b43;
+  --good-soft: #e3f1e8;
   --warn: #8a5000;
-  --warn-soft: #fbf0dc;
-  --danger: #a11f17;
-  --danger-soft: #fae8e6;
+  --warn-soft: #fbefd8;
+  --danger: #a3241b;
+  --danger-soft: #fae6e3;
 
   --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  --r-sm: 8px;
-  --r-md: 12px;
-  --r-lg: 16px;
-  --shadow: 0 1px 2px rgba(23, 23, 27, 0.04), 0 4px 16px rgba(23, 23, 27, 0.05);
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --shadow-1: 0 1px 2px rgba(21, 22, 27, 0.05), 0 1px 1px rgba(21, 22, 27, 0.03);
+  --shadow-2: 0 1px 2px rgba(21, 22, 27, 0.04), 0 8px 24px -6px rgba(21, 22, 27, 0.1);
+  --shadow-3: 0 2px 4px rgba(19, 33, 63, 0.08), 0 18px 40px -12px rgba(19, 33, 63, 0.45);
   --ease: cubic-bezier(0.2, 0, 0, 1);
-  --tabbar-h: 64px;
+  --tabbar-h: 68px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #111114;
-    --surface: #1a1a1f;
-    --subtle: #23232a;
-    --ink: #f2efe9;
-    --ink-2: #b9b7c2;
+    --bg: #0f1013;
+    --surface: #17181d;
+    --surface-2: #1b1c22;
+    --subtle: #23242b;
+    --ink: #f1efe9;
+    --ink-2: #b8b6c1;
     --ink-3: #82808c;
-    --line: #2e2e36;
-    --line-strong: #43434d;
-    --accent: #86a6ea;
-    --accent-pressed: #a0b9f0;
-    --accent-soft: #1d2840;
-    --on-accent: #0e1526;
-    --good: #6ccb95;
-    --good-soft: #16291f;
-    --warn: #f2b451;
-    --warn-soft: #30230f;
-    --danger: #f5857e;
-    --danger-soft: #331817;
-    --shadow: none;
+    --line: #2a2b33;
+    --line-strong: #40414b;
+    --accent: #89a8ec;
+    --accent-pressed: #a3bcf1;
+    --accent-soft: #1c2742;
+    --accent-ink: #b9cbf5;
+    --on-accent: #0d1527;
+    --navy: #16233f;
+    --navy-2: #1d2e52;
+    --brass: #d3a95d;
+    --brass-soft: #2c2415;
+    --good: #6bcb95;
+    --good-soft: #15291e;
+    --warn: #f0b350;
+    --warn-soft: #2e220e;
+    --danger: #f4867f;
+    --danger-soft: #321816;
+    --shadow-1: none;
+    --shadow-2: 0 0 0 1px rgba(255, 255, 255, 0.02);
+    --shadow-3: 0 18px 40px -12px rgba(0, 0, 0, 0.6);
   }
 }
 
