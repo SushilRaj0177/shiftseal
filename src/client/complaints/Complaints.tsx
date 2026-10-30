@@ -266,7 +266,7 @@ export const Complaints: React.FC<{ back: string }> = ({ back }) => {
   );
 };
 
-/** The Internal Committee's inbox. Only complaints this member may see are ever sent here. */
+/** The complaint handlers' inbox. Only complaints this member may see are ever sent here. */
 export const CommitteeInbox: React.FC<{ back: string }> = ({ back }) => {
   const { wp = '' } = useParams();
   const { t, lang, country } = useLang();
