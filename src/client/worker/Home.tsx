@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { calculateWeekHours } from '../../shared/rules/hours.js';
+import { calculateWeekHours, dailyHoursOf } from '../../shared/rules/hours.js';
 import { addDays, isWithin } from '../../shared/time.js';
 import { computeShiftDurationHours } from '../../shared/rules/hours.js';
-import { getRule } from '../../shared/rules/index.js';
 import { api, errorMessage } from '../lib/api.js';
 import { dayLabel, hoursLabel, initials, minutesSince, nowHHMM } from '../lib/format.js';
 import { firstName } from '../lib/format.js';
@@ -14,6 +13,7 @@ import { Icon } from '../components/Icon.js';
 import { Card, Notice, Pill, SectionHead, Skeleton, Tile } from '../ui/index.js';
 import { DayBars, Guilloche, Ring } from '../ui/visuals.js';
 import { TabBar, useWorker } from './WorkerApp.js';
+import type { LimitReading } from '../../shared/rules/limits.js';
 import { PaymentPrompt } from './Pay.js';
 import { TYPE_KEY } from './Leave.js';
 
@@ -42,13 +42,12 @@ export const Home: React.FC = () => {
   const inPeriod = overview
     ? overview.shifts.filter((s) => isWithin(s.date, overview.period.start, overview.period.end))
     : [];
-  const week = calculateWeekHours(inPeriod, wp.sector);
-  const weeklyLimit = getRule(wp.sector, 'ot.weekly').value;
+  const week = calculateWeekHours(inPeriod, wp);
   const pending = queuedCount(wp.id);
   const elapsed = open ? minutesSince(open.checkInTime, nowHHMM(wp.timezone)) / 60 : 0;
   const shiftLen = Math.max(1, minutesSince(wp.shiftStart, wp.shiftEnd) / 60);
   const progress = Math.min(1, elapsed / shiftLen);
-  const dailyLimit = getRule(wp.sector, 'hours.daily').value;
+  const dailyLimit = dailyHoursOf(wp);
   const hour = Number(nowHHMM(wp.timezone).slice(0, 2));
   const greeting = hour < 12 ? t('goodMorning') : hour < 17 ? t('goodAfternoon') : t('goodEvening');
   const last7 = overview
@@ -80,7 +79,7 @@ export const Home: React.FC = () => {
           </span>
           <div className="grow stack-sm" style={{ gap: 0 }}>
             <span className="t-caption muted">{greeting}</span>
-            <span className="t-headline">{firstName(me.name)}</span>
+            <span className="t-headline">{firstName(me.name, lang)}</span>
           </div>
           <Link
             to={`${base}/notifications`}
@@ -233,7 +232,6 @@ export const Home: React.FC = () => {
           <Card>
             <div className="between">
               <span className="t-label">{t('last7')}</span>
-              <span className="t-caption muted">{t('ofLimit', weeklyLimit)}</span>
             </div>
             <div className="row-flex" style={{ gap: 28 }}>
               <div className="stat">
@@ -252,6 +250,14 @@ export const Home: React.FC = () => {
               </div>
             </div>
             <DayBars days={last7} limit={dailyLimit} />
+            {overview.limits.length > 0 && (
+              <div className="stack-sm limits" style={{ marginTop: 6 }}>
+                {overview.limits.map((r) => (
+                  <LimitMeter key={r.id} reading={r} />
+                ))}
+              </div>
+            )}
+            <p className="t-caption muted">{t('overtimeRule')}</p>
           </Card>
         )}
 
@@ -289,5 +295,25 @@ export const Home: React.FC = () => {
       </div>
       <TabBar />
     </main>
+  );
+};
+
+/** One legal limit: what it is, where the worker stands, and when it is crossed. */
+const LimitMeter: React.FC<{ reading: LimitReading }> = ({ reading: r }) => {
+  const { tx, t } = useLang();
+  const share = r.cap > 0 ? r.value / r.cap : 0;
+  const over = r.value > r.cap;
+  return (
+    <div className={`limit${over ? ' over' : share >= 0.8 ? ' near' : ''}`}>
+      <div className="between">
+        <span className="t-caption">{tx(`limit_${r.id}`)}</span>
+        <span className="t-caption t-num">
+          <b>{r.value}</b> / {r.cap} {t('hoursUnit')}
+        </span>
+      </div>
+      <div className="limit-track" role="img" aria-label={`${r.value} / ${r.cap}`}>
+        <span style={{ width: `${Math.min(100, share * 100)}%` }} />
+      </div>
+    </div>
   );
 };

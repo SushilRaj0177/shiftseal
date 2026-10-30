@@ -1,47 +1,7 @@
 {
   "sector": "common",
-  "name": "Rules for every workplace",
+  "name": "Workplace policies for every country",
   "rules": {
-    "pay.monthlyDueDays": {
-      "id": "pay.monthlyDueDays",
-      "value": 7,
-      "unit": "days after the wage period",
-      "kind": "law",
-      "source": "Code on Wages, 2019 (India), section 17: monthly wages to be paid before the expiry of the seventh day of the following month",
-      "note": "A monthly salary received after the 7th of the next month is late."
-    },
-    "pay.monthlyHourlyBasis": {
-      "id": "pay.monthlyHourlyBasis",
-      "value": 208,
-      "unit": "hours/month",
-      "kind": "policy",
-      "source": "Workplace policy: hourly equivalent of a monthly salary (26 days x 8 hours)",
-      "note": "Used only to price overtime for salaried staff whose overtime is paid."
-    },
-    "leave.casual": {
-      "id": "leave.casual",
-      "value": 12,
-      "unit": "days/year",
-      "kind": "policy",
-      "source": "Workplace leave policy (default; set by the employer within the applicable Shops and Establishments Act)",
-      "note": "Casual leave per calendar year."
-    },
-    "leave.sick": {
-      "id": "leave.sick",
-      "value": 12,
-      "unit": "days/year",
-      "kind": "policy",
-      "source": "Workplace leave policy (default; set by the employer within the applicable Shops and Establishments Act)",
-      "note": "Sick leave per calendar year."
-    },
-    "leave.earned": {
-      "id": "leave.earned",
-      "value": 15,
-      "unit": "days/year",
-      "kind": "policy",
-      "source": "Workplace leave policy (default; set by the employer within the applicable Shops and Establishments Act)",
-      "note": "Earned (privilege) leave per calendar year."
-    },
     "burnout.lateHour": {
       "id": "burnout.lateHour",
       "value": 21,
@@ -73,30 +33,6 @@
       "kind": "policy",
       "source": "Workplace wellbeing policy",
       "note": "No leave taken for more than 90 days is a burnout signal."
-    },
-    "posh.committeeThreshold": {
-      "id": "posh.committeeThreshold",
-      "value": 10,
-      "unit": "employees",
-      "kind": "law",
-      "source": "Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013, section 4: every employer with 10 or more employees must constitute an Internal Committee",
-      "note": "Workplaces below this size are served by the district Local Committee."
-    },
-    "posh.inquiryDays": {
-      "id": "posh.inquiryDays",
-      "value": 90,
-      "unit": "days",
-      "kind": "law",
-      "source": "Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013, section 11(4): inquiry to be completed within 90 days",
-      "note": "A complaint open longer than this is overdue."
-    },
-    "posh.complaintWindowDays": {
-      "id": "posh.complaintWindowDays",
-      "value": 90,
-      "unit": "days",
-      "kind": "law",
-      "source": "Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013, section 9(1): complaint within three months of the incident (extendable by a further three months)",
-      "note": "Late complaints are still accepted; the committee decides on extension."
     }
   }
 }

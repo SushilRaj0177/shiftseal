@@ -54,7 +54,7 @@ export function evaluateSeverityFloor(
   hazardType: HazardType,
   aiSeverity: SeverityLevel
 ): SeverityEvaluation {
-  const floorRule = getRule(sector, 'hazard.floorHigh');
+  const floorRule = getRule({ sector }, 'hazard.floorHigh');
   const highSet = sector === 'construction' ? CONSTRUCTION_HIGH_FLOOR : CAMPUS_HIGH_FLOOR;
 
   const floorSeverity: SeverityLevel = highSet.has(hazardType) ? 'high' : 'low';

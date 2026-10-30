@@ -364,36 +364,67 @@ export function leaveRevoked(
   };
 }
 
-// ---------------------------------------------------------------- POSH
+// ---------------------------------------------------------------- legal limits
+
+/**
+ * A worker over one of the country's legal working-time limits. The limit is
+ * the employer's to keep, so the flag is about the employer.
+ */
+export function assessLimits(
+  workerUid: string,
+  readings: { id: string; value: number; cap: number; from: string; source: string; kind: string }[]
+): FlagDraft[] {
+  return readings
+    .filter((r) => r.kind === 'law' && r.value > r.cap && !LIMITS_ARE_THRESHOLDS.has(r.id))
+    .map((r) => ({
+      code: 'LIMIT_EXCEEDED' as const,
+      severity: 'serious' as const,
+      concerns: 'employer' as const,
+      subject: { kind: 'workplace' as const, id: `${workerUid}:${r.id}:${r.from}`, workerUid },
+      message: `Over the legal limit: ${r.value} of ${r.cap} hours (${r.source}).`,
+      facts: { value: r.value, cap: r.cap },
+    }));
+}
+
+/** Meters that mark where overtime starts, not a maximum (US 40-hour week, California 8-hour day, Brazil 44). */
+const LIMITS_ARE_THRESHOLDS = new Set(['usWeek', 'caDay', 'brWeek', 'week']);
+
+// ---------------------------------------------------------------- harassment complaints
 
 /** Workplace-level compliance flags. They carry counts only, never complaint details. */
-export function assessPoshCompliance(
+/**
+ * Whether the workplace has named people to receive harassment complaints when
+ * its country's law requires it, and whether inquiries are running late.
+ * Uses counts only, never complaint details.
+ */
+export function assessComplaintCompliance(
   workplaceId: string,
   headcount: number,
   committeeSize: number,
   threshold: number,
-  overdueComplaints: number
+  overdueComplaints: number,
+  inquiryDays?: number
 ): FlagDraft[] {
   const subject: FlagSubject = { kind: 'workplace', id: workplaceId };
   const flags: FlagDraft[] = [];
   if (headcount >= threshold && committeeSize === 0) {
     flags.push({
-      code: 'POSH_NO_COMMITTEE',
+      code: 'COMPLAINTS_NO_HANDLER',
       severity: 'serious',
       concerns: 'employer',
       subject,
-      message: `${headcount} people work here, but no Internal Committee has been named. The POSH Act requires one from ${threshold}.`,
+      message: `${headcount} people work here, but nobody has been named to receive harassment complaints. The law here requires it from ${threshold}.`,
       facts: { headcount, threshold },
     });
   }
-  if (overdueComplaints > 0) {
+  if (inquiryDays && overdueComplaints > 0) {
     flags.push({
-      code: 'POSH_OVERDUE',
+      code: 'COMPLAINT_OVERDUE',
       severity: 'serious',
       concerns: 'employer',
       subject,
-      message: `${overdueComplaints} complaint(s) have been open longer than the 90-day inquiry limit.`,
-      facts: { overdueComplaints },
+      message: `${overdueComplaints} complaint(s) have been open longer than the ${inquiryDays}-day inquiry limit.`,
+      facts: { overdueComplaints, inquiryDays: inquiryDays ?? 0 },
     });
   }
   return flags;

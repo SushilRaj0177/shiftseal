@@ -44,23 +44,28 @@ Input: "நேத்து சனிக்கிழமை ஸ்லாப் ப
 Output: {"date":"2026-10-24","extraHours":2,"reason":"Concrete slab pouring overtime","detectedLanguage":"ta","confidence":0.96}`;
 }
 
-export function buildExplainPayPrompt(payFacts: Record<string, number>, lang: Language): string {
+export function buildExplainPayPrompt(
+  payFacts: Record<string, number>,
+  lang: Language,
+  currency: string
+): string {
   const langName = promptLanguageName(lang);
-  return `Answer the worker's question about their weekly payslip in plain, short ${langName}.
+  return `Answer the worker's question about their payslip in plain, short ${langName}. Amounts are in ${currency}.
+Keys ending in _hours, _rate, _amount and _multiplier describe one payslip line each (overtime, rest-day, holiday, night or other premium work).
 You MUST ONLY use numbers from the following ground-truth payFacts JSON:
 ${JSON.stringify(payFacts)}
-Every single number you mention in your "answer" string MUST also be listed in "citedFacts" with its exact "ref" key and numeric "value" from payFacts. Do not write any other numbers (even dates or list numbers like 1, 2).
+Every single number you mention in your "answer" string MUST also be listed in "citedFacts" with its exact "ref" key and numeric "value" from payFacts. Do not write any other numbers (even dates or list numbers like 1, 2). Write numbers plainly, without thousands separators.
 
 Example:
-payFacts: {"normalHours":45,"otHours":4.67,"hourlyRate":100,"otRate":200,"netPay":5084}
+payFacts: {"normalHours":45,"otHours":4.67,"hourlyRate":100,"overtime_2_rate":200,"netPay":5084}
 Output: {
-  "answer": "Your net pay is ₹5084 for 45 normal hours at ₹100 per hour and 4.67 overtime hours at ₹200 per hour.",
+  "answer": "Your net pay is 5084 for 45 normal hours at 100 per hour and 4.67 overtime hours at 200 per hour.",
   "citedFacts": [
     {"ref":"netPay","value":5084},
     {"ref":"normalHours","value":45},
     {"ref":"hourlyRate","value":100},
     {"ref":"otHours","value":4.67},
-    {"ref":"otRate","value":200}
+    {"ref":"overtime_2_rate","value":200}
   ]
 }`;
 }

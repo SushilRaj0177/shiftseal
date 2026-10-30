@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect } from 'react';
 import { NavLink, Route, Routes, useParams } from 'react-router-dom';
 import { useApi } from '../lib/useApi.js';
+import { useLang } from '../i18n/LangProvider.js';
 import type { Dashboard, WorkplaceResponse } from '../lib/types.js';
 import { Icon, type IconName } from '../components/Icon.js';
 import { Brand, Notice, Pill, Skeleton } from '../ui/index.js';
@@ -51,6 +52,12 @@ export default function EmployerApp() {
   const { wp = '' } = useParams();
   const base = useApi<WorkplaceResponse>(`/workplaces/${wp}`);
   const dash = useApi<Dashboard>(`/workplaces/${wp}/dashboard`, 20_000);
+  const { setWorkplaceCountry } = useLang();
+  const country = base.data?.workplace.country ?? (base.data ? 'IN' : null);
+  useEffect(() => {
+    setWorkplaceCountry(country);
+    return () => setWorkplaceCountry(null);
+  }, [country, setWorkplaceCountry]);
 
   useEffect(() => rememberWorkplace(wp), [wp]);
 

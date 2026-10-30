@@ -27,6 +27,7 @@ import {
 import {
   buildFallbackStructuredClaim,
   buildTemplatePayExplanation,
+  payFactsOf,
   buildFallbackHazard,
 } from './fallbacks.js';
 
@@ -187,18 +188,7 @@ export async function explainPay(
   verificationStatus: 'checked' | 'template_fallback';
   isDemoFallback: boolean;
 }> {
-  const otRate = Math.round(payslip.hourlyRate * 2 * 100) / 100;
-  const truthMap: Record<string, number> = {
-    normalHours: payslip.normalHours,
-    otHours: payslip.otHours,
-    claimedOtHours: payslip.claimedOtHours,
-    hourlyRate: payslip.hourlyRate,
-    otRate,
-    grossPay: payslip.grossPay,
-    totalDeductions: payslip.totalDeductions,
-    netPay: payslip.netPay,
-    flaggedDeductionsCount: payslip.flaggedDeductionsCount,
-  };
+  const truthMap = payFactsOf(payslip);
 
   const schema: Schema = {
     type: Type.OBJECT,
@@ -222,7 +212,7 @@ export async function explainPay(
   try {
     const raw = await callGeminiWithRetry(
       'explainPay',
-      buildExplainPayPrompt(truthMap, lang),
+      buildExplainPayPrompt(truthMap, lang, payslip.currency),
       schema,
       {
         text: input.question,

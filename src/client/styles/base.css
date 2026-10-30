@@ -1242,3 +1242,36 @@ button.list-row:hover {
     animation: none;
   }
 }
+
+/* ---------- legal limit meters ---------- */
+.limit-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--subtle);
+  overflow: hidden;
+  margin-top: 4px;
+}
+.limit-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width 600ms var(--ease);
+}
+.limit.near .limit-track span {
+  background: var(--warn);
+}
+.limit.over .limit-track span {
+  background: var(--seal);
+}
+.limit.over b {
+  color: var(--seal);
+}
+.prefix-input select.dial {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: var(--ink-2);
+  padding: 0 4px 0 0;
+  max-width: 96px;
+}

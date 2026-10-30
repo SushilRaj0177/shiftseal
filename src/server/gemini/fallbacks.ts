@@ -6,6 +6,7 @@ import type {
   PayslipCalculationResult,
 } from '../../shared/types.js';
 import { recentWeekdays } from './prompts.js';
+import { baseOf, localeOf, type BaseLanguage } from '../../shared/languages.js';
 
 /** Guesses the language from its script; Latin-script text keeps the app's language. */
 export function detectScript(text: string | undefined, lang: Language): Language {
@@ -179,6 +180,41 @@ export function buildFallbackStructuredClaim(
   };
 }
 
+/** Ground-truth numbers for a payslip: the only numbers an explanation may use. */
+export function payFactsOf(payslip: PayslipCalculationResult): Record<string, number> {
+  const facts: Record<string, number> = {
+    normalHours: payslip.normalHours,
+    otHours: payslip.otHours,
+    claimedOtHours: payslip.claimedOtHours,
+    hourlyRate: payslip.hourlyRate,
+    grossPay: payslip.grossPay,
+    totalDeductions: payslip.totalDeductions,
+    netPay: payslip.netPay,
+    flaggedDeductionsCount: payslip.flaggedDeductionsCount,
+  };
+  for (const line of payslip.lines) {
+    if (line.kind === 'net' || line.kind === 'deduction') continue;
+    const key = line.id.replace(/^line-/, '').replace(/[^a-z0-9]+/gi, '_');
+    facts[`${key}_amount`] = line.amount;
+    if (line.hours !== undefined) facts[`${key}_hours`] = line.hours;
+    if (line.rate !== undefined) facts[`${key}_rate`] = line.rate;
+    if (line.multiplier !== undefined) facts[`${key}_multiplier`] = line.multiplier;
+  }
+  return facts;
+}
+
+const EXTRA_KINDS = new Set([
+  'overtime',
+  'rest_day',
+  'holiday',
+  'seventh_day',
+  'night',
+  'sunday',
+  'weekly_rest',
+  'claim_overtime',
+]);
+
+/** A plain explanation built only from the payslip, used when the AI is unavailable or wrong. */
 export function buildTemplatePayExplanation(
   payslip: PayslipCalculationResult,
   lang: Language
@@ -186,46 +222,36 @@ export function buildTemplatePayExplanation(
   answer: string;
   citedFacts: { ref: string; value: number }[];
 } {
-  const otRate = Math.round(payslip.hourlyRate * 2 * 100) / 100;
-  const citedFacts = [
-    { ref: 'normalHours', value: payslip.normalHours },
-    { ref: 'otHours', value: payslip.otHours },
-    { ref: 'hourlyRate', value: payslip.hourlyRate },
-    { ref: 'otRate', value: otRate },
-    { ref: 'totalDeductions', value: payslip.totalDeductions },
-    { ref: 'netPay', value: payslip.netPay },
-  ];
-
-  if (lang === 'ta') {
-    return {
-      answer: `உங்கள் நிகர சம்பளம் ₹${payslip.netPay}. சாதாரண பணி நேரம் ${payslip.normalHours} மணி (மணிக்கு ₹${payslip.hourlyRate}), ஓவர்டைம் ${payslip.otHours} மணி (மணிக்கு ₹${otRate} இருமடங்கு விகிதம்), மற்றும் பிடித்தம் ₹${payslip.totalDeductions}.`,
-      citedFacts,
-    };
-  }
-
-  if (lang === 'hi') {
-    return {
-      answer: `आपका कुल शुद्ध वेतन ₹${payslip.netPay} है। सामान्य कार्य ${payslip.normalHours} घंटे (₹${payslip.hourlyRate} प्रति घंटा), ओवरटाइम ${payslip.otHours} घंटे (दोगुनी दर ₹${otRate} प्रति घंटा), और कुल कटौती ₹${payslip.totalDeductions} है।`,
-      citedFacts,
-    };
-  }
-
-  const p = payslip;
-  const other: Partial<Record<Language, string>> = {
-    es: `Tu pago neto es ₹${p.netPay}: ${p.normalHours} horas normales a ₹${p.hourlyRate}/h, ${p.otHours} horas extra a la tarifa legal doble de ₹${otRate}/h, menos ₹${p.totalDeductions} de deducciones.`,
-    fr: `Votre salaire net est de ₹${p.netPay} : ${p.normalHours} heures normales à ₹${p.hourlyRate}/h, ${p.otHours} heures supplémentaires au taux légal double de ₹${otRate}/h, moins ₹${p.totalDeductions} de retenues.`,
-    de: `Ihr Nettolohn beträgt ₹${p.netPay}: ${p.normalHours} reguläre Stunden zu ₹${p.hourlyRate}/h, ${p.otHours} Überstunden zum gesetzlichen doppelten Satz von ₹${otRate}/h, abzüglich ₹${p.totalDeductions} Abzüge.`,
-    pt: `Seu salário líquido é ₹${p.netPay}: ${p.normalHours} horas normais a ₹${p.hourlyRate}/h, ${p.otHours} horas extras pela taxa legal em dobro de ₹${otRate}/h, menos ₹${p.totalDeductions} de descontos.`,
-    ja: `差引支給額は ₹${p.netPay} です。通常勤務 ${p.normalHours} 時間(時給 ₹${p.hourlyRate})、残業 ${p.otHours} 時間(法定の倍額 ₹${otRate}/時)、控除 ₹${p.totalDeductions} です。`,
-    zh: `你的实发工资是 ₹${p.netPay}:正常工时 ${p.normalHours} 小时(每小时 ₹${p.hourlyRate}),加班 ${p.otHours} 小时(法定双倍 ₹${otRate}/小时),扣款 ₹${p.totalDeductions}。`,
-    ko: `실수령액은 ₹${p.netPay}입니다. 기본 근무 ${p.normalHours}시간(시간당 ₹${p.hourlyRate}), 초과 근무 ${p.otHours}시간(법정 두 배 ₹${otRate}/시간), 공제 ₹${p.totalDeductions}입니다.`,
+  const facts = payFactsOf(payslip);
+  const m = (n: number) =>
+    new Intl.NumberFormat(localeOf(lang), { style: 'currency', currency: payslip.currency }).format(
+      n
+    );
+  const extra = payslip.lines.filter((l) => EXTRA_KINDS.has(l.kind));
+  const extraAmt = extra.reduce((n, l) => n + l.amount, 0);
+  const net = m(payslip.netPay);
+  const gross = m(payslip.grossPay);
+  const ded = m(payslip.totalDeductions);
+  const x = m(extraAmt);
+  const T: Record<BaseLanguage, string> = {
+    en: `Your net pay is ${net}: ${gross} before deductions, including ${x} for overtime and other premium hours, minus ${ded} in deductions.`,
+    ta: `உங்கள் நிகர சம்பளம் ${net}: பிடித்தத்திற்கு முன் ${gross}, இதில் ஓவர்டைம் மற்றும் கூடுதல் நேரத்திற்கு ${x}; பிடித்தம் ${ded}.`,
+    hi: `आपका शुद्ध वेतन ${net} है: कटौती से पहले ${gross}, जिसमें ओवरटाइम और अतिरिक्त घंटों के ${x} शामिल हैं; कटौती ${ded}।`,
+    es: `Tu pago neto es ${net}: ${gross} antes de deducciones, con ${x} por horas extra y otros recargos, menos ${ded} de deducciones.`,
+    fr: `Votre salaire net est de ${net} : ${gross} avant retenues, dont ${x} d’heures supplémentaires et de majorations, moins ${ded} de retenues.`,
+    de: `Ihr Nettolohn beträgt ${net}: ${gross} vor Abzügen, davon ${x} für Überstunden und Zuschläge, abzüglich ${ded}.`,
+    pt: `O seu pagamento líquido é ${net}: ${gross} antes dos descontos, com ${x} de horas extras e adicionais, menos ${ded} de descontos.`,
+    ja: `差引支給額は ${net} です。総支給額 ${gross}(うち残業・割増分 ${x})から、控除 ${ded} を差し引いています。`,
+    zh: `你的实发工资是 ${net}:应发 ${gross}(其中加班及各类加给 ${x}),扣除 ${ded}。`,
+    ko: `실수령액은 ${net}입니다. 공제 전 ${gross}(초과·가산 수당 ${x} 포함)에서 공제 ${ded}을(를) 뺀 금액입니다.`,
   };
-  const answer = other[lang];
-  if (answer) return { answer, citedFacts };
-
   return {
-    answer: `Your net pay is ₹${payslip.netPay}, calculated from ${payslip.normalHours} normal hours at ₹${payslip.hourlyRate}/hr, ${payslip.otHours} overtime hours at the statutory double rate of ₹${otRate}/hr, minus ₹${payslip.totalDeductions} in deductions.`,
-    citedFacts,
+    answer: T[baseOf(lang)],
+    citedFacts: [
+      { ref: 'netPay', value: facts.netPay },
+      { ref: 'grossPay', value: facts.grossPay },
+      { ref: 'totalDeductions', value: facts.totalDeductions },
+    ],
   };
 }
 

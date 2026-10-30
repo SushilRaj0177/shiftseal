@@ -77,6 +77,13 @@ export default function WorkerApp() {
   const { wp = '' } = useParams();
   const base = useApi<WorkplaceResponse>(`/workplaces/${wp}`);
   const live = useApi<WorkerOverview>(`/workplaces/${wp}/me`, 15_000);
+  const { setWorkplaceCountry } = useLang();
+  const country = base.data?.workplace.country ?? (base.data ? 'IN' : null);
+  // The workplace's country decides the law, the currency and the legal wording.
+  useEffect(() => {
+    setWorkplaceCountry(country);
+    return () => setWorkplaceCountry(null);
+  }, [country, setWorkplaceCountry]);
   const [deviceStatus, setDeviceStatus] = useState<'bound' | 'pending' | 'unknown'>('unknown');
   const [online, setOnline] = useState(navigator.onLine);
 

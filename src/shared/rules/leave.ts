@@ -1,7 +1,9 @@
 import type { LeaveRequest, LeaveType } from '../model.js';
-import type { SectorId } from '../types.js';
+import type { LeaveTypeConfig } from '../countries/types.js';
+import { countryPack } from '../countries/index.js';
 import { eachDay, weekdayOf } from '../time.js';
-import { getRule } from './index.js';
+import { dailyHoursOf, type WorkplaceHours } from './hours.js';
+import { findRule } from './index.js';
 
 /** Leave types that are paid and come out of a yearly balance. */
 export const BALANCE_TYPES = ['casual', 'sick', 'earned', 'comp_off'] as const;
@@ -43,40 +45,89 @@ export interface LeaveBalance {
   used: number;
   pending: number;
   available: number;
+  /** Whether the entitlement is set by law or by workplace policy. */
+  kind?: 'law' | 'policy';
+}
+
+/** Leave types the workplace's country offers, with their settings. */
+export function leaveTypes(where: WorkplaceHours): LeaveTypeConfig[] {
+  return countryPack(where).leave.types;
+}
+
+/** Days a request uses: working days, or calendar days where the law counts those (Spain, Brazil). */
+export function leaveDays(
+  where: WorkplaceHours,
+  type: LeaveType,
+  from: string,
+  to: string,
+  weeklyOff: number[],
+  halfDay = false
+): number {
+  const cfg = leaveTypes(where).find((t) => t.type === type);
+  if (cfg?.calendarDays) return to < from ? 0 : eachDay(from, to).length;
+  return workingDays(from, to, weeklyOff, halfDay);
 }
 
 /**
- * Balances for one calendar year. Comp-off is earned from approved extra
- * hours (half a working day per half day of extra hours), not a yearly grant.
+ * Balances for one calendar year, for the leave types that have a yearly
+ * allowance in this country. The employer's policy can give more than the
+ * law, never less. Comp-off is earned from approved extra hours (half a
+ * working day per half day of extra hours), not granted yearly.
  */
 export function leaveBalances(
   requests: LeaveRequest[],
   year: string,
   policy: { casual: number; sick: number; earned: number } | undefined,
-  sector: SectorId,
-  compOffHoursEarned: number
+  where: WorkplaceHours,
+  compOffHoursEarned: number,
+  service?: { from: string; today: string }
 ): LeaveBalance[] {
-  const dailyHours = getRule(sector, 'hours.daily').value;
-  const entitlement: Record<BalanceType, number> = {
-    casual: policy?.casual ?? getRule(sector, 'leave.casual').value,
-    sick: policy?.sick ?? getRule(sector, 'leave.sick').value,
-    earned: policy?.earned ?? getRule(sector, 'leave.earned').value,
-    comp_off: Math.floor(compOffHoursEarned / (dailyHours / 2)) / 2,
-  };
+  const pack = countryPack(where);
+  const dailyHours = dailyHoursOf(where);
   const inYear = requests.filter((r) => r.from.startsWith(year));
-  return BALANCE_TYPES.map((type) => {
+  const out: LeaveBalance[] = [];
+  for (const cfg of pack.leave.types) {
+    if (!(BALANCE_TYPES as readonly string[]).includes(cfg.type)) continue;
+    const type = cfg.type as BalanceType;
+    const rule = cfg.rule ? findRule(where, cfg.rule) : undefined;
+    let entitled: number;
+    if (type === 'comp_off') {
+      entitled = Math.floor(compOffHoursEarned / (dailyHours / 2)) / 2;
+    } else if (cfg.entitlement === 'service') {
+      const legal =
+        service && pack.leave.annualByService
+          ? pack.leave.annualByService(service.from, service.today)
+          : 0;
+      entitled = Math.max(legal, policy?.[type as 'earned'] ?? 0);
+    } else if (typeof cfg.entitlement === 'number') {
+      const own = policy?.[type as 'casual' | 'sick' | 'earned'];
+      entitled =
+        rule?.kind === 'law' ? Math.max(cfg.entitlement, own ?? 0) : (own ?? cfg.entitlement);
+    } else {
+      // Taken as needed (with a certificate, for a family event, ...): no yearly allowance.
+      continue;
+    }
     const sum = (status: string) =>
       inYear.filter((r) => r.type === type && r.status === status).reduce((n, r) => n + r.days, 0);
     const used = sum('approved');
     const pending = sum('pending');
-    return {
+    out.push({
       type,
-      entitled: entitlement[type],
+      entitled,
       used,
       pending,
-      available: entitlement[type] - used - pending,
-    };
-  });
+      available: entitled - used - pending,
+      kind: type === 'comp_off' ? undefined : rule?.kind,
+    });
+  }
+  return out;
+}
+
+/** Leave types that do not pay salary in this country (unpaid leave, and e.g. sick days paid by social security). */
+export function unpaidTypes(where: WorkplaceHours): LeaveType[] {
+  return leaveTypes(where)
+    .filter((t) => !t.paid)
+    .map((t) => t.type);
 }
 
 /** Approved leave of a type covering a date, if any. */

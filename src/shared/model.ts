@@ -1,4 +1,5 @@
 import type { Language, SectorId } from './types.js';
+import type { CountryId, PayCycle } from './countries/types.js';
 
 /** Production data model: real accounts, workplaces, membership and evidence. */
 
@@ -28,7 +29,11 @@ export interface WorkplaceRecord {
   id: string;
   name: string;
   sector: SectorId;
-  /** Indian state, for labour rules. */
+  /** Country whose labour law applies. India if unset (workplaces created before countries). */
+  country?: CountryId;
+  /** US state with its own rules (CA, NY). */
+  region?: string;
+  /** State, province or prefecture, as the owner wrote it. */
   state: string;
   /** IANA time zone, e.g. Asia/Kolkata. */
   timezone: string;
@@ -37,13 +42,17 @@ export interface WorkplaceRecord {
   /** Day of the week pay is made, 0 = Sunday (weekly pay cycle). */
   payDay: number;
   /** Weekly (wage workers) or monthly (salaried staff). Weekly if unset. */
-  payCycle?: 'weekly' | 'monthly';
+  payCycle?: PayCycle;
   /** Day of the month salary is paid for the previous month (monthly pay cycle). */
   payDayOfMonth?: number;
   /** Days of the week that are off, 0 = Sunday. Sunday only if unset. */
   weeklyOff?: number[];
   /** Paid leave days per calendar year. Rule defaults if unset. */
   leavePolicy?: { casual: number; sick: number; earned: number };
+  /** Public holidays observed, YYYY-MM-DD. */
+  holidays?: string[];
+  /** Overtime rate agreed above the legal minimum. */
+  overtimeMultiplier?: number;
   geofence: Geofence;
   zones: SiteZone[];
   ownerUid: string;
@@ -84,9 +93,11 @@ export interface MemberRecord {
   overtime?: 'paid' | 'comp_off' | 'none';
   /** Fixed monthly deductions shown on every payslip, each with its reason (PF, ESI, PT, TDS). */
   recurringDeductions?: { type: string; amount: number; reason: string }[];
-  /** Member of the Internal Committee under the POSH Act. */
+  /** Receives harassment complaints (India: Internal Committee; Japan: 相談窓口; and so on). */
   icMember?: boolean;
   icPresiding?: boolean;
+  /** Start of service that counts for statutory annual leave; joining date if unset. */
+  serviceFrom?: string;
   language: Language;
   joinedAt: string;
   status: 'active' | 'removed';
@@ -175,8 +186,9 @@ export type FlagCode =
   // worker side
   | 'LEAVE_REVOKED'
   | 'SALARY_LATE'
-  | 'POSH_NO_COMMITTEE'
-  | 'POSH_OVERDUE'
+  | 'COMPLAINTS_NO_HANDLER'
+  | 'COMPLAINT_OVERDUE'
+  | 'LIMIT_EXCEEDED'
   | 'CLAIM_NO_SHIFT'
   | 'CLAIM_EXCEEDS_DAY'
   | 'CLAIM_DUPLICATE'
@@ -280,7 +292,7 @@ export interface LedgerLeavePayload {
   reason?: string;
 }
 
-// ---------- Confidential complaints (POSH) ----------
+// ---------- Confidential harassment complaints ----------
 
 export type ComplaintStatus = 'received' | 'inquiry' | 'report_submitted' | 'closed';
 

@@ -1,4 +1,5 @@
-import type { Language } from '../../shared/types.js';
+import type { BaseLanguage } from '../../shared/languages.js';
+import type { CountryKey } from './country.js';
 import { de } from './locales/de.js';
 import { es } from './locales/es.js';
 import { fr } from './locales/fr.js';
@@ -67,9 +68,7 @@ export const en = {
   checkIn: 'Check in',
   checkOut: 'Check out',
   thisWeek: 'This week',
-  ofLimit: 'of {0} h limit',
   overtime: 'Overtime',
-  paidAt2x: 'paid at 2×',
   shiftReceipts: 'Shift receipts',
   noShifts: 'Your shifts will appear here after your first check-in.',
   changedNotice: 'Your {0} checkout was changed',
@@ -289,10 +288,26 @@ export const en = {
   sealed: 'Sealed record',
   last7: 'Last 7 days',
   hoursUnit: 'h',
+  lineRestDay: 'Rest-day work',
+  lineHoliday: 'Public holiday work',
+  lineSeventhDay: 'Seventh day in a row',
+  lineNight: 'Night premium',
+  lineSunday: 'Sunday premium',
+  lineWeeklyRest: 'Paid weekly rest day',
+  annualTitle: 'Yearly payments the law requires',
+  annualDue: 'Due by {0}',
+  annualBefore: 'Paid before your holiday',
+  annualEstimate: 'About {0}',
+  externalTitle: 'Outside help',
+  leaveUnpaid: 'Unpaid',
+  leaveAsNeeded: 'Taken when needed',
+  limitsTitle: 'Legal limits',
+  timesRate: '× {0}',
 } as const;
 
-export type StringKey = keyof typeof en;
-export type Dict = Record<StringKey, string>;
+export type Dict = Record<keyof typeof en, string>;
+/** Any key `t()` takes: the dictionaries' and the country packs'. */
+export type StringKey = keyof typeof en | CountryKey;
 
 export const ta: Dict = {
   appName: 'Shiftseal',
@@ -350,9 +365,7 @@ export const ta: Dict = {
   checkIn: 'செக்-இன்',
   checkOut: 'செக்-அவுட்',
   thisWeek: 'இந்த வாரம்',
-  ofLimit: '{0} மணி வரம்பில்',
   overtime: 'ஓவர்டைம்',
-  paidAt2x: '2 மடங்கு சம்பளம்',
   shiftReceipts: 'ஷிஃப்ட் ரசீதுகள்',
   noShifts: 'முதல் செக்-இன்னுக்குப் பிறகு உங்கள் ஷிஃப்டுகள் இங்கே தெரியும்.',
   changedNotice: 'உங்கள் {0} செக்-அவுட் மாற்றப்பட்டது',
@@ -570,6 +583,21 @@ export const ta: Dict = {
   sealed: 'முத்திரையிட்ட பதிவு',
   last7: 'கடந்த 7 நாட்கள்',
   hoursUnit: 'ம',
+  lineRestDay: 'ஓய்வு நாள் வேலை',
+  lineHoliday: 'பொது விடுமுறை நாள் வேலை',
+  lineSeventhDay: 'தொடர்ந்து ஏழாவது நாள்',
+  lineNight: 'இரவுப் படி',
+  lineSunday: 'ஞாயிறு படி',
+  lineWeeklyRest: 'சம்பளத்துடன் வார ஓய்வு நாள்',
+  annualTitle: 'சட்டப்படி ஆண்டுதோறும் கிடைக்க வேண்டியவை',
+  annualDue: '{0}க்குள்',
+  annualBefore: 'விடுப்புக்கு முன் வழங்கப்படும்',
+  annualEstimate: 'சுமார் {0}',
+  externalTitle: 'வெளி உதவி',
+  leaveUnpaid: 'சம்பளமில்லை',
+  leaveAsNeeded: 'தேவைக்கேற்ப',
+  limitsTitle: 'சட்ட வரம்புகள்',
+  timesRate: '× {0}',
 };
 
 export const hi: Dict = {
@@ -625,9 +653,7 @@ export const hi: Dict = {
   checkIn: 'चेक-इन',
   checkOut: 'चेक-आउट',
   thisWeek: 'इस हफ़्ते',
-  ofLimit: '{0} घंटे की सीमा में',
   overtime: 'ओवरटाइम',
-  paidAt2x: 'दोगुनी दर पर',
   shiftReceipts: 'शिफ्ट रसीदें',
   noShifts: 'पहले चेक-इन के बाद आपकी शिफ्टें यहाँ दिखेंगी।',
   changedNotice: 'आपका {0} का चेक-आउट बदला गया',
@@ -840,6 +866,21 @@ export const hi: Dict = {
   sealed: 'सील रिकॉर्ड',
   last7: 'पिछले 7 दिन',
   hoursUnit: 'घं',
+  lineRestDay: 'आराम के दिन का काम',
+  lineHoliday: 'सार्वजनिक छुट्टी पर काम',
+  lineSeventhDay: 'लगातार सातवाँ दिन',
+  lineNight: 'रात का भत्ता',
+  lineSunday: 'रविवार भत्ता',
+  lineWeeklyRest: 'सवेतन साप्ताहिक आराम',
+  annualTitle: 'कानून के मुताबिक़ सालाना भुगतान',
+  annualDue: '{0} तक',
+  annualBefore: 'छुट्टी से पहले दिया जाता है',
+  annualEstimate: 'लगभग {0}',
+  externalTitle: 'बाहरी मदद',
+  leaveUnpaid: 'बिना वेतन',
+  leaveAsNeeded: 'ज़रूरत पर',
+  limitsTitle: 'क़ानूनी सीमाएँ',
+  timesRate: '× {0}',
 };
 
-export const dictionaries: Record<Language, Dict> = { en, ta, hi, es, fr, de, pt, ja, zh, ko };
+export const dictionaries: Record<BaseLanguage, Dict> = { en, ta, hi, es, fr, de, pt, ja, zh, ko };

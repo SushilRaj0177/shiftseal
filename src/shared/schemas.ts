@@ -1,7 +1,13 @@
 import { z } from 'zod/v3';
-import { LANGUAGE_CODES } from './languages.js';
+import { LANGUAGE_CODES, isLanguage, normalizeLanguage } from './languages.js';
+import { COUNTRY_IDS, type CountryId } from './countries/types.js';
 
-export const languageSchema = z.enum(LANGUAGE_CODES);
+/** A locale code; codes saved before locales had a country ("en", "es", "pt") are upgraded. */
+export const languageSchema = z.preprocess(
+  (v) => (typeof v === 'string' && !isLanguage(v) ? normalizeLanguage(v, v as never) : v),
+  z.enum(LANGUAGE_CODES)
+);
+export const countrySchema = z.enum(COUNTRY_IDS as [CountryId, ...CountryId[]]);
 export const sectorSchema = z.enum(['construction', 'campus', 'office']);
 export const severitySchema = z.enum(['low', 'medium', 'high', 'critical']);
 

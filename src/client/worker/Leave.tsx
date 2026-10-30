@@ -47,7 +47,7 @@ export const Leave: React.FC = () => {
   const { wp, reload: reloadOverview } = useWorker();
   const data = useApi<LeaveResponse>(`/workplaces/${wp.id}/leave`);
   const [open, setOpen] = useState(false);
-  const [type, setType] = useState<LeaveType>('casual');
+  const [type, setType] = useState<LeaveType>('earned');
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [halfDay, setHalfDay] = useState(false);
@@ -95,7 +95,7 @@ export const Leave: React.FC = () => {
         ) : (
           <div className="grid-2">
             {data.data.balances
-              .filter((b) => b.type !== 'comp_off' || b.entitled > 0)
+              .filter((b) => b.type !== 'comp_off' || b.entitled > 0 || b.used > 0)
               .map((b) => (
                 <Card key={b.type}>
                   <div className="row-flex">
@@ -112,6 +112,7 @@ export const Leave: React.FC = () => {
                       <span className="t-label">{t(BALANCE_KEY[b.type])}</span>
                       <span className="t-caption muted">
                         {b.used} / {b.entitled}
+                        {b.kind === 'law' ? ` · ${t('law')}` : ''}
                       </span>
                     </div>
                   </div>
@@ -119,6 +120,7 @@ export const Leave: React.FC = () => {
               ))}
           </div>
         )}
+        <p className="t-caption muted">{t('leaveLawNote')}</p>
         <button type="button" className="btn btn-primary" onClick={() => setOpen(true)}>
           {t('applyLeave')}
         </button>
@@ -172,9 +174,10 @@ export const Leave: React.FC = () => {
               value={type}
               onChange={(e) => setType(e.target.value as LeaveType)}
             >
-              {(Object.keys(TYPE_KEY) as LeaveType[]).map((k) => (
-                <option key={k} value={k}>
-                  {t(TYPE_KEY[k])}
+              {(data.data?.types ?? []).map((k) => (
+                <option key={k.type} value={k.type}>
+                  {t(TYPE_KEY[k.type])}
+                  {k.paid ? '' : ` (${t('leaveUnpaid')})`}
                 </option>
               ))}
             </select>

@@ -29,6 +29,9 @@ import { qrSecret } from '../keys.js';
 import { AppError } from '../middleware/errors.js';
 import { evidenceOf, editsOf, openShift, usedNonce, type CheckPayload } from '../services/chain.js';
 import { raiseFlags } from '../services/flags.js';
+import { checkCountrySettings } from './account.js';
+import { limitReadings } from '../../shared/rules/limits.js';
+import { assessLimits } from '../../shared/rules/flags.js';
 import { newId, newInviteCode } from '../services/ids.js';
 import { verifyIntegrity } from '../services/integrity.js';
 import { issueReceipt, sealDigest } from '../services/receipts.js';
@@ -76,6 +79,7 @@ workplaceRouter.patch('/', requireRole('owner'), async (req, res, next) => {
     const body = updateWorkplaceSchema.parse(req.body);
     const { workplace } = ctx(req);
     const updated = { ...workplace, ...body };
+    checkCountrySettings(updated);
     await getRepo().saveWorkplace(updated);
     res.json({ workplace: updated });
   } catch (err) {
@@ -408,7 +412,17 @@ workplaceRouter.post('/checks', async (req, res, next) => {
           },
         ]
       : [];
-    const flags = await raiseFlags(workplace.id, [...assessed.flags, ...lateNote]);
+    // A check-out that takes someone over a legal working-time limit is the employer's to answer.
+    let overLimit: FlagDraft[] = [];
+    if (event.type === 'CHECK_OUT') {
+      const chainNow = await repo.getChain(workplace.id, member.uid);
+      const readings = limitReadings(latestView(chainNow), workplace, local.date);
+      const existing = await repo.list<FlagRecord>(workplace.id, 'flags');
+      overLimit = assessLimits(member.uid, readings).filter(
+        (d) => !existing.some((f) => f.code === d.code && f.subject.id === d.subject.id)
+      );
+    }
+    const flags = await raiseFlags(workplace.id, [...assessed.flags, ...lateNote, ...overLimit]);
     const receipt = await issueReceipt(workplace.id, member.uid, event, seq);
     res.status(201).json({ event, receipt, evidence: assessed.evidence, flags });
   } catch (err) {

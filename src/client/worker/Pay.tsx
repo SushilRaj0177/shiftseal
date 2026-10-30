@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { PayslipLine } from '../../shared/types.js';
 import { api, errorMessage } from '../lib/api.js';
-import { dayLabel, money } from '../lib/format.js';
+import { currencySymbol, dayLabel } from '../lib/format.js';
+import type { StringKey } from '../i18n/strings.js';
 import { periodLabel } from '../lib/period.js';
 import { useLang } from '../i18n/LangProvider.js';
 import { HoldToTalk } from '../components/HoldToTalk.js';
@@ -19,7 +20,7 @@ interface Explanation {
 
 /** Asks the worker what they were actually paid for last week, once payday has passed. */
 export const PaymentPrompt: React.FC<{ compact?: boolean }> = ({ compact }) => {
-  const { t, lang } = useLang();
+  const { t, lang, money, currency } = useLang();
   const { wp, overview, reload } = useWorker();
   const [amount, setAmount] = useState('');
   const [receivedOn, setReceivedOn] = useState('');
@@ -49,7 +50,7 @@ export const PaymentPrompt: React.FC<{ compact?: boolean }> = ({ compact }) => {
       setMsg(
         received + 1 >= expected
           ? t('paymentMatches')
-          : t('paymentShort', money(expected - received, lang))
+          : t('paymentShort', money(expected - received))
       );
       await reload();
     } catch (err) {
@@ -64,7 +65,7 @@ export const PaymentPrompt: React.FC<{ compact?: boolean }> = ({ compact }) => {
       <span className="t-strong">
         {t('confirmPayTitle', periodLabel(overview.lastPeriod, lang))}
       </span>
-      <span className="t-caption muted">{t('confirmPayBody', money(expected, lang))}</span>
+      <span className="t-caption muted">{t('confirmPayBody', money(expected))}</span>
       {overview.payType === 'monthly' && (
         <Field label={t('receivedOn')}>
           <input
@@ -78,7 +79,7 @@ export const PaymentPrompt: React.FC<{ compact?: boolean }> = ({ compact }) => {
       )}
       <div className="row-flex">
         <div className="prefix-input grow">
-          <span>₹</span>
+          <span>{currencySymbol(lang, currency)}</span>
           <input
             inputMode="numeric"
             value={amount}
@@ -100,18 +101,70 @@ export const PaymentPrompt: React.FC<{ compact?: boolean }> = ({ compact }) => {
   );
 };
 
+const LINE_KEY: Partial<Record<PayslipLine['kind'], StringKey>> = {
+  salary: 'lineSalary',
+  unpaid_leave: 'lineUnpaid',
+  normal: 'lineRegular',
+  overtime: 'lineOvertime',
+  rest_day: 'lineRestDay',
+  holiday: 'lineHoliday',
+  seventh_day: 'lineSeventhDay',
+  night: 'lineNight',
+  sunday: 'lineSunday',
+  weekly_rest: 'lineWeeklyRest',
+  claim_overtime: 'lineClaim',
+};
+
+/** Overtime and premium lines carry their multiplier, so different rates stay apart. */
 function lineLabel(line: PayslipLine, t: ReturnType<typeof useLang>['t']): string {
-  if (line.kind === 'salary') return t('lineSalary');
-  if (line.kind === 'unpaid_leave') return t('lineUnpaid');
-  if (line.kind === 'normal') return t('lineRegular');
-  if (line.kind === 'overtime') return t('lineOvertime');
-  if (line.kind === 'claim_overtime') return t('lineClaim');
   if (line.kind === 'deduction') return line.labelKey;
-  return t('netPay');
+  const key = LINE_KEY[line.kind];
+  if (!key) return t('netPay');
+  const multiplied = ['overtime', 'rest_day', 'holiday', 'seventh_day', 'claim_overtime'];
+  return line.multiplier && multiplied.includes(line.kind)
+    ? `${t(key)} ${t('timesRate', line.multiplier)}`
+    : t(key);
 }
 
+const EXTRA = [
+  'overtime',
+  'rest_day',
+  'holiday',
+  'seventh_day',
+  'night',
+  'sunday',
+  'weekly_rest',
+  'claim_overtime',
+];
+
+/** Payments the country's law adds each year: aguinaldo, 13º salário, subsídio de Natal, ... */
+const AnnualPayments: React.FC = () => {
+  const { t, tx, money, lang } = useLang();
+  const { overview } = useWorker();
+  const list = overview?.annualPayments ?? [];
+  if (list.length === 0) return null;
+  return (
+    <Card>
+      <h2 className="t-headline">{t('annualTitle')}</h2>
+      {list.map((a) => (
+        <div key={a.code} className="between" style={{ alignItems: 'flex-start' }}>
+          <div className="stack-sm grow">
+            <span className="t-strong">{tx(`annual_${a.code}`)}</span>
+            <span className="t-caption muted">
+              {a.due ? t('annualDue', dayLabel(a.due, lang)) : t('annualBefore')}
+            </span>
+          </div>
+          {a.estimate !== null && (
+            <span className="t-caption muted">{t('annualEstimate', money(a.estimate))}</span>
+          )}
+        </div>
+      ))}
+    </Card>
+  );
+};
+
 export const Pay: React.FC = () => {
-  const { t, lang } = useLang();
+  const { t, lang, money } = useLang();
   const { wp, overview } = useWorker();
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState<Explanation | null>(null);
@@ -126,7 +179,7 @@ export const Pay: React.FC = () => {
       value: sum(['salary', 'normal', 'unpaid_leave']),
       color: '#dfe6f5',
     },
-    { label: t('lineOvertime'), value: sum(['overtime', 'claim_overtime']), color: 'var(--brass)' },
+    { label: t('lineOvertime'), value: sum(EXTRA), color: 'var(--brass)' },
     { label: t('lineDeduction'), value: -sum(['deduction']), color: '#f19a8f' },
   ];
 
@@ -169,7 +222,7 @@ export const Pay: React.FC = () => {
                 className="t-number"
                 style={{ color: 'var(--on-navy)', fontSize: 44, lineHeight: '48px' }}
               >
-                {money(slip.netPay, lang)}
+                {money(slip.netPay)}
               </span>
               <span className="t-caption">
                 {t('paidOn', dayLabel(overview!.period.payDate, lang))}
@@ -181,7 +234,7 @@ export const Pay: React.FC = () => {
                   .map((p) => (
                     <span key={p.label}>
                       <i style={{ background: p.color }} />
-                      {p.label} {money(p.value, lang)}
+                      {p.label} {money(p.value)}
                     </span>
                   ))}
               </div>
@@ -189,7 +242,7 @@ export const Pay: React.FC = () => {
             <Card>
               <div className="between">
                 <h2 className="t-headline">{t('howItAddsUp')}</h2>
-                <ListenButton text={`${t('netPay')} ${money(slip.netPay, lang)}`} />
+                <ListenButton text={`${t('netPay')} ${money(slip.netPay)}`} />
               </div>
               {slip.lines
                 .filter((l) => l.kind !== 'net')
@@ -206,18 +259,18 @@ export const Pay: React.FC = () => {
                       </div>
                       {l.hours !== undefined && l.rate !== undefined && (
                         <span className="t-caption muted">
-                          {l.hours} h × {money(l.rate, lang)}
+                          {l.hours} {t('hoursUnit')} × {money(l.rate)}
                         </span>
                       )}
                     </div>
                     <span className={`t-strong${l.amount < 0 ? ' c-danger' : ''}`}>
                       {l.amount < 0 ? '−' : ''}
-                      {money(Math.abs(l.amount), lang)}
+                      {money(Math.abs(l.amount))}
                     </span>
                   </div>
                 ))}
               <hr className="divider" />
-              <Kv k={t('netPay')} v={money(slip.netPay, lang)} vClass="t-headline" />
+              <Kv k={t('netPay')} v={money(slip.netPay)} vClass="t-headline" />
             </Card>
 
             <Card>
@@ -282,6 +335,8 @@ export const Pay: React.FC = () => {
             <Icon name="chev" size={18} />
           </span>
         </Link>
+
+        <AnnualPayments />
 
         <PaymentPrompt />
       </div>

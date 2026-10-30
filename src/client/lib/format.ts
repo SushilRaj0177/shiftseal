@@ -2,15 +2,18 @@ import type { Language } from '../../shared/types.js';
 
 import { localeOf } from '../../shared/languages.js';
 
-export function money(n: number, lang: Language = 'en'): string {
+/** An amount in the workplace's currency, written the way the reader's locale writes money. */
+export function money(n: number, lang: Language = 'en-IN', currency = 'INR'): string {
+  const digits = currency === 'JPY' || currency === 'KRW' ? 0 : Number.isInteger(n) ? 0 : 2;
   return new Intl.NumberFormat(localeOf(lang), {
     style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
+    currency,
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
   }).format(n);
 }
 
-export function dayLabel(date: string, lang: Language = 'en'): string {
+export function dayLabel(date: string, lang: Language = 'en-IN'): string {
   return new Intl.DateTimeFormat(localeOf(lang), {
     weekday: 'short',
     day: 'numeric',
@@ -19,7 +22,7 @@ export function dayLabel(date: string, lang: Language = 'en'): string {
   }).format(new Date(`${date}T00:00:00Z`));
 }
 
-export function longDay(date: string, lang: Language = 'en'): string {
+export function longDay(date: string, lang: Language = 'en-IN'): string {
   return new Intl.DateTimeFormat(localeOf(lang), {
     weekday: 'long',
     day: 'numeric',
@@ -61,16 +64,34 @@ export function initials(name: string): string {
   );
 }
 
-export function timeAgo(iso: string): string {
+export function timeAgo(iso: string, lang: Language = 'en-IN'): string {
   const s = Math.max(0, (Date.now() - Date.parse(iso)) / 1000);
-  if (s < 60) return 'just now';
-  if (s < 3600) return `${Math.round(s / 60)} min ago`;
-  if (s < 86400) return `${Math.round(s / 3600)} h ago`;
-  return `${Math.round(s / 86400)} d ago`;
+  const rtf = new Intl.RelativeTimeFormat(localeOf(lang), { numeric: 'auto', style: 'short' });
+  if (s < 60) return rtf.format(0, 'second');
+  if (s < 3600) return rtf.format(-Math.round(s / 60), 'minute');
+  if (s < 86400) return rtf.format(-Math.round(s / 3600), 'hour');
+  return rtf.format(-Math.round(s / 86400), 'day');
 }
 
-/** What to call someone in a greeting: the first name, or the full name if it starts with an initial. */
-export function firstName(name: string): string {
-  const first = name.trim().split(/\s+/)[0] ?? '';
-  return first.replace(/\./g, '').length <= 2 ? name.trim() : first;
+/**
+ * What to call someone in a greeting, as people there would: the first name
+ * in most places, the full name if it starts with an initial (Indian names),
+ * and the name with さん or 님 in Japanese and Korean.
+ */
+export function firstName(name: string, lang: Language = 'en-IN'): string {
+  const full = name.trim();
+  if (lang === 'ja') return `${full}さん`;
+  if (lang === 'ko') return `${full}님`;
+  if (lang === 'zh') return full;
+  const first = full.split(/\s+/)[0] ?? '';
+  return first.replace(/\./g, '').length <= 2 ? full : first;
+}
+
+/** The currency's symbol as the reader's locale writes it (₹, ¥, €, R$, ...). */
+export function currencySymbol(lang: Language, currency: string): string {
+  return (
+    new Intl.NumberFormat(localeOf(lang), { style: 'currency', currency })
+      .formatToParts(0)
+      .find((p) => p.type === 'currency')?.value ?? currency
+  );
 }

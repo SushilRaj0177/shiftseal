@@ -99,13 +99,14 @@ describe('hours.ts', () => {
     expect(res.totalHours).toBe(70);
   });
 
-  it('assigns night shifts crossing midnight to the start date and cites sector rules', () => {
+  it('assigns night shifts crossing midnight to the start date and cites the law', () => {
     const shifts = [makeShift('2026-10-24', '21:00', '07:00')]; // 10h
     const res = calculateWeekHours(shifts, 'campus');
     expect(res.perDay[0].date).toBe('2026-10-24');
     expect(res.perDay[0].crossesMidnight).toBe(true);
     expect(res.normalHours).toBe(8);
     expect(res.otHours).toBe(2);
-    expect(res.ruleRefs.map((r) => r.id)).toEqual(['hours.daily', 'ot.weekly']);
+    expect(res.ruleRefs.map((r) => r.id)).toEqual(['hours.daily', 'ot.weekly', 'ot.multiplier']);
+    expect(res.ruleRefs[0].source).toMatch(/Occupational Safety, Health and Working Conditions Code/);
   });
 });

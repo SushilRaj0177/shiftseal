@@ -79,17 +79,59 @@ export function monthlyPeriodFor(today: string, payDayOfMonth: number): PayPerio
   return { start, end, payDate: `${next.slice(0, 7)}-${String(payDayOfMonth).padStart(2, '0')}` };
 }
 
+/**
+ * Two-week periods counted from a fixed Sunday (4 January 2026), shifted to the
+ * pay weekday; pay falls on the day after the period ends.
+ */
+export function biweeklyPeriodFor(today: string, payDay: number): PayPeriod {
+  const anchor = addDays('2026-01-04', payDay);
+  const days = Math.round(
+    (Date.parse(`${today}T00:00:00Z`) - Date.parse(`${anchor}T00:00:00Z`)) / 86_400_000
+  );
+  const start = addDays(anchor, Math.floor(days / 14) * 14);
+  return { start, end: addDays(start, 13), payDate: addDays(start, 14) };
+}
+
+/** 1st–15th and 16th–end of month (quincena); paid on the last day of each half. */
+export function semimonthlyPeriodFor(today: string): PayPeriod {
+  const month = today.slice(0, 7);
+  if (Number(today.slice(8, 10)) <= 15) {
+    return { start: `${month}-01`, end: `${month}-15`, payDate: `${month}-15` };
+  }
+  const end = `${month}-${String(daysInMonth(today)).padStart(2, '0')}`;
+  return { start: `${month}-16`, end, payDate: end };
+}
+
 export interface PayCycleSettings {
-  payCycle?: 'weekly' | 'monthly';
+  payCycle?: 'weekly' | 'biweekly' | 'semimonthly' | 'monthly';
   payDay: number;
   payDayOfMonth?: number;
 }
 
 /** The pay period containing `date`, for a workplace's pay cycle. */
 export function periodFor(wp: PayCycleSettings, date: string): PayPeriod {
-  return wp.payCycle === 'monthly'
-    ? monthlyPeriodFor(date, wp.payDayOfMonth ?? 1)
-    : payPeriodFor(date, wp.payDay);
+  switch (wp.payCycle) {
+    case 'monthly':
+      return monthlyPeriodFor(date, wp.payDayOfMonth ?? 1);
+    case 'biweekly':
+      return biweeklyPeriodFor(date, wp.payDay);
+    case 'semimonthly':
+      return semimonthlyPeriodFor(date);
+    default:
+      return payPeriodFor(date, wp.payDay);
+  }
+}
+
+/** Monday to Friday business days after `date`, counting forward `n` days. */
+export function addBusinessDays(date: string, n: number): string {
+  let d = date;
+  let left = n;
+  while (left > 0) {
+    d = addDays(d, 1);
+    const w = weekdayOf(d);
+    if (w !== 0 && w !== 6) left -= 1;
+  }
+  return d;
 }
 
 /** Every date from `from` to `to`, inclusive. */

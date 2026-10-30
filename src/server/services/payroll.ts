@@ -6,8 +6,10 @@ import type {
   WorkerProfile,
 } from '../../shared/types.js';
 import type { LeaveRequest, MemberRecord, WorkplaceRecord } from '../../shared/model.js';
-import { calculateWeekHours } from '../../shared/rules/hours.js';
+import { calculateHours } from '../../shared/rules/hours.js';
 import { calculatePayslip } from '../../shared/rules/pay.js';
+import { unpaidTypes } from '../../shared/rules/leave.js';
+import { countryPack } from '../../shared/countries/index.js';
 import {
   addDays,
   daysInMonth,
@@ -54,7 +56,7 @@ export function overtimeTrend(
   const current = periodFor(wp, today);
   const prev = periodFor(wp, addDays(current.start, -1));
   const periods = [periodFor(wp, addDays(prev.start, -1)), prev, current];
-  const ot = periods.map((p) => hoursForPeriod(shifts, wp.sector, p).otHours);
+  const ot = periods.map((p) => hoursForPeriod(shifts, wp, p).otHours);
   return [ot[0], ot[1], ot[2]];
 }
 
@@ -72,6 +74,8 @@ export function memberAsProfile(
     nameHi: m.name,
     workplaceId: wp.id,
     sector: wp.sector,
+    country: wp.country,
+    region: wp.region,
     role: m.title,
     roleTa: m.title,
     roleHi: m.title,
@@ -92,47 +96,30 @@ export function approvedClaimHours(claims: OvertimeClaim[], period: PayPeriod): 
 }
 
 /**
- * Hours for a pay period. Weekly limits apply week by week, so a monthly
- * period is split into 7-day blocks from its first day and summed.
+ * Hours for a pay period under the workplace's law. Earlier shifts in the same
+ * year are passed as context, so weekly, monthly and yearly thresholds count
+ * them without paying them again.
  */
 export function hoursForPeriod(
   shifts: ShiftRecord[],
-  sector: WorkplaceRecord['sector'],
+  wp: WorkplaceRecord,
   period: PayPeriod
 ): HoursCalculationResult {
-  const blocks: HoursCalculationResult[] = [];
-  for (let start = period.start; start <= period.end; start = addDays(start, 7)) {
-    const end = addDays(start, 6) < period.end ? addDays(start, 6) : period.end;
-    blocks.push(
-      calculateWeekHours(
-        shifts.filter((s) => isWithin(s.date, start, end)),
-        sector
-      )
-    );
-  }
-  const sum = (
-    k: 'normalHours' | 'otHours' | 'dailyOtHours' | 'weeklyExtraOtHours' | 'totalHours'
-  ) => Math.round(blocks.reduce((n, b) => n + b[k], 0) * 100) / 100;
-  return {
-    normalHours: sum('normalHours'),
-    otHours: sum('otHours'),
-    dailyOtHours: sum('dailyOtHours'),
-    weeklyExtraOtHours: sum('weeklyExtraOtHours'),
-    totalHours: sum('totalHours'),
-    perDay: blocks.flatMap((b) => b.perDay),
-    ruleRefs: blocks[0]?.ruleRefs ?? [],
-  };
+  const from = period.start.slice(0, 4) + '-01-01';
+  const context = shifts.filter((s) => s.date >= addDays(from, -7) && s.date <= period.end);
+  return calculateHours(context, wp, period);
 }
 
 /** Approved unpaid leave days that fall inside a period (weekly offs excluded). */
 export function unpaidLeaveDays(
   leave: LeaveRequest[],
   period: PayPeriod,
-  weeklyOff: number[]
+  weeklyOff: number[],
+  unpaid: LeaveRequest['type'][] = ['unpaid']
 ): number {
   let days = 0;
   for (const r of leave) {
-    if (r.status !== 'approved' || r.type !== 'unpaid') continue;
+    if (r.status !== 'approved' || !unpaid.includes(r.type)) continue;
     const inside = eachDay(r.from, r.to).filter(
       (d) => isWithin(d, period.start, period.end) && !weeklyOff.includes(weekdayOf(d))
     ).length;
@@ -146,7 +133,21 @@ export function payTypeOf(m: MemberRecord): 'hourly' | 'daily' | 'monthly' {
 }
 
 export function weeklyOffOf(wp: WorkplaceRecord): number[] {
-  return wp.weeklyOff ?? [0];
+  return wp.weeklyOff ?? countryPack(wp).weeklyOff;
+}
+
+/** Share of a monthly salary paid in one period of the workplace's pay cycle. */
+export function monthShareOf(wp: WorkplaceRecord): number {
+  switch (wp.payCycle) {
+    case 'semimonthly':
+      return 0.5;
+    case 'biweekly':
+      return 12 / 26;
+    case 'weekly':
+      return 12 / 52;
+    default:
+      return 1;
+  }
 }
 
 /**
@@ -166,7 +167,7 @@ export function payslipFor(
   const salary = member.monthlySalary ?? 0;
   if (type === 'monthly' ? salary <= 0 : member.hourlyRate <= 0 && member.dailyWage <= 0)
     return null;
-  const hoursResult = hoursForPeriod(shifts, wp.sector, period);
+  const hoursResult = hoursForPeriod(shifts, wp, period);
   const recurring = (member.recurringDeductions ?? []).map((d, i) => ({
     id: `recurring-${i}`,
     type: d.type,
@@ -180,13 +181,21 @@ export function payslipFor(
   return calculatePayslip({
     workerId: member.uid,
     weekLabel: periodLabel(period),
-    sector: wp.sector,
+    workplace: wp,
     hourlyRate: type === 'hourly' ? member.hourlyRate : undefined,
     dailyWage: type === 'daily' ? member.dailyWage : undefined,
     monthlySalary: type === 'monthly' ? salary : undefined,
-    daysInPeriod: type === 'monthly' ? daysInMonth(period.start) : undefined,
+    monthShare: monthShareOf(wp),
+    daysInPeriod:
+      type === 'monthly'
+        ? wp.payCycle === 'monthly' || !wp.payCycle
+          ? daysInMonth(period.start)
+          : eachDay(period.start, period.end).length
+        : undefined,
     unpaidLeaveDays:
-      type === 'monthly' ? unpaidLeaveDays(leave, period, weeklyOffOf(wp)) : undefined,
+      type === 'monthly'
+        ? unpaidLeaveDays(leave, period, weeklyOffOf(wp), unpaidTypes(wp))
+        : undefined,
     overtimePaid: type === 'monthly' ? member.overtime === 'paid' : undefined,
     hoursResult,
     approvedClaimHours: approvedClaimHours(paidClaims, period),
@@ -199,4 +208,29 @@ export function compOffHours(claims: OvertimeClaim[]): number {
   return claims
     .filter((c) => c.compensation === 'comp_off' && c.resolutionStatus === 'approved')
     .reduce((n, c) => n + (c.supportedHours > 0 ? c.supportedHours : c.extraHours), 0);
+}
+
+/**
+ * Yearly payments the country's law requires (aguinaldo, 13º salário,
+ * subsídio de Natal, ...), with the next due date and, for salaried staff, a
+ * rough amount from the monthly salary.
+ */
+export function annualPaymentsFor(wp: WorkplaceRecord, member: MemberRecord, today: string) {
+  const salary = payTypeOf(member) === 'monthly' ? (member.monthlySalary ?? 0) : 0;
+  return countryPack(wp).pay.annual.map((a) => {
+    let due: string | null = null;
+    if (a.due) {
+      due = `${today.slice(0, 4)}-${a.due}`;
+      if (due < today) due = `${Number(today.slice(0, 4)) + 1}-${a.due}`;
+    }
+    let estimate: number | null = null;
+    if (salary > 0 && a.estimate) {
+      estimate =
+        'monthlySalary' in a.estimate
+          ? salary * a.estimate.monthlySalary
+          : (salary / 30) * a.estimate.days;
+      estimate = Math.round(estimate);
+    }
+    return { code: a.code, due, estimate, rule: a.rule };
+  });
 }

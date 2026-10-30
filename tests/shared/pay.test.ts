@@ -33,7 +33,7 @@ describe('pay.ts', () => {
     const slip = calculatePayslip({
       workerId: 'w-murugan',
       weekLabel: 'Test Week',
-      sector: 'construction',
+      workplace: { sector: 'construction' },
       hourlyRate: 100,
       hoursResult,
     });
@@ -48,7 +48,7 @@ describe('pay.ts', () => {
     const slip = calculatePayslip({
       workerId: 'w-lakshmi',
       weekLabel: 'Test Week',
-      sector: 'campus',
+      workplace: { sector: 'campus' },
       dailyWage: 720,
       hoursResult,
     });
@@ -64,7 +64,7 @@ describe('pay.ts', () => {
     const slip = calculatePayslip({
       workerId: 'w-murugan',
       weekLabel: 'Test Week',
-      sector: 'construction',
+      workplace: { sector: 'construction' },
       hourlyRate: 100,
       hoursResult,
       approvedClaimHours: 2.5,
@@ -84,7 +84,7 @@ describe('pay.ts', () => {
     const slip = calculatePayslip({
       workerId: 'w-murugan',
       weekLabel: 'Test Week',
-      sector: 'construction',
+      workplace: { sector: 'construction' },
       hourlyRate: 100,
       hoursResult,
       deductions: [

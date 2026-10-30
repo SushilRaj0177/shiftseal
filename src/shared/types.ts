@@ -1,4 +1,5 @@
 import type { Language } from './languages.js';
+import type { CountryId } from './countries/types.js';
 export type { Language };
 
 export type SectorId = 'construction' | 'campus' | 'office';
@@ -49,6 +50,8 @@ export interface WorkerProfile {
   nameHi: string;
   workplaceId: string;
   sector: SectorId;
+  country?: CountryId;
+  region?: string;
   role: string;
   roleTa: string;
   roleHi: string;
@@ -144,11 +147,23 @@ export interface DayHoursBreakdown {
   date: string;
   totalHours: number;
   normalHours: number;
+  /** Overtime on this day (beyond the daily limit, or beyond the weekly limit reached today). */
   dailyOtHours: number;
+  /** Rest-day, public-holiday or seventh-day work, priced separately. */
+  special?: PricedHours['kind'];
+  nightHours?: number;
   checkInTime: string;
   checkOutTime: string;
   crossesMidnight: boolean;
   shiftRefs: string[];
+}
+
+/** Hours paid at one multiplier of the hourly rate. */
+export interface PricedHours {
+  kind: 'overtime' | 'rest_day' | 'holiday' | 'seventh_day';
+  multiplier: number;
+  hours: number;
+  date: string;
 }
 
 export interface HoursCalculationResult {
@@ -156,7 +171,15 @@ export interface HoursCalculationResult {
   otHours: number;
   dailyOtHours: number;
   weeklyExtraOtHours: number;
+  /** Work on rest days (and California's seventh day), outside the overtime count. */
+  restDayHours: number;
+  holidayHours: number;
+  /** Night hours that earn a premium, already scaled where a night hour is shorter (Brazil). */
+  nightHours: number;
+  sundayHours: number;
   totalHours: number;
+  priced: PricedHours[];
+  weeks: { start: string; normalHours: number; totalHours: number }[];
   perDay: DayHoursBreakdown[];
   ruleRefs: RuleDefinition[];
 }
@@ -170,7 +193,22 @@ export interface DeductionItem {
 
 export interface PayslipLine {
   id: string;
-  kind: 'salary' | 'unpaid_leave' | 'normal' | 'overtime' | 'claim_overtime' | 'deduction' | 'net';
+  kind:
+    | 'salary'
+    | 'unpaid_leave'
+    | 'normal'
+    | 'overtime'
+    | 'rest_day'
+    | 'holiday'
+    | 'seventh_day'
+    | 'night'
+    | 'sunday'
+    | 'weekly_rest'
+    | 'claim_overtime'
+    | 'deduction'
+    | 'net';
+  /** For premium lines: the multiplier of the hourly rate. */
+  multiplier?: number;
   labelKey: string;
   hours?: number;
   rate?: number;
@@ -188,6 +226,8 @@ export interface PayslipCalculationResult {
   normalHours: number;
   otHours: number;
   claimedOtHours: number;
+  /** Currency the amounts are in. */
+  currency: string;
   grossPay: number;
   totalDeductions: number;
   netPay: number;

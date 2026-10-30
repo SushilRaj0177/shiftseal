@@ -21,6 +21,8 @@ import type {
 } from '../../shared/model.js';
 import type { PayPeriod } from '../../shared/time.js';
 import type { Language } from '../../shared/languages.js';
+import type { CountryId } from '../../shared/countries/types.js';
+import type { LimitReading } from '../../shared/rules/limits.js';
 
 /** Response shapes of the Shiftseal API, as the app uses them. */
 
@@ -85,7 +87,14 @@ export interface WorkerOverview {
   flags: FlagRecord[];
   payType: 'hourly' | 'daily' | 'monthly';
   overtime: 'paid' | 'comp_off' | 'none';
+  country: CountryId;
+  currency: string;
+  /** Where the worker stands against the country's legal working-time limits. */
+  limits: LimitReading[];
+  /** Yearly payments the country's law requires (aguinaldo, 13º salário, ...). */
+  annualPayments: { code: string; due: string | null; estimate: number | null; rule: string }[];
   leave: {
+    types: LeaveKind[];
     balances: LeaveBalance[];
     pending: number;
     today: LeaveRequest | null;
@@ -99,10 +108,18 @@ export interface LeaveBalance {
   used: number;
   pending: number;
   available: number;
+  kind?: 'law' | 'policy';
+}
+
+/** A leave type this country offers, and whether it keeps salary. */
+export interface LeaveKind {
+  type: LeaveRequest['type'];
+  paid: boolean;
 }
 
 export interface LeaveResponse {
   today: string;
+  types: LeaveKind[];
   balances: LeaveBalance[];
   requests: LeaveRequest[];
   team: LeaveRequest[];
@@ -112,8 +129,10 @@ export interface CommitteeInfo {
   committee: { uid: string; name: string; presiding: boolean }[];
   required: boolean;
   isMember: boolean;
-  complaintWindowDays: number;
-  inquiryDays: number;
+  presiding: boolean;
+  complaintWindowDays: number | null;
+  inquiryDays: number | null;
+  external: { key: string; url: string }[];
 }
 
 export type { LeaveRequest, LeaveType };

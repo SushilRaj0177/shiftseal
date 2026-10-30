@@ -41,9 +41,10 @@ export function evaluateWorkerFatigueAndAttrition(
   shifts: ShiftRecord[],
   claims: OvertimeClaim[]
 ): FatigueAttritionSignal {
-  const restGapRule = getRule(worker.sector, 'rest.minGapHours');
-  const maxConsecRule = getRule(worker.sector, 'fatigue.maxConsecutiveDays');
-  const maxRollingRule = getRule(worker.sector, 'fatigue.maxRolling7dHours');
+  const ruleCtx = { sector: worker.sector, country: worker.country, region: worker.region };
+  const restGapRule = getRule(ruleCtx, 'rest.minGapHours');
+  const maxConsecRule = getRule(ruleCtx, 'fatigue.maxConsecutiveDays');
+  const maxRollingRule = getRule(ruleCtx, 'fatigue.maxRolling7dHours');
 
   const completed = shifts
     .filter((s) => Boolean(s.checkInTime && s.checkOutTime))

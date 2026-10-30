@@ -1,6 +1,10 @@
 import type { ShiftRecord, ClaimMatchStatus, ClaimEvidence, SectorId } from '../types.js';
-import { computeShiftDurationHours, roundHours } from './hours.js';
-import { getRule } from './index.js';
+import {
+  computeShiftDurationHours,
+  dailyHoursOf,
+  roundHours,
+  type WorkplaceHours,
+} from './hours.js';
 
 export interface ClaimMatchInput {
   date: string; // YYYY-MM-DD
@@ -19,9 +23,9 @@ const TOLERANCE_HOURS = 15 / 60; // ±15 minutes (0.25h)
 export function matchClaimAgainstLedger(
   claim: ClaimMatchInput,
   shifts: ShiftRecord[],
-  sector: SectorId = 'construction'
+  where: WorkplaceHours | SectorId = 'construction'
 ): ClaimMatchResult {
-  const dailyNormalLimit = getRule(sector, 'hours.daily').value; // 8h
+  const dailyNormalLimit = dailyHoursOf(where);
   const shift = shifts.find((s) => s.date === claim.date);
 
   if (!shift || !shift.checkInTime || !shift.checkOutTime) {

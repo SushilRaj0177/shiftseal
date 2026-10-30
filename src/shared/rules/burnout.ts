@@ -1,7 +1,7 @@
 import type { LeaveRequest } from '../model.js';
-import type { RiskLevel, SectorId, ShiftRecord } from '../types.js';
+import type { RiskLevel, ShiftRecord } from '../types.js';
 import { addDays, weekdayOf } from '../time.js';
-import { getRule } from './index.js';
+import { getRule, type RuleContext } from './index.js';
 
 export interface BurnoutSignal {
   lateNights14d: number;
@@ -20,13 +20,13 @@ export function evaluateBurnout(
   leave: LeaveRequest[],
   today: string,
   weeklyOff: number[],
-  sector: SectorId,
+  where: RuleContext,
   joinedDate: string
 ): BurnoutSignal {
-  const lateHour = getRule(sector, 'burnout.lateHour').value;
-  const maxLate = getRule(sector, 'burnout.maxLateNights14d').value;
-  const maxOff = getRule(sector, 'burnout.maxWeekendDays28d').value;
-  const maxNoLeave = getRule(sector, 'burnout.maxDaysWithoutLeave').value;
+  const lateHour = getRule(where, 'burnout.lateHour').value;
+  const maxLate = getRule(where, 'burnout.maxLateNights14d').value;
+  const maxOff = getRule(where, 'burnout.maxWeekendDays28d').value;
+  const maxNoLeave = getRule(where, 'burnout.maxDaysWithoutLeave').value;
 
   const since14 = addDays(today, -14);
   const since28 = addDays(today, -28);

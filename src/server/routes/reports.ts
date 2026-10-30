@@ -33,6 +33,9 @@ import { evaluateSeverityFloor } from '../../shared/rules/severity.js';
 import { evaluateGroupAnonymity } from '../../shared/rules/anonymity.js';
 import { evaluateWorkerFatigueAndAttrition } from '../../shared/rules/fatigue.js';
 import { getRule } from '../../shared/rules/index.js';
+import { countryPack, payDueDate } from '../../shared/countries/index.js';
+import { limitReadings } from '../../shared/rules/limits.js';
+import { annualPaymentsFor } from '../services/payroll.js';
 import {
   assessClaim,
   assessHazardReport,
@@ -43,7 +46,7 @@ import {
 import { addDays, localParts, minutesBetween, periodFor } from '../../shared/time.js';
 import { evaluateBurnout } from '../../shared/rules/burnout.js';
 import { leaveOn } from '../../shared/rules/leave.js';
-import { assessPoshCompliance } from '../../shared/rules/flags.js';
+import { assessComplaintCompliance } from '../../shared/rules/flags.js';
 import { complaintCounts } from './complaints.js';
 import { balancesFor } from './leave.js';
 import { atLeast, ctx, requireRole } from '../auth/membership.js';
@@ -114,7 +117,12 @@ reportsRouter.get('/me', async (req, res, next) => {
     const period = periodFor(workplace, date);
     const lastPeriod = periodFor(workplace, addDays(period.start, -1));
     const { chain, claims, deductions, leave } = await loadWorkerData(workplace.id, member.uid);
-    const { balances } = await balancesFor(workplace, member.uid, date.slice(0, 4));
+    const { balances, types: leaveKinds } = await balancesFor(
+      workplace,
+      member,
+      date.slice(0, 4),
+      date
+    );
     const shifts = latestView(chain);
     const [notifications, hazards, feedback, flags, payments, receipts] = await Promise.all([
       repo.list<WorkerNotification>(workplace.id, 'notifications'),
@@ -137,7 +145,12 @@ reportsRouter.get('/me', async (req, res, next) => {
       lastPayslip: payslipFor(member, workplace, shifts, claims, deductions, lastPeriod, leave),
       payType: member.payType ?? (member.hourlyRate > 0 ? 'hourly' : 'daily'),
       overtime: member.overtime ?? 'paid',
+      country: workplace.country ?? 'IN',
+      currency: countryPack(workplace).currency,
+      limits: limitReadings(shifts, workplace, date),
+      annualPayments: annualPaymentsFor(workplace, member, date),
       leave: {
+        types: leaveKinds,
         balances,
         pending: leave.filter((r) => r.status === 'pending').length,
         today: leaveOn(leave, date) ?? null,
@@ -212,7 +225,7 @@ reportsRouter.get('/dashboard', requireRole('supervisor'), async (req, res, next
         theirLeave,
         date,
         weeklyOffOf(workplace),
-        workplace.sector,
+        workplace,
         m.joinedAt.slice(0, 10)
       );
       if (b.level !== 'low') burnout.push({ workerId: m.uid, workerName: m.name, ...b });
@@ -254,7 +267,7 @@ reportsRouter.get('/dashboard', requireRole('supervisor'), async (req, res, next
     }
 
     const since = addDays(date, -30);
-    const hotspotRule = getRule(workplace.sector, 'hazard.hotspotThreshold');
+    const hotspotRule = getRule(workplace, 'hazard.hotspotThreshold');
     const hotspots = workplace.zones.map((z) => {
       const count = hazards
         .filter((h) => h.zoneId === z.code && h.createdAt.slice(0, 10) >= since)
@@ -269,14 +282,16 @@ reportsRouter.get('/dashboard', requireRole('supervisor'), async (req, res, next
     });
     const teams = [...new Set(workers.map((m) => m.team))];
 
-    // POSH compliance: counts only, never complaint details.
-    const counts = complaintCounts(complaints, getRule(workplace.sector, 'posh.inquiryDays').value);
-    const poshDrafts = assessPoshCompliance(
+    // Harassment complaint duties under this country's law: counts only, never details.
+    const complaintRules = countryPack(workplace).complaints;
+    const counts = complaintCounts(complaints, complaintRules.inquiryDays);
+    const poshDrafts = assessComplaintCompliance(
       workplace.id,
       active.length,
       active.filter((m) => m.icMember).length,
-      getRule(workplace.sector, 'posh.committeeThreshold').value,
-      counts.overdue
+      complaintRules.handlersRequiredFrom,
+      counts.overdue,
+      complaintRules.inquiryDays
     ).filter((d) => !flags.some((f) => f.code === d.code && f.status === 'open'));
     flags.push(...(await raiseFlags(workplace.id, poshDrafts)));
 
@@ -642,11 +657,8 @@ reportsRouter.post('/payments/confirm', async (req, res, next) => {
     const receivedOn = body.receivedOn ?? today(workplace.timezone);
     if (receivedOn > today(workplace.timezone))
       throw new AppError(400, 'BAD_DATE', 'That date is in the future.');
-    // Monthly salaries are due by the 7th of the next month; weekly wages on pay day.
-    const dueDate =
-      workplace.payCycle === 'monthly'
-        ? addDays(period.end, getRule(workplace.sector, 'pay.monthlyDueDays').value)
-        : period.payDate;
+    // When pay is legally due in this country (India: the 7th; Brazil: 5th business day; ...).
+    const dueDate = payDueDate(workplace, period);
     const confirmation: PaymentConfirmation = {
       id: `${member.uid}_${period.start}`,
       workplaceId: workplace.id,

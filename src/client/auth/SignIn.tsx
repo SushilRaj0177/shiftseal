@@ -1,3 +1,4 @@
+import { COUNTRIES, COUNTRY_IDS, type CountryId } from '../../shared/countries/index.js';
 import React, { useRef, useState } from 'react';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import { useLang } from '../i18n/LangProvider.js';
@@ -16,12 +17,20 @@ export const SignIn: React.FC = () => {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [devUid, setDevUid] = useState('');
+  const { country } = useLang();
+  const [dial, setDial] = useState<CountryId>(country);
   const recaptcha = useRef<HTMLDivElement>(null);
   const boxes = useRef<(HTMLInputElement | null)[]>([]);
 
   if (auth.ready && auth.user) return <Navigate to="/" replace />;
-  const phone = `+91${digits.replace(/\D/g, '')}`;
-  const validPhone = /^\+91[6-9]\d{9}$/.test(phone);
+  const prefix = COUNTRIES[dial].phonePrefix;
+  // Drop the trunk 0 people write at home (UK 07…, Japan 090…) before the country code.
+  const national = digits.replace(/\D/g, '').replace(/^0+/, '');
+  const phone = `${prefix}${national}`;
+  const validPhone =
+    dial === 'IN'
+      ? /^\+91[6-9]\d{9}$/.test(phone)
+      : /^\+\d{8,15}$/.test(phone) && national.length >= 6;
 
   const run = async (fn: () => Promise<void>) => {
     setBusy(true);
@@ -116,12 +125,23 @@ export const SignIn: React.FC = () => {
           <p className="muted">{t('phoneBody')}</p>
           <Field label={t('phoneLabel')}>
             <div className="prefix-input">
-              <span>+91</span>
+              <select
+                className="dial"
+                value={dial}
+                onChange={(e) => setDial(e.target.value as CountryId)}
+                aria-label="Country code"
+              >
+                {COUNTRY_IDS.map((c) => (
+                  <option key={c} value={c}>
+                    {COUNTRIES[c].phonePrefix} {c}
+                  </option>
+                ))}
+              </select>
               <input
                 type="tel"
                 inputMode="numeric"
                 autoComplete="tel-national"
-                maxLength={11}
+                maxLength={16}
                 value={digits}
                 onChange={(e) => setDigits(e.target.value.replace(/[^\d ]/g, ''))}
                 aria-label={t('phoneLabel')}
@@ -155,7 +175,7 @@ export const SignIn: React.FC = () => {
           }}
         >
           <h1 className="t-title">{t('codeTitle')}</h1>
-          <p className="muted">{t('codeSentTo', `+91 ${digits}`)}</p>
+          <p className="muted">{t('codeSentTo', `${prefix} ${digits}`)}</p>
           <div className="otp">
             {code.map((d, i) => (
               <input

@@ -5,14 +5,16 @@ import {
   complaintStatusSchema,
   fileComplaintSchema,
 } from '../../shared/apiSchemas.js';
-import { getRule } from '../../shared/rules/index.js';
+import { countryPack } from '../../shared/countries/index.js';
 import { ctx } from '../auth/membership.js';
 import { getRepo } from '../data/index.js';
 import { AppError } from '../middleware/errors.js';
 import { newId } from '../services/ids.js';
 
 /**
- * Confidential complaints to the Internal Committee (POSH Act, 2013).
+ * Confidential harassment complaints to the people the workplace has named to
+ * receive them, under the workplace's country's law (India: the Internal
+ * Committee under the POSH Act; Japan: 相談窓口; and so on).
  *
  * Access is decided here and nowhere else: a complaint is visible to the
  * person who filed it and to committee members they did not exclude. Owners
@@ -41,16 +43,19 @@ complaintsRouter.get('/committee', async (req, res, next) => {
       (m) => m.status === 'active'
     );
     const committee = members.filter((m) => m.icMember);
+    const rules = countryPack(workplace).complaints;
     res.json({
       committee: committee.map((m) => ({
         uid: m.uid,
         name: m.name,
         presiding: Boolean(m.icPresiding),
       })),
-      required: members.length >= getRule(workplace.sector, 'posh.committeeThreshold').value,
+      required: members.length >= rules.handlersRequiredFrom,
       isMember: Boolean(member.icMember),
-      complaintWindowDays: getRule(workplace.sector, 'posh.complaintWindowDays').value,
-      inquiryDays: getRule(workplace.sector, 'posh.inquiryDays').value,
+      presiding: rules.presiding,
+      complaintWindowDays: rules.outsideLimitDays ?? null,
+      inquiryDays: rules.inquiryDays ?? null,
+      external: rules.external,
     });
   } catch (err) {
     next(err);
@@ -170,8 +175,8 @@ complaintsRouter.post('/complaints/status', async (req, res, next) => {
 });
 
 /** Counts only, for the owner's dashboard and compliance flags. */
-export function complaintCounts(all: Complaint[], inquiryDays: number) {
-  const cutoff = Date.now() - inquiryDays * 86_400_000;
+export function complaintCounts(all: Complaint[], inquiryDays?: number) {
+  const cutoff = inquiryDays ? Date.now() - inquiryDays * 86_400_000 : -Infinity;
   const open = all.filter((c) => c.status === 'received' || c.status === 'inquiry');
   return {
     open: open.length,

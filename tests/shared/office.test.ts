@@ -3,7 +3,11 @@ import { findOverlap, leaveBalances, leaveOn, workingDays } from '../../src/shar
 import { evaluateBurnout } from '../../src/shared/rules/burnout.js';
 import { calculatePayslip } from '../../src/shared/rules/pay.js';
 import { calculateWeekHours } from '../../src/shared/rules/hours.js';
-import { assessCheck, assessPoshCompliance, leaveRevoked } from '../../src/shared/rules/flags.js';
+import {
+  assessCheck,
+  assessComplaintCompliance,
+  leaveRevoked,
+} from '../../src/shared/rules/flags.js';
 import { monthlyPeriodFor, periodFor, daysInMonth } from '../../src/shared/time.js';
 import type { LeaveRequest } from '../../src/shared/model.js';
 import type { ShiftRecord } from '../../src/shared/types.js';
@@ -66,7 +70,7 @@ describe('leave', () => {
       leave({ type: 'sick', days: 1, status: 'pending' }),
       leave({ type: 'casual', days: 3, status: 'rejected' }),
     ];
-    const b = leaveBalances(reqs, '2026', undefined, 'office', 9);
+    const b = leaveBalances(reqs, '2026', undefined, { sector: 'office' }, 9);
     expect(b.find((x) => x.type === 'casual')).toMatchObject({
       entitled: 12,
       used: 2,
@@ -96,7 +100,7 @@ describe('salaried payslips', () => {
     const slip = calculatePayslip({
       workerId: 'u',
       weekLabel: 'Nov',
-      sector: 'office',
+      workplace: { sector: 'office' },
       monthlySalary: 30000,
       daysInPeriod: 30,
       unpaidLeaveDays: 2,
@@ -112,7 +116,7 @@ describe('salaried payslips', () => {
     const slip = calculatePayslip({
       workerId: 'u',
       weekLabel: 'Nov',
-      sector: 'office',
+      workplace: { sector: 'office' },
       monthlySalary: 20800,
       daysInPeriod: 30,
       overtimePaid: true,
@@ -143,16 +147,16 @@ describe('office evidence', () => {
     expect(r.evidence.remote).toBe(true);
   });
 
-  it('flags revoked leave and POSH non-compliance, with counts only', () => {
+  it('flags revoked leave and complaint-handling non-compliance, with counts only', () => {
     expect(leaveRevoked('l', 'u', 'Selvam', '2026-11-02', '2026-11-03', 'Busy').concerns).toBe(
       'employer'
     );
-    expect(assessPoshCompliance('wp', 12, 0, 10, 0).map((f) => f.code)).toEqual([
-      'POSH_NO_COMMITTEE',
+    expect(assessComplaintCompliance('wp', 12, 0, 10, 0).map((f) => f.code)).toEqual([
+      'COMPLAINTS_NO_HANDLER',
     ]);
-    expect(assessPoshCompliance('wp', 8, 0, 10, 0)).toEqual([]);
-    const overdue = assessPoshCompliance('wp', 12, 3, 10, 2);
-    expect(overdue.map((f) => f.code)).toEqual(['POSH_OVERDUE']);
+    expect(assessComplaintCompliance('wp', 8, 0, 10, 0)).toEqual([]);
+    const overdue = assessComplaintCompliance('wp', 12, 3, 10, 2, 90);
+    expect(overdue.map((f) => f.code)).toEqual(['COMPLAINT_OVERDUE']);
     expect(JSON.stringify(overdue)).not.toMatch(/respondent|description/i);
   });
 
@@ -165,7 +169,7 @@ describe('office evidence', () => {
       shift('2026-10-25', '10:00', '14:00'),
       shift('2026-10-18', '10:00', '14:00')
     );
-    const b = evaluateBurnout(shifts, [], '2026-10-27', [0, 6], 'office', '2026-06-01');
+    const b = evaluateBurnout(shifts, [], '2026-10-27', [0, 6], { sector: 'office' }, '2026-06-01');
     expect(b.lateNights14d).toBe(4);
     expect(b.weeklyOffDaysWorked28d).toBe(3);
     expect(b.level).toBe('high');
@@ -175,7 +179,7 @@ describe('office evidence', () => {
       [leave({ from: '2026-10-10', to: '2026-10-12' })],
       '2026-10-27',
       [0],
-      'office',
+      { sector: 'office' },
       '2026-06-01'
     );
     expect(rested.level).toBe('low');

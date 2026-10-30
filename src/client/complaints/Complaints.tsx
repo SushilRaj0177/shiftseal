@@ -108,7 +108,7 @@ const Thread: React.FC<{
 /** File and follow confidential complaints. Shared by the worker app and staff. */
 export const Complaints: React.FC<{ back: string }> = ({ back }) => {
   const { wp = '' } = useParams();
-  const { t, lang } = useLang();
+  const { t, tx, lang } = useLang();
   const info = useApi<CommitteeInfo>(`/workplaces/${wp}/committee`);
   const list = useApi<ComplaintList>(`/workplaces/${wp}/complaints`);
   const [form, setForm] = useState({
@@ -234,6 +234,16 @@ export const Complaints: React.FC<{ back: string }> = ({ back }) => {
           <input className="input" value={form.witnesses} onChange={set('witnesses')} />
         </Field>
         <p className="t-caption faint">{t('lawNote')}</p>
+        {info.data && info.data.external.length > 0 && (
+          <Card tone="subtle">
+            <span className="t-label">{t('externalTitle')}</span>
+            {info.data.external.map((e) => (
+              <a key={e.key} href={e.url} target="_blank" rel="noreferrer" className="t-strong">
+                {tx(`ext_${e.key}`)}
+              </a>
+            ))}
+          </Card>
+        )}
         {msg && <Notice kind={msg.kind}>{msg.text}</Notice>}
         <button type="button" className="btn btn-primary" disabled={!valid || busy} onClick={file}>
           {t('fileComplaint')}

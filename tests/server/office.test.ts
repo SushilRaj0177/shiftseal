@@ -214,13 +214,13 @@ describe('confidential complaints', () => {
         .send({ code, name: `Staff ${i}` });
     }
     const dash = await get(owner, '/dashboard');
-    expect(dash.body.flags.some((f: { code: string }) => f.code === 'POSH_NO_COMMITTEE')).toBe(
+    expect(dash.body.flags.some((f: { code: string }) => f.code === 'COMPLAINTS_NO_HANDLER')).toBe(
       true
     );
     // Raised once, not on every load.
     const again = await get(owner, '/dashboard');
     expect(
-      again.body.flags.filter((f: { code: string }) => f.code === 'POSH_NO_COMMITTEE')
+      again.body.flags.filter((f: { code: string }) => f.code === 'COMPLAINTS_NO_HANDLER')
     ).toHaveLength(1);
   });
 

@@ -4,6 +4,7 @@ import {
   hazardTypeSchema,
   imageBase64Schema,
   languageSchema,
+  countrySchema,
   removedPiiCategorySchema,
   sectorSchema,
   severitySchema,
@@ -50,14 +51,24 @@ export const updateProfileSchema = z.object({
 export const createWorkplaceSchema = z.object({
   name,
   sector: sectorSchema,
-  state: z.string().trim().min(2).max(40),
-  timezone: z.string().min(3).max(64).default('Asia/Kolkata'),
+  country: countrySchema.default('IN'),
+  /** US state with its own rules (CA, NY); other states follow federal law. */
+  region: z.string().trim().max(8).optional(),
+  state: z.string().trim().min(2).max(60),
+  timezone: z.string().min(3).max(64).optional(),
   shiftStart: hhmm,
   shiftEnd: hhmm,
   payDay: z.number().int().min(0).max(6).default(6),
-  payCycle: z.enum(['weekly', 'monthly']).default('weekly'),
+  payCycle: z.enum(['weekly', 'biweekly', 'semimonthly', 'monthly']).optional(),
   payDayOfMonth: z.number().int().min(1).max(28).optional(),
   weeklyOff: z.array(z.number().int().min(0).max(6)).max(3).optional(),
+  /** Public holidays the workplace observes, for holiday pay where the law sets it. */
+  holidays: z
+    .array(z.string().regex(/^\d{4}-\d{2}-\d{2}$/))
+    .max(40)
+    .optional(),
+  /** A higher overtime rate than the law's minimum, by contract or agreement. */
+  overtimeMultiplier: z.number().min(1).max(4).optional(),
   leavePolicy: z
     .object({
       casual: z.number().min(0).max(60),
@@ -85,7 +96,7 @@ export const inviteCodeSchema = z.object({ code });
 export const acceptInviteSchema = z.object({
   code,
   name,
-  language: languageSchema.default('en'),
+  language: languageSchema.default('en-IN'),
 });
 
 export const updateMemberSchema = z.object({
@@ -110,6 +121,11 @@ export const updateMemberSchema = z.object({
     .optional(),
   icMember: z.boolean().optional(),
   icPresiding: z.boolean().optional(),
+  /** Start of service that counts for statutory annual leave. */
+  serviceFrom: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
 });
 
 export const registerDeviceSchema = z.object({
@@ -157,7 +173,7 @@ export const submitClaimRequestSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   extraHours: z.number().min(0.25).max(16),
   reason: z.string().trim().min(1).max(500),
-  detectedLanguage: languageSchema.default('en'),
+  detectedLanguage: languageSchema.default('en-IN'),
 });
 
 export const resolveClaimSchema = z.object({
@@ -178,7 +194,7 @@ export const submitHazardRequestSchema = z.object({
   description: z.string().trim().min(1).max(1000),
   englishSummary: z.string().trim().min(1).max(500),
   aiSeverity: severitySchema,
-  detectedLanguage: languageSchema.default('en'),
+  detectedLanguage: languageSchema.default('en-IN'),
   location: locationFixSchema.optional(),
   photo: photoSchema.optional(),
   aiUnavailable: z.boolean().optional(),
@@ -265,7 +281,7 @@ export const resolveFlagSchema = z.object({
 
 export const aiClaimSchema = z
   .object({
-    lang: languageSchema.default('en'),
+    lang: languageSchema.default('en-IN'),
     text: z.string().trim().min(1).max(2000).optional(),
     audioBase64: z.string().max(2_850_000).optional(),
     audioMimeType: z.string().max(64).optional(),
@@ -274,7 +290,7 @@ export const aiClaimSchema = z
 
 export const aiExplainPaySchema = z
   .object({
-    lang: languageSchema.default('en'),
+    lang: languageSchema.default('en-IN'),
     question: z.string().trim().min(1).max(500).optional(),
     audioBase64: z.string().max(2_850_000).optional(),
     audioMimeType: z.string().max(64).optional(),

@@ -199,7 +199,9 @@ export const LanguagePicker: React.FC<{
         <span className="t-strong" lang={l.code}>
           {l.native}
         </span>
-        {l.code !== 'en' && <span className="t-caption faint">{l.english}</span>}
+        <span className="t-caption faint">
+          {LANGUAGES.filter((x) => x.base === l.base).length > 1 ? l.region : l.english}
+        </span>
       </button>
     ))}
   </div>

@@ -55,7 +55,7 @@ export const Notifications: React.FC = () => {
                       )}
                     </span>
                   )}
-                  <span className="t-caption faint">{timeAgo(n.createdAt)}</span>
+                  <span className="t-caption faint">{timeAgo(n.createdAt, lang)}</span>
                 </div>
               </div>
             ))}

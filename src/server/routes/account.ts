@@ -1,4 +1,10 @@
 import { Router } from 'express';
+import {
+  COUNTRIES,
+  countryPack,
+  type CountryId,
+  type PayCycle,
+} from '../../shared/countries/index.js';
 import type { MemberRecord, UserAccount, WorkplaceRecord } from '../../shared/model.js';
 import {
   acceptInviteSchema,
@@ -45,7 +51,7 @@ async function ensureUser(identity: Identity): Promise<UserAccount> {
     phone: identity.phone,
     email: identity.email,
     name: identity.name ?? '',
-    language: 'en',
+    language: 'en-IN',
     createdAt: new Date().toISOString(),
     memberships: [],
   };
@@ -85,6 +91,30 @@ accountRouter.patch('/me', async (req, res, next) => {
   }
 });
 
+/** Settings must fit the country: its pay cycles, its regions, a real time zone. */
+export function checkCountrySettings(body: {
+  country?: CountryId;
+  region?: string;
+  payCycle?: string;
+  timezone?: string;
+}) {
+  const base = COUNTRIES[body.country ?? 'IN'];
+  if (body.region && !base.regions?.some((r) => r.id === body.region)) {
+    throw new AppError(400, 'BAD_REGION', 'That state or region is not known for this country.');
+  }
+  const pack = countryPack({ country: body.country, region: body.region });
+  if (body.payCycle && !pack.pay.cycles.includes(body.payCycle as PayCycle)) {
+    throw new AppError(400, 'BAD_PAY_CYCLE', 'That pay cycle is not used in this country.');
+  }
+  if (body.timezone) {
+    try {
+      new Intl.DateTimeFormat('en', { timeZone: body.timezone });
+    } catch {
+      throw new AppError(400, 'BAD_TIMEZONE', 'Unknown time zone.');
+    }
+  }
+}
+
 accountRouter.post('/workplaces', async (req, res, next) => {
   try {
     const body = createWorkplaceSchema.parse(req.body);
@@ -97,8 +127,13 @@ accountRouter.post('/workplaces', async (req, res, next) => {
 
     const now = new Date().toISOString();
     const { ownerName, ...settings } = body;
+    const pack = countryPack({ country: body.country, region: body.region });
+    checkCountrySettings(body);
     const wp: WorkplaceRecord = {
       ...settings,
+      timezone: body.timezone ?? pack.timezone,
+      payCycle: body.payCycle ?? pack.pay.defaultCycle[body.sector],
+      weeklyOff: body.weeklyOff ?? pack.weeklyOff,
       id: newId('wp'),
       ownerUid: user.uid,
       inviteCode: newInviteCode(body.name),
