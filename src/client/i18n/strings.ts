@@ -1,5 +1,15 @@
 import type { BaseLanguage } from '../../shared/languages.js';
 import type { CountryKey } from './country.js';
+import { employerEn } from './employer/en.js';
+import { employer_ta } from './employer/ta.js';
+import { employer_hi } from './employer/hi.js';
+import { employer_es } from './employer/es.js';
+import { employer_fr } from './employer/fr.js';
+import { employer_de } from './employer/de.js';
+import { employer_pt } from './employer/pt.js';
+import { employer_ja } from './employer/ja.js';
+import { employer_zh } from './employer/zh.js';
+import { employer_ko } from './employer/ko.js';
 import { de } from './locales/de.js';
 import { es } from './locales/es.js';
 import { fr } from './locales/fr.js';
@@ -9,7 +19,7 @@ import { pt } from './locales/pt.js';
 import { zh } from './locales/zh.js';
 
 /** Worker-facing text. `{0}`, `{1}` are filled in by `t()`. */
-export const en = {
+const workerEn = {
   appName: 'Shiftseal',
   continue: 'Continue',
   cancel: 'Cancel',
@@ -305,11 +315,16 @@ export const en = {
   timesRate: '× {0}',
 } as const;
 
+export const en = { ...workerEn, ...employerEn };
+
+/** One language's worker text. */
+export type WorkerDict = Record<keyof typeof workerEn, string>;
+/** One language's full text: worker and employer. */
 export type Dict = Record<keyof typeof en, string>;
 /** Any key `t()` takes: the dictionaries' and the country packs'. */
 export type StringKey = keyof typeof en | CountryKey;
 
-export const ta: Dict = {
+export const ta: WorkerDict = {
   appName: 'Shiftseal',
   continue: 'தொடரவும்',
   cancel: 'ரத்து',
@@ -600,7 +615,7 @@ export const ta: Dict = {
   timesRate: '× {0}',
 };
 
-export const hi: Dict = {
+export const hi: WorkerDict = {
   appName: 'Shiftseal',
   continue: 'जारी रखें',
   cancel: 'रद्द करें',
@@ -883,4 +898,15 @@ export const hi: Dict = {
   timesRate: '× {0}',
 };
 
-export const dictionaries: Record<BaseLanguage, Dict> = { en, ta, hi, es, fr, de, pt, ja, zh, ko };
+export const dictionaries: Record<BaseLanguage, Dict> = {
+  en,
+  ta: { ...ta, ...employer_ta },
+  hi: { ...hi, ...employer_hi },
+  es: { ...es, ...employer_es },
+  fr: { ...fr, ...employer_fr },
+  de: { ...de, ...employer_de },
+  pt: { ...pt, ...employer_pt },
+  ja: { ...ja, ...employer_ja },
+  zh: { ...zh, ...employer_zh },
+  ko: { ...ko, ...employer_ko },
+};

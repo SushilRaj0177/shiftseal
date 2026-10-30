@@ -4,15 +4,32 @@ import type { HazardReport, OvertimeClaim } from '../../shared/types.js';
 import type { FlagRecord } from '../../shared/model.js';
 import { api, errorMessage } from '../lib/api.js';
 import { compressPhoto } from '../lib/photo.js';
-import { timeAgo } from '../lib/format.js';
+import { dayLabel, timeAgo } from '../lib/format.js';
+import { baseOf, localeOf } from '../../shared/languages.js';
+import { useLang } from '../i18n/LangProvider.js';
+import type { StringKey } from '../i18n/strings.js';
 import { AuthImage, Card, Empty, Field, Notice, Pill, Sheet, Skeleton } from '../ui/index.js';
-import { FLAG_TITLES, flagTone } from './Overview.js';
+import { flagTitle, flagTone, SEV_KEY } from './Overview.js';
+
+const HAZARD_STATUS: Record<string, StringKey> = {
+  received: 'eHazardReceived',
+  acknowledged: 'eHazardHandling',
+  resolved: 'eHazardFixed',
+};
+
+const FLAG_SEV: Record<string, StringKey> = {
+  serious: 'eSerious',
+  review: 'eReview',
+  info: 'eInfo',
+};
 import { useEmployer } from './EmployerApp.js';
 
 type Tab = 'claims' | 'hazards' | 'flags';
 
 export const Review: React.FC = () => {
   const { base, dash, reload } = useEmployer();
+  const { t, tx, lang } = useLang();
+  const en = baseOf(lang) === 'en';
   const [params, setParams] = useSearchParams();
   const tab = (params.get('tab') as Tab) || 'claims';
   const [msg, setMsg] = useState<{ kind: 'info' | 'error'; text: string } | null>(null);
@@ -26,7 +43,7 @@ export const Review: React.FC = () => {
   const wp = base.workplace.id;
   const me = base.member;
   const nameOf = (uid?: string) =>
-    dash.people.find((p) => p.uid === uid)?.name ?? (uid === me.uid ? me.name : 'Someone');
+    dash.people.find((p) => p.uid === uid)?.name ?? (uid === me.uid ? me.name : t('eSomeone'));
 
   const run = async (fn: () => Promise<unknown>, ok: string) => {
     setBusy(true);
@@ -52,13 +69,13 @@ export const Review: React.FC = () => {
 
   return (
     <>
-      <h1 className="t-title">Review</h1>
+      <h1 className="t-title">{t('eNavReview')}</h1>
       <div className="segmented" role="group" style={{ maxWidth: 480 }}>
         {(
           [
-            ['claims', `Claims (${openClaims.length})`],
-            ['hazards', `Hazards (${openHazards.length})`],
-            ['flags', `Flags (${openFlags.length})`],
+            ['claims', `${t('eClaims')} (${openClaims.length})`],
+            ['hazards', `${t('eHazards')} (${openHazards.length})`],
+            ['flags', `${t('eFlags')} (${openFlags.length})`],
           ] as const
         ).map(([k, label]) => (
           <button
@@ -75,7 +92,7 @@ export const Review: React.FC = () => {
 
       {tab === 'claims' && (
         <Card flush>
-          {dash.claims.length === 0 && <Empty icon="clock">No claims.</Empty>}
+          {dash.claims.length === 0 && <Empty icon="clock">{t('eNoClaims')}</Empty>}
           {dash.claims.map((c) => (
             <button
               key={c.id}
@@ -86,11 +103,13 @@ export const Review: React.FC = () => {
             >
               <span className="grow stack-sm" style={{ gap: 0 }}>
                 <span className="t-strong">
-                  {c.kind === 'edit_disagree' ? 'Disputed change' : `${c.extraHours} h overtime`} ·{' '}
-                  {c.workerName}
+                  {c.kind === 'edit_disagree'
+                    ? t('eDisputedChange')
+                    : t('eHoursOvertime', c.extraHours)}{' '}
+                  · {c.workerName}
                 </span>
                 <span className="t-caption muted">
-                  {c.date} · {c.reason.slice(0, 80)}
+                  {dayLabel(c.date, lang)} · {c.reason.slice(0, 80)}
                 </span>
               </span>
               <Pill
@@ -103,12 +122,16 @@ export const Review: React.FC = () => {
                 }
               >
                 {c.matchStatus === 'supported'
-                  ? 'Records support it'
+                  ? t('eSupported')
                   : c.matchStatus === 'partly_supported'
-                    ? 'Partly supported'
-                    : 'Not on record'}
+                    ? t('ePartly')
+                    : t('eNotOnRecord')}
               </Pill>
-              {c.resolutionStatus !== 'pending' && <Pill>{c.resolutionStatus}</Pill>}
+              {c.resolutionStatus !== 'pending' && (
+                <Pill>
+                  {c.resolutionStatus === 'approved' ? t('statusApproved') : t('statusRejected')}
+                </Pill>
+              )}
             </button>
           ))}
         </Card>
@@ -116,15 +139,16 @@ export const Review: React.FC = () => {
 
       {tab === 'hazards' && (
         <Card flush>
-          {dash.hazards.length === 0 && <Empty icon="alert">No hazards reported.</Empty>}
+          {dash.hazards.length === 0 && <Empty icon="alert">{t('eNoHazards')}</Empty>}
           {dash.hazards.map((h) => (
             <button key={h.id} type="button" className="list-row" onClick={() => setHazard(h)}>
               <span className="grow stack-sm" style={{ gap: 0 }}>
                 <span className="t-strong">
-                  {h.zoneName} · {h.hazardType.replace(/_/g, ' ')}
+                  {h.zoneName} · {tx(`hz_${h.hazardType}`) || h.hazardType}
                 </span>
                 <span className="t-caption muted">
-                  {h.englishSummary.slice(0, 90)} · {timeAgo(h.createdAt)}
+                  {(en ? h.englishSummary : h.description).slice(0, 90)} ·{' '}
+                  {timeAgo(h.createdAt, lang)}
                 </span>
               </span>
               <Pill
@@ -136,10 +160,10 @@ export const Review: React.FC = () => {
                       : 'danger'
                 }
               >
-                {h.finalSeverity}
+                {t(SEV_KEY[h.finalSeverity])}
               </Pill>
               <Pill tone={h.status === 'resolved' ? 'good' : h.fixDisputed ? 'danger' : 'neutral'}>
-                {h.fixDisputed ? 'fix disputed' : h.status}
+                {h.fixDisputed ? t('eFixDisputed') : t(HAZARD_STATUS[h.status])}
               </Pill>
             </button>
           ))}
@@ -148,13 +172,9 @@ export const Review: React.FC = () => {
 
       {tab === 'flags' && (
         <>
-          <p className="muted">
-            Flags are places where a claim and the evidence disagree. They are for a person to look
-            at; nothing is decided automatically. Flags that question the employer can only be
-            closed by the owner.
-          </p>
+          <p className="muted">{t('eFlagsIntro')}</p>
           <Card flush>
-            {dash.flags.length === 0 && <Empty icon="flag">No flags.</Empty>}
+            {dash.flags.length === 0 && <Empty icon="flag">{t('eNoFlags')}</Empty>}
             {dash.flags.map((f) => (
               <button
                 key={f.id}
@@ -165,18 +185,20 @@ export const Review: React.FC = () => {
               >
                 <span className="grow stack-sm" style={{ gap: 0 }}>
                   <span className="t-strong">
-                    {FLAG_TITLES[f.code] ?? f.code} ·{' '}
+                    {flagTitle(f.code, tx)} ·{' '}
                     {f.subject.kind === 'supervisor'
                       ? nameOf(f.subject.id)
                       : nameOf(f.subject.workerUid)}
                   </span>
-                  <span className="t-caption muted">{f.message}</span>
+                  <span className="t-caption muted">
+                    {en ? f.message : timeAgo(f.createdAt, lang)}
+                  </span>
                 </span>
                 <Pill tone={f.concerns === 'employer' ? 'accent' : 'neutral'}>
-                  {f.concerns === 'employer' ? 'About us' : 'About worker'}
+                  {f.concerns === 'employer' ? t('eAboutUs') : t('eAboutWorker')}
                 </Pill>
                 <Pill tone={f.status === 'open' ? flagTone(f) : 'neutral'}>
-                  {f.status === 'open' ? f.severity : f.status}
+                  {f.status === 'open' ? t(FLAG_SEV[f.severity]) : t('eResolved')}
                 </Pill>
               </button>
             ))}
@@ -186,19 +208,17 @@ export const Review: React.FC = () => {
 
       {claim && (
         <Sheet
-          title={`${claim.workerName}: ${claim.kind === 'edit_disagree' ? 'disputed change' : 'overtime claim'}`}
+          title={`${claim.workerName}: ${claim.kind === 'edit_disagree' ? t('eDisputedChange') : t('eOvertimeClaim')}`}
           onClose={() => setClaim(null)}
         >
           <Card tone={claim.matchStatus === 'supported' ? 'good' : 'subtle'}>
             <span className="t-strong">
-              {claim.matchStatus === 'supported'
-                ? 'The records support this'
-                : 'The records do not fully support this'}
+              {claim.matchStatus === 'supported' ? t('eRecordsSupport') : t('eRecordsDoNot')}
             </span>
-            <span className="t-caption">{claim.evidence.explanation}</span>
+            {en && <span className="t-caption">{claim.evidence.explanation}</span>}
           </Card>
           <p className="t-caption muted">“{claim.reason}”</p>
-          <Field label="Your reason (the worker sees this)">
+          <Field label={t('eYourReason')}>
             <textarea
               className="textarea"
               value={reason}
@@ -216,11 +236,11 @@ export const Review: React.FC = () => {
                     api(`/workplaces/${wp}/claims/resolve`, {
                       body: { claimId: claim.id, decision: 'rejected', reason },
                     }),
-                  'Rejected. The worker has been told why.'
+                  t('eRejectedDone')
                 )
               }
             >
-              Reject
+              {t('eReject')}
             </button>
             <button
               type="button"
@@ -232,11 +252,11 @@ export const Review: React.FC = () => {
                     api(`/workplaces/${wp}/claims/resolve`, {
                       body: { claimId: claim.id, decision: 'approved', reason },
                     }),
-                  'Approved. It will be paid on payday.'
+                  t('eApprovedDone')
                 )
               }
             >
-              Approve
+              {t('eApprove')}
             </button>
           </div>
         </Sheet>
@@ -244,17 +264,23 @@ export const Review: React.FC = () => {
 
       {hazard && (
         <Sheet
-          title={`${hazard.zoneName}: ${hazard.hazardType.replace(/_/g, ' ')}`}
+          title={`${hazard.zoneName}: ${tx(`hz_${hazard.hazardType}`) || hazard.hazardType}`}
           onClose={() => setHazard(null)}
         >
-          <p>{hazard.englishSummary}</p>
+          <p>{hazard.description}</p>
+          {!en || hazard.description === hazard.englishSummary ? null : (
+            <p className="t-caption muted">{hazard.englishSummary}</p>
+          )}
           {hazard.photoId && (
-            <AuthImage path={`/workplaces/${wp}/photos/${hazard.photoId}`} alt="Reported hazard" />
+            <AuthImage
+              path={`/workplaces/${wp}/photos/${hazard.photoId}`}
+              alt={t('eHazardPhoto')}
+            />
           )}
           <span className="t-caption muted">
-            Severity {hazard.finalSeverity}
-            {hazard.floorApplied ? ' (raised by the safety floor)' : ''} · respond by{' '}
-            {new Date(hazard.deadlineAt).toLocaleString()}
+            {t('eSeverity', t(SEV_KEY[hazard.finalSeverity]))}
+            {hazard.floorApplied ? ` (${t('eFloorRaised')})` : ''} ·{' '}
+            {t('eRespondBy', new Date(hazard.deadlineAt).toLocaleString(localeOf(lang)))}
           </span>
           {hazard.status === 'received' && (
             <button
@@ -267,16 +293,16 @@ export const Review: React.FC = () => {
                     api(`/workplaces/${wp}/hazards/status`, {
                       body: { hazardId: hazard.id, status: 'acknowledged' },
                     }),
-                  'Reporters told it is being handled.'
+                  t('eHandlingDone')
                 )
               }
             >
-              Mark as being handled
+              {t('eMarkHandling')}
             </button>
           )}
           {hazard.status !== 'resolved' && (
             <>
-              <Field label="Photo of the fix (recommended)">
+              <Field label={t('eFixPhoto')}>
                 <input
                   type="file"
                   accept="image/*"
@@ -307,11 +333,11 @@ export const Review: React.FC = () => {
                             : undefined,
                         },
                       }),
-                    'Marked fixed. The reporter will be asked to confirm.'
+                    t('eFixedDone')
                   )
                 }
               >
-                Mark fixed
+                {t('eMarkFixed')}
               </button>
             </>
           )}
@@ -319,8 +345,8 @@ export const Review: React.FC = () => {
       )}
 
       {flag && (
-        <Sheet title={FLAG_TITLES[flag.code] ?? flag.code} onClose={() => setFlag(null)}>
-          <p>{flag.message}</p>
+        <Sheet title={flagTitle(flag.code, tx)} onClose={() => setFlag(null)}>
+          <p>{en ? flag.message : tx(`flag_${flag.code}`) || flagTitle(flag.code, tx)}</p>
           <Card tone="subtle">
             {Object.entries(flag.facts).map(([k, v]) => (
               <div key={k} className="kv">
@@ -329,7 +355,7 @@ export const Review: React.FC = () => {
               </div>
             ))}
           </Card>
-          <Field label="What you found (kept with the flag)">
+          <Field label={t('eWhatYouFound')}>
             <textarea
               className="textarea"
               value={reason}
@@ -347,11 +373,11 @@ export const Review: React.FC = () => {
                     api(`/workplaces/${wp}/flags/resolve`, {
                       body: { flagId: flag.id, status: 'dismissed', resolution: reason },
                     }),
-                  'Dismissed.'
+                  t('eDismissedDone')
                 )
               }
             >
-              Dismiss
+              {t('eDismiss')}
             </button>
             <button
               type="button"
@@ -363,11 +389,11 @@ export const Review: React.FC = () => {
                     api(`/workplaces/${wp}/flags/resolve`, {
                       body: { flagId: flag.id, status: 'resolved', resolution: reason },
                     }),
-                  'Resolved.'
+                  t('eResolvedDone')
                 )
               }
             >
-              Resolved
+              {t('eMarkResolved')}
             </button>
           </div>
         </Sheet>

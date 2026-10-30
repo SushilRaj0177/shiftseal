@@ -36,7 +36,7 @@ const SEV_KEY: Record<SeverityLevel, StringKey> = {
 };
 
 export const Report: React.FC = () => {
-  const { t, lang } = useLang();
+  const { t, tx, lang } = useLang();
   const { wp, overview, reload } = useWorker();
   const [zone, setZone] = useState(wp.zones[0]?.code ?? '');
   const [text, setText] = useState('');
@@ -189,7 +189,7 @@ export const Report: React.FC = () => {
           <Card>
             <div className="between">
               <span className="t-strong" style={{ textTransform: 'capitalize' }}>
-                {result.structuredHazard.hazardType.replace(/_/g, ' ')}
+                {tx(`hz_${result.structuredHazard.hazardType}`)}
               </span>
               {sev && (
                 <Pill

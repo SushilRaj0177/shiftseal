@@ -1,6 +1,6 @@
-import type { Dict } from '../strings.js';
+import type { WorkerDict } from '../strings.js';
 
-export const de: Dict = {
+export const de: WorkerDict = {
   appName: 'Shiftseal',
   continue: 'Weiter',
   cancel: 'Abbrechen',

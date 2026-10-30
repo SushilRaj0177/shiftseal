@@ -49,6 +49,7 @@ export interface PublicMember {
   icPresiding?: boolean;
   language: Language;
   joinedAt: string;
+  serviceFrom?: string;
   status: 'active' | 'removed';
   device: { platform: string; boundAt: string } | null;
   pendingDevice: { platform: string; boundAt: string } | null;
@@ -178,6 +179,7 @@ export interface Dashboard {
     workerName: string;
     level: 'low' | 'medium' | 'high';
     reasons: string[];
+    why: { code: string; args: number[] }[];
   }[];
   leave: { pending: LeaveRequest[]; today: LeaveRequest[] };
   complaints: { committeeSize: number; open: number; overdue: number };

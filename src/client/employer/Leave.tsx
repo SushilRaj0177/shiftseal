@@ -5,22 +5,14 @@ import { dayLabel } from '../lib/format.js';
 import { useApi } from '../lib/useApi.js';
 import type { LeaveResponse } from '../lib/types.js';
 import { Card, Empty, Field, Notice, Pill, Sheet, Skeleton } from '../ui/index.js';
-import { STATUS_TONE } from '../worker/Leave.js';
+import { STATUS_KEY, STATUS_TONE, TYPE_KEY } from '../worker/Leave.js';
+import { useLang } from '../i18n/LangProvider.js';
 import { useEmployer } from './EmployerApp.js';
 
-const TYPE: Record<LeaveRequest['type'], string> = {
-  casual: 'Casual leave',
-  sick: 'Sick leave',
-  earned: 'Earned leave',
-  comp_off: 'Comp-off',
-  unpaid: 'Unpaid leave',
-  wfh: 'Work from home',
-};
-
-const span = (r: LeaveRequest) =>
-  `${dayLabel(r.from)}${r.to !== r.from ? ` – ${dayLabel(r.to)}` : ''} · ${r.days} day(s)`;
-
 export const Leave: React.FC = () => {
+  const { t, lang } = useLang();
+  const span = (r: LeaveRequest) =>
+    `${dayLabel(r.from, lang)}${r.to !== r.from ? ` – ${dayLabel(r.to, lang)}` : ''} · ${t('daysCount', r.days)}`;
   const { base, reload: reloadDash } = useEmployer();
   const wp = base.workplace.id;
   const data = useApi<LeaveResponse>(`/workplaces/${wp}/leave`);
@@ -48,7 +40,7 @@ export const Leave: React.FC = () => {
       });
       setMsg({
         kind: res.flags?.length ? 'error' : 'info',
-        text: res.flags?.length ? `${ok} This has been flagged for the owner.` : ok,
+        text: res.flags?.length ? `${ok} ${t('eFlaggedForOwner')}` : ok,
       });
       setSelected(null);
       setReason('');
@@ -64,34 +56,38 @@ export const Leave: React.FC = () => {
     <button key={r.id} type="button" className="list-row" onClick={() => setSelected(r)}>
       <span className="grow stack-sm" style={{ gap: 0 }}>
         <span className="t-strong">
-          {r.workerName} · {TYPE[r.type]}
+          {r.workerName} · {t(TYPE_KEY[r.type])}
         </span>
         <span className="t-caption muted">
           {span(r)} · {r.reason}
         </span>
       </span>
-      <Pill tone={STATUS_TONE[r.status]}>{r.status}</Pill>
+      <Pill tone={STATUS_TONE[r.status]}>{t(STATUS_KEY[r.status])}</Pill>
     </button>
   );
 
   return (
     <>
-      <h1 className="t-title">Leave</h1>
+      <h1 className="t-title">{t('eNavLeave')}</h1>
       {msg && <Notice kind={msg.kind}>{msg.text}</Notice>}
       <div className="cols">
         <div className="stack">
           <Card flush>
             <div style={{ padding: '16px 16px 8px' }}>
-              <h2 className="t-headline">Waiting for a decision</h2>
+              <h2 className="t-headline">{t('eLeaveWaiting')}</h2>
             </div>
-            {pending.length === 0 ? <Empty icon="check">Nothing waiting.</Empty> : pending.map(row)}
+            {pending.length === 0 ? (
+              <Empty icon="check">{t('eLeaveNothing')}</Empty>
+            ) : (
+              pending.map(row)
+            )}
           </Card>
           <Card flush>
             <div style={{ padding: '16px 16px 8px' }}>
-              <h2 className="t-headline">Approved, coming up</h2>
+              <h2 className="t-headline">{t('eLeaveAhead')}</h2>
             </div>
             {approved.length === 0 ? (
-              <Empty icon="clock">No approved leave ahead.</Empty>
+              <Empty icon="clock">{t('eLeaveNoneAhead')}</Empty>
             ) : (
               approved.map(row)
             )}
@@ -99,22 +95,22 @@ export const Leave: React.FC = () => {
         </div>
         <Card flush>
           <div style={{ padding: '16px 16px 8px' }}>
-            <h2 className="t-headline">History</h2>
+            <h2 className="t-headline">{t('eHistory')}</h2>
           </div>
-          {past.length === 0 ? <Empty icon="doc">No history yet.</Empty> : past.map(row)}
+          {past.length === 0 ? <Empty icon="doc">{t('eNoHistory')}</Empty> : past.map(row)}
         </Card>
       </div>
 
       {selected && (
         <Sheet
-          title={`${selected.workerName}: ${TYPE[selected.type]}`}
+          title={`${selected.workerName}: ${t(TYPE_KEY[selected.type])}`}
           onClose={() => setSelected(null)}
         >
           <span className="muted">{span(selected)}</span>
           <p>“{selected.reason}”</p>
           {selected.status === 'pending' && (
             <>
-              <Field label="Note to the worker (required to reject)">
+              <Field label={t('eLeaveNote')}>
                 <textarea
                   className="textarea"
                   value={reason}
@@ -130,11 +126,11 @@ export const Leave: React.FC = () => {
                     act(
                       'decide',
                       { leaveId: selected.id, decision: 'rejected', reason },
-                      'Rejected. The worker has been told why.'
+                      t('eRejectedDone')
                     )
                   }
                 >
-                  Reject
+                  {t('eReject')}
                 </button>
                 <button
                   type="button"
@@ -144,22 +140,19 @@ export const Leave: React.FC = () => {
                     act(
                       'decide',
                       { leaveId: selected.id, decision: 'approved', reason: reason || undefined },
-                      'Approved.'
+                      t('eApproved')
                     )
                   }
                 >
-                  Approve
+                  {t('eApprove')}
                 </button>
               </div>
             </>
           )}
           {selected.status === 'approved' && selected.to >= today && (
             <>
-              <Notice kind="warn">
-                Withdrawing leave that was already approved is recorded, flagged for the owner, and
-                told to the worker.
-              </Notice>
-              <Field label="Reason (required)">
+              <Notice kind="warn">{t('eWithdrawWarn')}</Notice>
+              <Field label={t('eReasonRequired')}>
                 <textarea
                   className="textarea"
                   value={reason}
@@ -170,9 +163,9 @@ export const Leave: React.FC = () => {
                 type="button"
                 className="btn btn-danger"
                 disabled={busy || reason.trim().length < 5}
-                onClick={() => act('revoke', { leaveId: selected.id, reason }, 'Leave withdrawn.')}
+                onClick={() => act('revoke', { leaveId: selected.id, reason }, t('eWithdrawn'))}
               >
-                Withdraw approved leave
+                {t('eWithdraw')}
               </button>
             </>
           )}

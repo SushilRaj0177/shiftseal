@@ -394,6 +394,7 @@ export interface FatigueAttritionSignal {
   role: string;
   fatigueLevel: RiskLevel;
   fatigueReasons: string[];
+  why: { code: string; args: number[] }[];
   attritionLevel: RiskLevel;
   attritionReasons: string[];
   consecutiveDays: number;

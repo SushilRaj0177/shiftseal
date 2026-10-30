@@ -9,6 +9,7 @@ export interface BurnoutSignal {
   daysSinceLeave: number | null;
   level: RiskLevel;
   reasons: string[];
+  why: { code: string; args: number[] }[];
 }
 
 /**
@@ -49,10 +50,19 @@ export function evaluateBurnout(
   const daysSinceLeave = Math.round((Date.parse(today) - Date.parse(counting)) / 86_400_000);
 
   const reasons: string[] = [];
-  if (lateNights14d > maxLate) reasons.push(`${lateNights14d} late nights in 14 days`);
-  if (weeklyOffDaysWorked28d > maxOff)
+  const why: { code: string; args: number[] }[] = [];
+  if (lateNights14d > maxLate) {
+    reasons.push(`${lateNights14d} late nights in 14 days`);
+    why.push({ code: 'lateNights', args: [lateNights14d] });
+  }
+  if (weeklyOffDaysWorked28d > maxOff) {
     reasons.push(`worked ${weeklyOffDaysWorked28d} days off in 28 days`);
-  if (daysSinceLeave > maxNoLeave) reasons.push(`no leave in ${daysSinceLeave} days`);
+    why.push({ code: 'daysOffWorked', args: [weeklyOffDaysWorked28d] });
+  }
+  if (daysSinceLeave > maxNoLeave) {
+    reasons.push(`no leave in ${daysSinceLeave} days`);
+    why.push({ code: 'noLeave', args: [daysSinceLeave] });
+  }
 
   return {
     lateNights14d,
@@ -60,5 +70,6 @@ export function evaluateBurnout(
     daysSinceLeave: lastLeave ? daysSinceLeave : null,
     level: reasons.length >= 2 ? 'high' : reasons.length === 1 ? 'medium' : 'low',
     reasons,
+    why,
   };
 }

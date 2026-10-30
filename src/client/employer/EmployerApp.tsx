@@ -3,6 +3,7 @@ import { NavLink, Route, Routes, useParams } from 'react-router-dom';
 import { useApi } from '../lib/useApi.js';
 import { useLang } from '../i18n/LangProvider.js';
 import type { Dashboard, WorkplaceResponse } from '../lib/types.js';
+import type { StringKey } from '../i18n/strings.js';
 import { Icon, type IconName } from '../components/Icon.js';
 import { Brand, Notice, Pill, Skeleton } from '../ui/index.js';
 import { rememberWorkplace } from '../App.js';
@@ -30,29 +31,30 @@ export function useEmployer(): EmployerContextValue {
   return ctx;
 }
 
-const NAV: { to: string; label: string; icon: IconName; count?: (d: Dashboard) => number }[] = [
-  { to: '', label: 'Overview', icon: 'home' },
+const NAV: { to: string; label: StringKey; icon: IconName; count?: (d: Dashboard) => number }[] = [
+  { to: '', label: 'eNavOverview', icon: 'home' },
   {
     to: 'people',
-    label: 'People',
+    label: 'eNavPeople',
     icon: 'users',
     count: (d) => d.people.filter((p) => p.pendingDevice).length,
   },
   {
     to: 'review',
-    label: 'Review',
+    label: 'eNavReview',
     icon: 'flag',
     count: (d) => d.kpis.openClaims + d.kpis.openHazards + d.kpis.openFlags,
   },
-  { to: 'invite', label: 'Invite & gate', icon: 'qr' },
-  { to: 'settings', label: 'Settings', icon: 'settings' },
+  { to: 'leave', label: 'eNavLeave', icon: 'clock', count: (d) => d.kpis.pendingLeave },
+  { to: 'invite', label: 'eNavInvite', icon: 'qr' },
+  { to: 'settings', label: 'eNavSettings', icon: 'settings' },
 ];
 
 export default function EmployerApp() {
   const { wp = '' } = useParams();
   const base = useApi<WorkplaceResponse>(`/workplaces/${wp}`);
   const dash = useApi<Dashboard>(`/workplaces/${wp}/dashboard`, 20_000);
-  const { setWorkplaceCountry } = useLang();
+  const { setWorkplaceCountry, t } = useLang();
   const country = base.data?.workplace.country ?? (base.data ? 'IN' : null);
   useEffect(() => {
     setWorkplaceCountry(country);
@@ -95,22 +97,20 @@ export default function EmployerApp() {
           path="*"
           element={
             <div className="dash">
-              <aside className="dash-side" aria-label="Main">
+              <aside className="dash-side" aria-label={t('eNavMain')}>
                 <Brand />
                 <div className="workplace-chip">
                   <span className="t-strong" style={{ display: 'block' }}>
                     {base.data.workplace.name}
                   </span>
                   <span className="t-caption" style={{ color: 'var(--on-navy-2)' }}>
-                    {dash.data
-                      ? `${dash.data.kpis.workers} ${dash.data.kpis.workers === 1 ? 'person' : 'people'}`
-                      : ' '}
+                    {dash.data ? t('ePeopleCount', dash.data.kpis.workers) : ' '}
                   </span>
                 </div>
                 {base.data.member.icMember && (
                   <NavLink to={link('committee')} className="nav-item" style={{ order: 99 }}>
                     <Icon name="lock" />
-                    Committee inbox
+                    {t('committeeInbox')}
                   </NavLink>
                 )}
                 {NAV.map((n) => {
@@ -118,7 +118,7 @@ export default function EmployerApp() {
                   return (
                     <NavLink key={n.to} to={link(n.to)} end={n.to === ''} className="nav-item">
                       <Icon name={n.icon} />
-                      {n.label}
+                      {t(n.label)}
                       {c > 0 && (
                         <span className="count">
                           <Pill>{c}</Pill>
@@ -139,12 +139,12 @@ export default function EmployerApp() {
                   <Route path="settings" element={<WorkplaceSettings />} />
                 </Routes>
               </main>
-              <nav className="tabbar dash-mobile-nav" aria-label="Main">
+              <nav className="tabbar dash-mobile-nav" aria-label={t('eNavMain')}>
                 <div className="tabbar-inner">
                   {NAV.slice(0, 4).map((n) => (
                     <NavLink key={n.to} to={link(n.to)} end={n.to === ''}>
                       <Icon name={n.icon} size={22} />
-                      {n.label.split(' ')[0]}
+                      {t(`${n.label}Short` as StringKey) || t(n.label)}
                     </NavLink>
                   ))}
                 </div>

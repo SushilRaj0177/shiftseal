@@ -1,42 +1,36 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import type { FlagRecord } from '../../shared/model.js';
-import { money, timeAgo } from '../lib/format.js';
-import { firstName } from '../lib/format.js';
+import { dayLabel, firstName, timeAgo } from '../lib/format.js';
+import { baseOf } from '../../shared/languages.js';
+import { useLang } from '../i18n/LangProvider.js';
+import type { StringKey } from '../i18n/strings.js';
+import { TYPE_KEY } from '../worker/Leave.js';
 import { periodLabel } from '../lib/period.js';
 import { Icon, type IconName } from '../components/Icon.js';
 import { Card, Empty, Notice, Pill, SectionHead, Skeleton, Tile, type Tone } from '../ui/index.js';
 import { useEmployer } from './EmployerApp.js';
 import { Guilloche, Ring } from '../ui/visuals.js';
 
-export const FLAG_TITLES: Record<string, string> = {
-  OUTSIDE_SITE: 'Checked in away from site',
-  LOW_ACCURACY: 'Location too imprecise',
-  NO_LOCATION: 'No location shared',
-  MOCK_LOCATION: 'Fake location on phone',
-  QR_INVALID: 'Old or wrong gate code',
-  NO_QR: 'Gate code not scanned',
-  DEVICE_NOT_APPROVED: 'Unapproved phone',
-  SIGNATURE_INVALID: 'Unverifiable check refused',
-  INTEGRITY_FAILED: 'Phone failed device check',
-  CLOCK_SKEW: 'Phone clock wrong',
-  SENT_LATE: 'Sent late (offline)',
-  EDIT_CONTRADICTS_EVIDENCE: 'Edit contradicts on-site record',
-  EDIT_NEAR_PAYDAY: 'Hours cut just before payday',
-  EDITOR_PATTERN: 'Repeated hour cuts by one person',
-  PAYMENT_MISMATCH: 'Worker reports underpayment',
-  HAZARD_FIX_NO_PHOTO: 'Hazard closed without photo',
-  HAZARD_FIX_DISPUTED: 'Reporter says hazard not fixed',
-  CLAIM_NO_SHIFT: 'Claim on a day with no check-in',
-  CLAIM_EXCEEDS_DAY: 'Claim longer than possible',
-  CLAIM_DUPLICATE: 'Duplicate claim',
-  CLAIM_NOT_CORROBORATED: 'No one else on site that late',
-  HAZARD_NO_PHOTO: 'Hazard reported without photo',
-  HAZARD_OUTSIDE_ZONE: 'Reporter not near the zone',
-  LEAVE_REVOKED: 'Approved leave withdrawn',
-  SALARY_LATE: 'Salary paid late',
-  POSH_NO_COMMITTEE: 'No Internal Committee (POSH)',
-  POSH_OVERDUE: 'Complaint inquiry overdue',
+/** A flag's title in the reader's language. The no-handler title names the country's own body. */
+export function flagTitle(code: string, tx: (k: string) => string): string {
+  if (code === 'COMPLAINTS_NO_HANDLER') return tx('flagNoHandler');
+  return tx(`ft_${code}`) || code;
+}
+
+/** Fatigue, attrition and burnout reasons, said in the reader's language. */
+export function whyText(
+  why: { code: string; args: number[] }[] | undefined,
+  tx: (k: string, ...a: (string | number)[]) => string
+): string {
+  return (why ?? []).map((w) => tx(`why_${w.code}`, ...w.args)).join(' · ');
+}
+
+export const SEV_KEY: Record<string, StringKey> = {
+  low: 'sevLow',
+  medium: 'sevMedium',
+  high: 'sevHigh',
+  critical: 'sevCritical',
 };
 
 export function flagTone(f: FlagRecord): Tone {
@@ -55,12 +49,13 @@ interface ActionItem {
 
 export const Overview: React.FC = () => {
   const { base, dash, error } = useEmployer();
+  const { t, tx, lang, money } = useLang();
   const wp = base.workplace;
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const greeting = hour < 12 ? t('goodMorning') : hour < 17 ? t('goodAfternoon') : t('goodEvening');
   if (!dash) return error ? <Notice kind="error">{error}</Notice> : <Skeleton height={300} />;
 
-  const nameOf = (uid?: string) => dash.people.find((p) => p.uid === uid)?.name ?? 'Someone';
+  const nameOf = (uid?: string) => dash.people.find((p) => p.uid === uid)?.name ?? t('eSomeone');
   const items: ActionItem[] = [
     ...dash.hazards
       .filter((h) => h.status !== 'resolved')
@@ -73,7 +68,7 @@ export const Overview: React.FC = () => {
             ? 'warn'
             : 'danger') as ActionItem['tone'],
         title: `${h.englishSummary.slice(0, 60)} · ${h.zoneName}`,
-        sub: `${h.reporterUids?.length ?? 1} report(s) · ${timeAgo(h.createdAt)}${h.fixDisputed ? ' · fix disputed' : ''}`,
+        sub: `${t('eReports', h.reporterUids?.length ?? 1)} · ${timeAgo(h.createdAt, lang)}${h.fixDisputed ? ` · ${t('eFixDisputed')}` : ''}`,
         pill: (
           <Pill
             tone={
@@ -84,7 +79,7 @@ export const Overview: React.FC = () => {
                   : 'danger'
             }
           >
-            {h.finalSeverity}
+            {t(SEV_KEY[h.finalSeverity])}
           </Pill>
         ),
         to: 'review?tab=hazards',
@@ -95,11 +90,11 @@ export const Overview: React.FC = () => {
         key: c.id,
         icon: c.kind === 'edit_disagree' ? ('pencil' as const) : ('clock' as const),
         tone: 'warn' as const,
-        title: `${c.kind === 'edit_disagree' ? 'Disputed change' : 'Overtime claim'} · ${c.workerName}`,
+        title: `${c.kind === 'edit_disagree' ? t('eDisputedChange') : t('eOvertimeClaim')} · ${c.workerName}`,
         sub:
           c.kind === 'edit_disagree'
             ? `${c.date}: ${c.evidence.originalCheckOut} → ${c.evidence.recordedCheckOut}`
-            : `${c.extraHours} h on ${c.date}`,
+            : t('eHoursOn', c.extraHours, dayLabel(c.date, lang)),
         pill: (
           <Pill
             tone={
@@ -111,10 +106,10 @@ export const Overview: React.FC = () => {
             }
           >
             {c.matchStatus === 'supported'
-              ? 'Supported'
+              ? t('eSupported')
               : c.matchStatus === 'partly_supported'
-                ? 'Partly'
-                : 'Not on record'}
+                ? t('ePartly')
+                : t('eNotOnRecord')}
           </Pill>
         ),
         to: 'review?tab=claims',
@@ -125,11 +120,11 @@ export const Overview: React.FC = () => {
         key: f.id,
         icon: 'flag' as const,
         tone: 'danger' as const,
-        title: `${FLAG_TITLES[f.code] ?? f.code} · ${f.subject.kind === 'supervisor' ? nameOf(f.subject.id) : nameOf(f.subject.workerUid)}`,
-        sub: f.message,
+        title: `${flagTitle(f.code, tx)}${f.subject.kind === 'workplace' && !f.subject.workerUid ? '' : ` · ${f.subject.kind === 'supervisor' ? nameOf(f.subject.id) : nameOf(f.subject.workerUid)}`}`,
+        sub: baseOf(lang) === 'en' ? f.message : timeAgo(f.createdAt, lang),
         pill: (
           <Pill tone={f.concerns === 'employer' ? 'accent' : 'neutral'}>
-            {f.concerns === 'employer' ? 'About us' : 'About worker'}
+            {f.concerns === 'employer' ? t('eAboutUs') : t('eAboutWorker')}
           </Pill>
         ),
         to: 'review?tab=flags',
@@ -138,9 +133,9 @@ export const Overview: React.FC = () => {
       key: r.id,
       icon: 'clock' as const,
       tone: undefined,
-      title: `Leave request · ${r.workerName}`,
-      sub: `${r.type.replace('_', ' ')} · ${r.from}${r.to !== r.from ? ` to ${r.to}` : ''} · ${r.days} day(s)`,
-      pill: <Pill tone="warn">Decide</Pill>,
+      title: `${t('eLeaveRequest')} · ${r.workerName}`,
+      sub: `${t(TYPE_KEY[r.type])} · ${dayLabel(r.from, lang)}${r.to !== r.from ? ` – ${dayLabel(r.to, lang)}` : ''} · ${t('daysCount', r.days)}`,
+      pill: <Pill tone="warn">{t('eDecide')}</Pill>,
       to: 'leave',
     })),
     ...dash.people
@@ -149,9 +144,9 @@ export const Overview: React.FC = () => {
         key: `dev-${p.uid}`,
         icon: 'phone' as const,
         tone: undefined,
-        title: `New phone to approve · ${p.name}`,
-        sub: 'Checks from it are marked for review until approved',
-        pill: <Pill tone="accent">Approve</Pill>,
+        title: `${t('eNewPhone')} · ${p.name}`,
+        sub: t('eNewPhoneSub'),
+        pill: <Pill tone="accent">{t('eApprove')}</Pill>,
         to: `people/${p.uid}`,
       })),
     ...dash.people
@@ -160,9 +155,9 @@ export const Overview: React.FC = () => {
         key: `rate-${p.uid}`,
         icon: 'wallet' as const,
         tone: 'neutral' as const,
-        title: `Set a wage · ${p.name}`,
-        sub: 'Their payslip stays empty until you do',
-        pill: <Pill>Wage</Pill>,
+        title: `${t('eSetWage')} · ${p.name}`,
+        sub: t('eSetWageSub'),
+        pill: <Pill>{t('eWage')}</Pill>,
         to: `people/${p.uid}`,
       })),
   ];
@@ -173,21 +168,20 @@ export const Overview: React.FC = () => {
         <div className="stack-sm">
           <span className="t-eyebrow">{wp.name}</span>
           <h1 className="t-display" style={{ fontSize: 30, lineHeight: '36px' }}>
-            {greeting}, {firstName(base.member.name)}
+            {t('eGreeting', greeting, firstName(base.member.name, lang))}
           </h1>
           <span className="muted">
-            Pay period {periodLabel(dash.period)} · payday{' '}
-            {new Date(`${dash.period.payDate}T00:00:00Z`).toUTCString().slice(0, 11)}
+            {t('ePayPeriod', periodLabel(dash.period, lang), dayLabel(dash.period.payDate, lang))}
           </span>
         </div>
         <div className="row-flex">
           <Link className="btn btn-secondary btn-sm" to="invite">
             <Icon name="plus" size={16} />
-            Invite
+            {t('eInvite')}
           </Link>
           <Link className="btn btn-primary btn-sm" to="gate" target="_blank">
             <Icon name="qr" size={16} />
-            Gate screen
+            {t('eGateScreen')}
           </Link>
         </div>
       </header>
@@ -201,15 +195,15 @@ export const Overview: React.FC = () => {
               size={64}
               stroke={7}
               color="var(--seal)"
-              label="On site now"
+              label={t('eOnSite')}
             >
               <span className="t-strong t-num">{dash.kpis.onSite}</span>
             </Ring>
             <div className="stack-sm">
-              <span className="t-label">On site now</span>
+              <span className="t-label">{t('eOnSite')}</span>
               <span className="t-caption">
-                {dash.kpis.onSite} of {dash.kpis.workers}
-                {dash.leave.today.length ? ` · ${dash.leave.today.length} away` : ''}
+                {t('eOfTotal', dash.kpis.onSite, dash.kpis.workers)}
+                {dash.leave.today.length ? ` · ${t('eAway', dash.leave.today.length)}` : ''}
               </span>
             </div>
           </div>
@@ -218,26 +212,26 @@ export const Overview: React.FC = () => {
           [
             [
               'clock',
-              'Open claims',
+              t('eOpenClaims'),
               dash.kpis.openClaims,
-              'Decide before payday',
+              t('eDecideBeforePayday'),
               dash.kpis.openClaims ? 'warn' : undefined,
             ],
             [
               'alert',
-              'Open hazards',
+              t('eOpenHazards'),
               dash.kpis.openHazards,
-              'Each has a deadline',
+              t('eEachDeadline'),
               dash.kpis.openHazards ? 'danger' : undefined,
             ],
             [
               'wallet',
-              'Overtime owed',
+              t('eOvertimeOwed'),
               money(dash.kpis.overtimeOwed),
-              'This pay period',
+              t('eThisPeriod'),
               undefined,
             ],
-          ] as const
+          ] as [IconName, string, string | number, string, 'warn' | 'danger' | undefined][]
         ).map(([icon, label, value, sub, tone]) => (
           <Card key={label}>
             <div className="kpi-tile">
@@ -255,13 +249,11 @@ export const Overview: React.FC = () => {
       <div className="cols">
         <Card flush>
           <div className="between" style={{ padding: '16px 16px 8px' }}>
-            <h2 className="t-headline">Needs your action</h2>
-            <span className="t-caption faint">{items.length} items</span>
+            <h2 className="t-headline">{t('eNeedsAction')}</h2>
+            <span className="t-caption faint">{t('eItems', items.length)}</span>
           </div>
           {items.length === 0 ? (
-            <Empty icon="check">
-              Nothing waiting. Records are being sealed as people check in.
-            </Empty>
+            <Empty icon="check">{t('eNothingWaiting')}</Empty>
           ) : (
             items.map((it) => (
               <Link
@@ -285,8 +277,8 @@ export const Overview: React.FC = () => {
         <div className="stack">
           <Card>
             <SectionHead
-              title="Near-miss hotspots"
-              action={<span className="t-caption faint">30 days</span>}
+              title={t('eHotspots')}
+              action={<span className="t-caption faint">{t('eLast30')}</span>}
             />
             {dash.hotspots.map((h) => {
               const max = Math.max(1, ...dash.hotspots.map((x) => x.count));
@@ -313,61 +305,59 @@ export const Overview: React.FC = () => {
             })}
           </Card>
           <Card>
-            <SectionHead title="Fatigue watch" />
+            <SectionHead title={t('eFatigue')} />
             {dash.fatigue.length === 0 && (
-              <span className="t-caption muted">No one is over the limits.</span>
+              <span className="t-caption muted">{t('eNoFatigue')}</span>
             )}
             {dash.fatigue.map((f) => (
               <div key={f.workerId} className="between">
                 <span className="stack-sm">
                   <span className="t-strong">{f.workerName}</span>
-                  <span className="t-caption muted">
-                    {[...f.fatigueReasons, ...f.attritionReasons].slice(0, 2).join(' · ')}
-                  </span>
+                  <span className="t-caption muted">{whyText(f.why?.slice(0, 2), tx)}</span>
                 </span>
                 <Pill
                   tone={
                     f.fatigueLevel === 'high' || f.attritionLevel === 'high' ? 'danger' : 'warn'
                   }
                 >
-                  {f.fatigueLevel === 'high' || f.attritionLevel === 'high' ? 'High' : 'Medium'}
+                  {f.fatigueLevel === 'high' || f.attritionLevel === 'high'
+                    ? t('sevHigh')
+                    : t('sevMedium')}
                 </Pill>
               </div>
             ))}
           </Card>
           {dash.burnout.length > 0 && (
             <Card>
-              <SectionHead title="Burnout watch" />
+              <SectionHead title={t('eBurnout')} />
               {dash.burnout.map((b) => (
                 <div key={b.workerId} className="between">
                   <span className="stack-sm">
                     <span className="t-strong">{b.workerName}</span>
-                    <span className="t-caption muted">{b.reasons.join(' · ')}</span>
+                    <span className="t-caption muted">{whyText(b.why, tx)}</span>
                   </span>
                   <Pill tone={b.level === 'high' ? 'danger' : 'warn'}>
-                    {b.level === 'high' ? 'High' : 'Medium'}
+                    {b.level === 'high' ? t('sevHigh') : t('sevMedium')}
                   </Pill>
                 </div>
               ))}
             </Card>
           )}
           <Card>
-            <SectionHead title="Confidential complaints" />
+            <SectionHead title={t('committeeLabel')} />
             {dash.complaints.committeeSize === 0 ? (
-              <span className="t-caption c-warn">
-                No Internal Committee named yet. Add members from a person's page under People.
-              </span>
+              <span className="t-caption c-warn">{t('eNoHandlers')}</span>
             ) : (
               <span className="t-caption muted">
-                {dash.complaints.open} open, {dash.complaints.overdue} past the 90-day limit.
-                Committee of {dash.complaints.committeeSize}. Only the committee reads complaints.
+                {t('eComplaintCounts', dash.complaints.open, dash.complaints.overdue)}{' '}
+                {t('eHandlersOnly', dash.complaints.committeeSize)}
               </span>
             )}
           </Card>
           <Card tone="subtle">
             <div className="row-flex">
               <Icon name="lock" size={18} />
-              <h2 className="t-headline">Team feedback</h2>
+              <h2 className="t-headline">{t('eTeamFeedback')}</h2>
             </div>
             {dash.feedbackGroups.map((g) => (
               <div key={g.team} className="stack-sm">
@@ -379,10 +369,7 @@ export const Overview: React.FC = () => {
                       .join(', ')}
                   </span>
                 ) : (
-                  <span className="t-caption muted">
-                    {g.count} of {g.threshold} voices. Themes appear once {g.threshold} people have
-                    spoken, so no one can be identified.
-                  </span>
+                  <span className="t-caption muted">{t('eVoices', g.count, g.threshold)}</span>
                 )}
               </div>
             ))}

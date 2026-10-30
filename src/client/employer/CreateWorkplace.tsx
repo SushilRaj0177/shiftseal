@@ -1,68 +1,110 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { LocationFix } from '../../shared/model.js';
+import {
+  COUNTRIES,
+  COUNTRY_IDS,
+  countryPack,
+  type CountryId,
+  type PayCycle,
+} from '../../shared/countries/index.js';
+import { localeOf } from '../../shared/languages.js';
 import { api, errorMessage } from '../lib/api.js';
 import { getFix } from '../lib/location.js';
+import { useLang } from '../i18n/LangProvider.js';
+import type { StringKey } from '../i18n/strings.js';
 import { Icon } from '../components/Icon.js';
 import { AppBar, Card, Field, Notice, Spinner } from '../ui/index.js';
 import { rememberWorkplace } from '../App.js';
 
-const PRESETS = {
+type Sector = 'construction' | 'campus' | 'office';
+
+const PRESETS: Record<Sector, { code: string; key: StringKey; kind: string }[]> = {
   construction: [
-    { code: 'GATE', name: 'Main gate', kind: 'gate' },
-    { code: 'SCAF-A', name: 'Scaffold A', kind: 'scaffold' },
-    { code: 'BASEMENT', name: 'Basement', kind: 'basement' },
-    { code: 'CRANE', name: 'Crane area', kind: 'crane' },
+    { code: 'GATE', key: 'eZoneGate', kind: 'gate' },
+    { code: 'SCAF-A', key: 'eZoneScaffold', kind: 'scaffold' },
+    { code: 'BASEMENT', key: 'eZoneBasement', kind: 'basement' },
+    { code: 'CRANE', key: 'eZoneCrane', kind: 'crane' },
   ],
   office: [
-    { code: 'RECEPTION', name: 'Reception', kind: 'gate' },
-    { code: 'FLOOR-1', name: 'Floor 1', kind: 'building' },
-    { code: 'PANTRY', name: 'Pantry', kind: 'cafeteria' },
-    { code: 'PARKING', name: 'Parking', kind: 'pin' },
+    { code: 'RECEPTION', key: 'eZoneReception', kind: 'gate' },
+    { code: 'FLOOR-1', key: 'eZoneFloor', kind: 'building' },
+    { code: 'PANTRY', key: 'eZonePantry', kind: 'cafeteria' },
+    { code: 'PARKING', key: 'eZoneParking', kind: 'pin' },
   ],
   campus: [
-    { code: 'GATE', name: 'Main gate', kind: 'gate' },
-    { code: 'HOSTEL', name: 'Hostel', kind: 'hostel' },
-    { code: 'ACADEMIC', name: 'Academic block', kind: 'academic' },
-    { code: 'CANTEEN', name: 'Cafeteria', kind: 'cafeteria' },
+    { code: 'GATE', key: 'eZoneGate', kind: 'gate' },
+    { code: 'HOSTEL', key: 'eZoneHostel', kind: 'hostel' },
+    { code: 'ACADEMIC', key: 'eZoneAcademic', kind: 'academic' },
+    { code: 'CANTEEN', key: 'eZoneCafeteria', kind: 'cafeteria' },
   ],
 };
 
-const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+export const CYCLE_KEY: Record<PayCycle, StringKey> = {
+  weekly: 'eCycleWeekly',
+  biweekly: 'eCycleBiweekly',
+  semimonthly: 'eCycleSemimonthly',
+  monthly: 'eCycleMonthly',
+};
 
-const STATES = [
-  'Tamil Nadu',
-  'Karnataka',
-  'Kerala',
-  'Andhra Pradesh',
-  'Telangana',
-  'Maharashtra',
-  'Delhi',
-  'Gujarat',
-  'Uttar Pradesh',
-  'West Bengal',
-  'Other',
-];
+/** Weekday names in the reader's language, Sunday first. */
+export function weekdayNames(locale: string, style: 'long' | 'short' = 'long'): string[] {
+  const fmt = new Intl.DateTimeFormat(locale, { weekday: style, timeZone: 'UTC' });
+  return Array.from({ length: 7 }, (_, i) => fmt.format(new Date(Date.UTC(2026, 0, 4 + i))));
+}
 
-/** Owner setup: name, type of work, site boundary from the owner's own location, zones, shift times. */
+/** The country's name in the reader's language. */
+export function countryName(locale: string, c: CountryId): string {
+  try {
+    return new Intl.DisplayNames([locale], { type: 'region' }).of(c) ?? c;
+  } catch {
+    return c;
+  }
+}
+
+/** Owner setup: country, type of work, site boundary from the owner's own location, zones, hours and pay. */
 export default function CreateWorkplace() {
   const navigate = useNavigate();
+  const { t, lang, country: home } = useLang();
+  const locale = localeOf(lang);
+  const days = useMemo(() => weekdayNames(locale), [locale]);
+  const [country, setCountry] = useState<CountryId>(home);
+  const [region, setRegion] = useState('');
+  const pack = countryPack({ country, region: region || undefined });
   const [name, setName] = useState('');
   const [ownerName, setOwnerName] = useState('');
-  const [sector, setSector] = useState<'construction' | 'campus' | 'office'>('construction');
-  const [payCycle, setPayCycle] = useState<'weekly' | 'monthly'>('weekly');
-  const [payDayOfMonth, setPayDayOfMonth] = useState(1);
-  const [weeklyOff, setWeeklyOff] = useState<number[]>([0]);
-  const [state, setState] = useState('Tamil Nadu');
+  const [sector, setSector] = useState<Sector>('construction');
+  const [payCycle, setPayCycle] = useState<PayCycle>(pack.pay.defaultCycle.construction);
+  const [payDayOfMonth, setPayDayOfMonth] = useState(home === 'IN' ? 7 : 25);
+  const [weeklyOff, setWeeklyOff] = useState<number[]>(pack.weeklyOff);
+  const [state, setState] = useState('');
+  const browserTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const [timezone, setTimezone] = useState(pack.timezone);
   const [shiftStart, setShiftStart] = useState('08:00');
   const [shiftEnd, setShiftEnd] = useState('17:00');
-  const [payDay, setPayDay] = useState(6);
+  const [payDay, setPayDay] = useState(5);
   const [radius, setRadius] = useState(150);
   const [centre, setCentre] = useState<LocationFix | null>(null);
   const [locating, setLocating] = useState(false);
-  const [zones, setZones] = useState(PRESETS.construction.map((z) => ({ ...z })));
+  const [zones, setZones] = useState(
+    PRESETS.construction.map((z) => ({ code: z.code, name: t(z.key), kind: z.kind }))
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const zonesFor = (s: Sector) =>
+    PRESETS[s].map((z) => ({ code: z.code, name: t(z.key), kind: z.kind }));
+
+  const chooseCountry = (c: CountryId) => {
+    const p = COUNTRIES[c];
+    setCountry(c);
+    setRegion('');
+    setPayCycle(p.pay.defaultCycle[sector]);
+    setWeeklyOff(sector === 'office' ? [0, 6] : p.weeklyOff);
+    const zonesHere = [p.timezone, ...(p.timezones ?? [])];
+    setTimezone(zonesHere.includes(browserTz) ? browserTz : p.timezone);
+    setPayDayOfMonth(c === 'IN' ? 7 : c === 'BR' ? 5 : 25);
+  };
 
   const locate = async () => {
     setLocating(true);
@@ -70,7 +112,7 @@ export default function CreateWorkplace() {
     const r = await getFix(20_000);
     setLocating(false);
     if (r.ok) setCentre(r.fix);
-    else setError('Could not get your location. Allow location access and stand at the site.');
+    else setError(t('eNoLocation'));
   };
 
   const create = async () => {
@@ -83,8 +125,10 @@ export default function CreateWorkplace() {
           name: name.trim(),
           ownerName: ownerName.trim(),
           sector,
-          state,
-          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Kolkata',
+          country,
+          region: region || undefined,
+          state: state.trim() || countryName('en', country),
+          timezone,
           shiftStart,
           shiftEnd,
           payDay,
@@ -105,12 +149,22 @@ export default function CreateWorkplace() {
   };
 
   const ready = name.trim() && ownerName.trim() && centre && zones.some((z) => z.name.trim());
+  const deadline = pack.pay.deadline;
+  const deadlineHint =
+    deadline.kind === 'businessDaysAfterEnd'
+      ? t('eDeadlineBusinessDays', deadline.days)
+      : deadline.kind === 'daysAfterEnd'
+        ? deadline.days > 0
+          ? t('eDeadlineDays', deadline.days)
+          : t('eDeadlineEnd')
+        : t('eDeadlineFixed');
+  const tzChoices = [...new Set([pack.timezone, ...(pack.timezones ?? []), timezone])];
 
   return (
     <main className="screen">
-      <AppBar back="/join" title="Set up your workplace" />
+      <AppBar back="/join" title={t('eSetupTitle')} />
       <div className="screen-body">
-        <Field label="Your name">
+        <Field label={t('yourName')}>
           <input
             className="input"
             value={ownerName}
@@ -118,21 +172,67 @@ export default function CreateWorkplace() {
             autoComplete="name"
           />
         </Field>
-        <Field label="Workplace name">
-          <input
-            className="input"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Tower B, Perungudi"
-          />
+        <Field label={t('eWorkplaceName')}>
+          <input className="input" value={name} onChange={(e) => setName(e.target.value)} />
         </Field>
-        <span className="t-label">Type of work</span>
+        <Field label={t('eCountry')} hint={t('eCountryHint')}>
+          <select
+            className="select"
+            value={country}
+            onChange={(e) => chooseCountry(e.target.value as CountryId)}
+          >
+            {COUNTRY_IDS.map((c) => (
+              <option key={c} value={c}>
+                {countryName(locale, c)}
+              </option>
+            ))}
+          </select>
+        </Field>
+        {COUNTRIES[country].regions && (
+          <Field label={t('eStateRules')}>
+            <select
+              className="select"
+              value={region}
+              onChange={(e) => {
+                setRegion(e.target.value);
+                const r = COUNTRIES[country].regions!.find((x) => x.id === e.target.value);
+                if (r?.timezone) setTimezone(r.timezone);
+              }}
+            >
+              <option value="">{t('eOtherStates')}</option>
+              {COUNTRIES[country].regions!.map((r) => (
+                <option key={r.id} value={r.id}>
+                  {r.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+        )}
+        <Field label={t('eState')}>
+          <input className="input" value={state} onChange={(e) => setState(e.target.value)} />
+        </Field>
+        {tzChoices.length > 1 && (
+          <Field label={t('eTimezone')}>
+            <select
+              className="select"
+              value={timezone}
+              onChange={(e) => setTimezone(e.target.value)}
+            >
+              {tzChoices.map((z) => (
+                <option key={z} value={z}>
+                  {z.replace(/_/g, ' ')}
+                </option>
+              ))}
+            </select>
+          </Field>
+        )}
+        <span className="t-label">{t('eTypeOfWork')}</span>
         <div className="stack" role="radiogroup">
           {(
             [
-              ['construction', 'Construction site', 'Zones, scaffolds, crane areas', 'scaffold'],
-              ['campus', 'Campus or facilities', 'Housekeeping, security, hostels', 'building'],
-              ['office', 'Office', 'Salaried staff, leave, work from home', 'doc'],
+              ['construction', 'eSectorConstruction', 'eSectorConstructionSub', 'scaffold'],
+              ['campus', 'eSectorCampus', 'eSectorCampusSub', 'building'],
+              ['office', 'eSectorOffice', 'eSectorOfficeSub', 'doc'],
             ] as const
           ).map(([key, title, sub, icon]) => (
             <button
@@ -143,32 +243,25 @@ export default function CreateWorkplace() {
               className="choice"
               onClick={() => {
                 setSector(key);
-                setZones(PRESETS[key].map((z) => ({ ...z })));
-                setPayCycle(key === 'office' ? 'monthly' : 'weekly');
-                setWeeklyOff(key === 'office' ? [0, 6] : [0]);
+                setZones(zonesFor(key));
+                setPayCycle(pack.pay.defaultCycle[key]);
+                setWeeklyOff(key === 'office' ? [0, 6] : pack.weeklyOff);
                 if (key === 'office') {
-                  setShiftStart('09:30');
-                  setShiftEnd('18:30');
+                  setShiftStart('09:00');
+                  setShiftEnd('18:00');
                 }
               }}
             >
               <Icon name={icon} size={22} />
               <span className="stack-sm grow">
-                <span className="t-strong">{title}</span>
-                <span className="t-caption muted">{sub}</span>
+                <span className="t-strong">{t(title)}</span>
+                <span className="t-caption muted">{t(sub)}</span>
               </span>
             </button>
           ))}
         </div>
-        <Field label="State (for labour rules)">
-          <select className="select" value={state} onChange={(e) => setState(e.target.value)}>
-            {STATES.map((s) => (
-              <option key={s}>{s}</option>
-            ))}
-          </select>
-        </Field>
         <div className="grid-2">
-          <Field label="Shift starts">
+          <Field label={t('eShiftStarts')}>
             <input
               type="time"
               className="input"
@@ -176,7 +269,7 @@ export default function CreateWorkplace() {
               onChange={(e) => setShiftStart(e.target.value)}
             />
           </Field>
-          <Field label="Shift ends">
+          <Field label={t('eShiftEnds')}>
             <input
               type="time"
               className="input"
@@ -185,43 +278,37 @@ export default function CreateWorkplace() {
             />
           </Field>
         </div>
-        <Field label="Pay cycle">
+        <p className="t-caption muted">{t('overtimeRule')}</p>
+        <Field label={t('ePayCycle')}>
           <div className="segmented" role="group">
-            <button
-              type="button"
-              aria-pressed={payCycle === 'weekly'}
-              onClick={() => setPayCycle('weekly')}
-            >
-              Weekly wages
-            </button>
-            <button
-              type="button"
-              aria-pressed={payCycle === 'monthly'}
-              onClick={() => setPayCycle('monthly')}
-            >
-              Monthly salary
-            </button>
+            {pack.pay.cycles.map((c) => (
+              <button
+                key={c}
+                type="button"
+                aria-pressed={payCycle === c}
+                onClick={() => setPayCycle(c)}
+              >
+                {t(CYCLE_KEY[c])}
+              </button>
+            ))}
           </div>
         </Field>
-        {payCycle === 'weekly' ? (
-          <Field label="Pay day">
+        {payCycle === 'weekly' || payCycle === 'biweekly' ? (
+          <Field label={t('ePayDay')} hint={deadlineHint}>
             <select
               className="select"
               value={payDay}
               onChange={(e) => setPayDay(Number(e.target.value))}
             >
-              {DAYS.map((d, i) => (
+              {days.map((d, i) => (
                 <option key={d} value={i}>
                   {d}
                 </option>
               ))}
             </select>
           </Field>
-        ) : (
-          <Field
-            label="Salary paid on day of the next month"
-            hint="The law requires monthly wages by the 7th."
-          >
+        ) : payCycle === 'monthly' ? (
+          <Field label={t('ePayDayOfMonth')} hint={deadlineHint}>
             <input
               className="input"
               inputMode="numeric"
@@ -233,10 +320,12 @@ export default function CreateWorkplace() {
               }
             />
           </Field>
+        ) : (
+          <p className="t-caption muted">{t('eSemimonthlyNote')}</p>
         )}
-        <Field label="Weekly off">
+        <Field label={t('eWeeklyOff')}>
           <div className="segmented" role="group">
-            {DAYS.map((d, i) => (
+            {weekdayNames(locale, 'short').map((d, i) => (
               <button
                 key={d}
                 type="button"
@@ -247,18 +336,15 @@ export default function CreateWorkplace() {
                   )
                 }
               >
-                {d.slice(0, 2)}
+                {d}
               </button>
             ))}
           </div>
         </Field>
 
         <Card>
-          <span className="t-strong">Site boundary</span>
-          <span className="t-caption muted">
-            Stand at the centre of the site and tap below. Check-ins from outside this circle are
-            marked for review, never blocked.
-          </span>
+          <span className="t-strong">{t('eSiteBoundary')}</span>
+          <span className="t-caption muted">{t('eSiteBoundaryBody')}</span>
           {centre ? (
             <span className="row-flex t-caption c-good">
               <Icon name="pin" size={18} />
@@ -267,14 +353,14 @@ export default function CreateWorkplace() {
           ) : null}
           <button type="button" className="btn btn-secondary" onClick={locate} disabled={locating}>
             {locating ? (
-              <Spinner label="Finding location" />
+              <Spinner label={t('locating')} />
             ) : centre ? (
-              'Use my location again'
+              t('eLocateAgain')
             ) : (
-              'Use my current location'
+              t('eLocate')
             )}
           </button>
-          <Field label={`Radius: ${radius} m`}>
+          <Field label={t('eRadius', radius)}>
             <input
               type="range"
               min={50}
@@ -287,16 +373,14 @@ export default function CreateWorkplace() {
         </Card>
 
         <Card>
-          <span className="t-strong">Zones</span>
-          <span className="t-caption muted">
-            Workers pick these when reporting hazards. Each gets its own gate code.
-          </span>
+          <span className="t-strong">{t('eZones')}</span>
+          <span className="t-caption muted">{t('eZonesBody')}</span>
           {zones.map((z, i) => (
             <input
               key={z.code}
               className="input"
               value={z.name}
-              aria-label={`Zone ${i + 1}`}
+              aria-label={t('eZoneN', i + 1)}
               onChange={(e) =>
                 setZones(zones.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)))
               }
@@ -310,7 +394,7 @@ export default function CreateWorkplace() {
               setZones([...zones, { code: `Z${zones.length + 1}`, name: '', kind: 'pin' }])
             }
           >
-            Add a zone
+            {t('eAddZone')}
           </button>
         </Card>
 
@@ -321,7 +405,7 @@ export default function CreateWorkplace() {
           disabled={!ready || busy}
           onClick={create}
         >
-          {busy ? 'Creating' : 'Create workplace'}
+          {busy ? t('eCreating') : t('eCreate')}
         </button>
       </div>
     </main>

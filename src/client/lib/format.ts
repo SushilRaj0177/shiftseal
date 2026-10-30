@@ -54,8 +54,11 @@ export function nowHHMM(timeZone: string): string {
 }
 
 export function initials(name: string): string {
+  const trimmed = name.trim();
+  // Chinese, Japanese and Korean names: one character, as name stamps and avatars there do.
+  if (/^[\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af]/.test(trimmed)) return trimmed[0];
   return (
-    name
+    trimmed
       .split(/\s+/)
       .filter(Boolean)
       .slice(0, 2)

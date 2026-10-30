@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import {
   securityHeaders,
   apiRateLimiter,
+  addressRateLimiter,
   inviteRateLimiter,
   permissionsPolicy,
 } from './middleware/security.js';
@@ -31,7 +32,7 @@ export function createApp() {
   app.use(compression());
   app.use(express.json({ limit: '4mb' }));
 
-  app.use('/api', apiRateLimiter);
+  app.use('/api', addressRateLimiter, apiRateLimiter);
   app.use('/api/health', healthRouter);
   app.use('/api', publicRouter);
   app.use('/api/invites', inviteRateLimiter);

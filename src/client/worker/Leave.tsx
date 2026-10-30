@@ -34,7 +34,7 @@ export const STATUS_TONE: Record<LeaveRequest['status'], Tone> = {
   revoked: 'danger',
 };
 
-const STATUS_KEY: Record<LeaveRequest['status'], StringKey> = {
+export const STATUS_KEY: Record<LeaveRequest['status'], StringKey> = {
   pending: 'statusPending',
   approved: 'statusApproved',
   rejected: 'statusRejected',

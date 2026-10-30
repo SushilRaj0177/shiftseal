@@ -1,42 +1,44 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { money } from '../lib/format.js';
-import { Card, Empty, Pill, Skeleton } from '../ui/index.js';
+import { useLang } from '../i18n/LangProvider.js';
+import type { StringKey } from '../i18n/strings.js';
+import { Card, Empty, Pill, Skeleton, type Tone } from '../ui/index.js';
 import { useEmployer } from './EmployerApp.js';
 
-const STATUS = {
-  on_site: <Pill tone="good">On site</Pill>,
-  checked_out: <Pill>Checked out</Pill>,
-  absent: <Pill tone="neutral">Not in</Pill>,
-  on_leave: <Pill tone="accent">On leave</Pill>,
-  wfh: <Pill tone="accent">From home</Pill>,
+const STATUS: Record<string, [Tone | undefined, StringKey]> = {
+  on_site: ['good', 'eOnSiteShort'],
+  checked_out: [undefined, 'eCheckedOut'],
+  absent: ['neutral', 'eNotIn'],
+  on_leave: ['accent', 'eOnLeave'],
+  wfh: ['accent', 'eFromHome'],
 };
 
 export const People: React.FC = () => {
   const { dash } = useEmployer();
+  const { t, money } = useLang();
   if (!dash) return <Skeleton height={300} />;
   return (
     <>
       <header className="between">
-        <h1 className="t-title">People</h1>
+        <h1 className="t-title">{t('eNavPeople')}</h1>
         <Link className="btn btn-primary btn-sm" to="../invite">
-          Invite
+          {t('eInvite')}
         </Link>
       </header>
       {dash.people.length === 0 ? (
         <Card>
-          <Empty icon="users">No one has joined yet. Share your invite code to add workers.</Empty>
+          <Empty icon="users">{t('eNoPeople')}</Empty>
         </Card>
       ) : (
         <Card flush>
           <table className="table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th className="hide-mobile">Team</th>
-                <th>Today</th>
-                <th className="hide-mobile">This week</th>
-                <th className="hide-mobile">Phone</th>
+                <th>{t('eColName')}</th>
+                <th className="hide-mobile">{t('eColTeam')}</th>
+                <th>{t('today')}</th>
+                <th className="hide-mobile">{t('eColPay')}</th>
+                <th className="hide-mobile">{t('eColPhone')}</th>
               </tr>
             </thead>
             <tbody>
@@ -51,14 +53,14 @@ export const People: React.FC = () => {
                       <span className="t-strong">{p.name}</span>
                       <span className="t-caption muted">
                         {p.title}
-                        {p.role === 'supervisor' ? ' · supervisor' : ''}
-                        {p.icMember ? ' · committee' : ''}
+                        {p.role === 'supervisor' ? ` · ${t('eSupervisor')}` : ''}
+                        {p.icMember ? ` · ${t('handlerMember')}` : ''}
                       </span>
                     </Link>
                   </td>
                   <td className="hide-mobile">{p.team}</td>
                   <td>
-                    {STATUS[p.status]}
+                    <Pill tone={STATUS[p.status][0]}>{t(STATUS[p.status][1])}</Pill>
                     {p.checkIn && (
                       <div className="t-caption muted">
                         {p.checkIn}
@@ -74,16 +76,16 @@ export const People: React.FC = () => {
                         '–'
                       )
                     ) : (
-                      <Pill tone="warn">Set wage</Pill>
+                      <Pill tone="warn">{t('eSetWage')}</Pill>
                     )}
                   </td>
                   <td className="hide-mobile">
                     {p.pendingDevice ? (
-                      <Pill tone="accent">Approve new phone</Pill>
+                      <Pill tone="accent">{t('eApprovePhone')}</Pill>
                     ) : p.hasDevice ? (
-                      <Pill tone="good">Registered</Pill>
+                      <Pill tone="good">{t('eRegistered')}</Pill>
                     ) : (
-                      <Pill>None yet</Pill>
+                      <Pill>{t('eNoneYet')}</Pill>
                     )}
                   </td>
                 </tr>

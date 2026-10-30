@@ -1,6 +1,6 @@
-import type { Dict } from '../strings.js';
+import type { WorkerDict } from '../strings.js';
 
-export const ko: Dict = {
+export const ko: WorkerDict = {
   appName: 'Shiftseal',
   continue: '계속',
   cancel: '취소',

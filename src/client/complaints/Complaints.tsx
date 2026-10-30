@@ -5,6 +5,7 @@ import { api, errorMessage } from '../lib/api.js';
 import { dayLabel, timeAgo } from '../lib/format.js';
 import { useApi } from '../lib/useApi.js';
 import type { CommitteeInfo } from '../lib/types.js';
+import { countryPack } from '../../shared/countries/index.js';
 import { useLang } from '../i18n/LangProvider.js';
 import type { StringKey } from '../i18n/strings.js';
 import { AppBar, Card, Field, Notice, Pill, Sheet, Skeleton, type Tone } from '../ui/index.js';
@@ -66,7 +67,7 @@ const Thread: React.FC<{
       {c.messages.map((m) => (
         <Card key={m.id} tone={m.fromRole === 'committee' ? undefined : 'subtle'}>
           <span className="t-caption muted">
-            {m.fromName} · {timeAgo(m.at)}
+            {m.fromName} · {timeAgo(m.at, lang)}
           </span>
           <p style={{ whiteSpace: 'pre-wrap' }}>{m.text}</p>
         </Card>
@@ -87,7 +88,7 @@ const Thread: React.FC<{
         </>
       )}
       {committee && (
-        <div className="segmented" role="group" aria-label="Status">
+        <div className="segmented" role="group" aria-label={t('eStatus')}>
           {(Object.keys(STATUS) as ComplaintStatus[]).map((s) => (
             <button
               key={s}
@@ -268,7 +269,8 @@ export const Complaints: React.FC<{ back: string }> = ({ back }) => {
 /** The Internal Committee's inbox. Only complaints this member may see are ever sent here. */
 export const CommitteeInbox: React.FC<{ back: string }> = ({ back }) => {
   const { wp = '' } = useParams();
-  const { t, lang } = useLang();
+  const { t, lang, country } = useLang();
+  const inquiryDays = countryPack({ country }).complaints.inquiryDays;
   const list = useApi<ComplaintList>(`/workplaces/${wp}/complaints`);
   const [open, setOpen] = useState<Complaint | null>(null);
   return (
@@ -280,7 +282,7 @@ export const CommitteeInbox: React.FC<{ back: string }> = ({ back }) => {
           <Skeleton height={120} />
         ) : list.data.committee.length === 0 ? (
           <Card tone="subtle">
-            <p className="muted">No complaints.</p>
+            <p className="muted">{t('eNoComplaints')}</p>
           </Card>
         ) : (
           <div className="card flush">
@@ -290,12 +292,15 @@ export const CommitteeInbox: React.FC<{ back: string }> = ({ back }) => {
                 <button key={c.id} type="button" className="list-row" onClick={() => setOpen(c)}>
                   <span className="grow stack-sm">
                     <span className="t-strong">
-                      {c.complainantName} about {c.respondentName}
+                      {t('eComplaintAbout', c.complainantName, c.respondentName)}
                     </span>
                     <span className="t-caption muted">
-                      {dayLabel(c.incidentDate, lang)} · filed {days} day(s) ago
-                      {c.status !== 'closed' && c.status !== 'report_submitted' && days > 75
-                        ? ' · inquiry deadline near'
+                      {dayLabel(c.incidentDate, lang)} · {t('eFiledAgo', days)}
+                      {inquiryDays &&
+                      c.status !== 'closed' &&
+                      c.status !== 'report_submitted' &&
+                      days > inquiryDays - 15
+                        ? ` · ${t('eDeadlineNear')}`
                         : ''}
                     </span>
                   </span>

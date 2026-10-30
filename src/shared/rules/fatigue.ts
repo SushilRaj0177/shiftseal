@@ -51,6 +51,8 @@ export function evaluateWorkerFatigueAndAttrition(
     .sort((a, b) => a.date.localeCompare(b.date));
 
   const fatigueReasons: string[] = [];
+  /** The same reasons as codes, so each language can say them its own way. */
+  const why: { code: string; args: number[] }[] = [];
   let maxStreak = 0;
   let currentStreak = 0;
 
@@ -72,6 +74,7 @@ export function evaluateWorkerFatigueAndAttrition(
 
   if (maxStreak > maxConsecRule.value) {
     fatigueReasons.push(`${maxStreak} days in a row`);
+    why.push({ code: 'streak', args: [maxStreak] });
   }
 
   // Rolling 7-day hours (check last 7 calendar days up to most recent shift)
@@ -98,6 +101,7 @@ export function evaluateWorkerFatigueAndAttrition(
 
   if (maxRolling7dHours > maxRollingRule.value) {
     fatigueReasons.push(`${maxRolling7dHours} h in last 7 days`);
+    why.push({ code: 'rolling', args: [maxRolling7dHours] });
   }
 
   // Rest gap between consecutive shifts
@@ -127,6 +131,7 @@ export function evaluateWorkerFatigueAndAttrition(
 
   if (minRestGapHours < restGapRule.value && minGapDate) {
     fatigueReasons.push(`rest gap ${minRestGapHours} h on ${formatShortDate(minGapDate)}`);
+    why.push({ code: 'restGap', args: [minRestGapHours] });
   }
 
   let fatigueLevel: RiskLevel = 'low';
@@ -143,15 +148,18 @@ export function evaluateWorkerFatigueAndAttrition(
     const [w1, w2, w3] = worker.otTrend3Weeks;
     if (w1 < w2 && w2 < w3) {
       attritionReasons.push(`overtime rising 3 weeks in a row (${w1}h → ${w2}h → ${w3}h)`);
+      why.push({ code: 'otRising', args: [w1, w2, w3] });
     }
   }
 
   if ((worker.missedShifts14d ?? 0) >= 2) {
     attritionReasons.push(`${worker.missedShifts14d} missed shifts in 14 days`);
+    why.push({ code: 'missed', args: [worker.missedShifts14d ?? 0] });
   }
 
   if (fatigueReasons.length >= 2) {
     attritionReasons.push('repeated fatigue alerts');
+    why.push({ code: 'repeatedFatigue', args: [] });
   }
 
   const disputedClaims = claims.filter(
@@ -163,6 +171,7 @@ export function evaluateWorkerFatigueAndAttrition(
   );
   if (disputedClaims.length > 0) {
     attritionReasons.push(`${disputedClaims.length} disputed overtime/edit claim(s)`);
+    why.push({ code: 'disputed', args: [disputedClaims.length] });
   }
 
   let attritionLevel: RiskLevel = 'low';
@@ -178,6 +187,7 @@ export function evaluateWorkerFatigueAndAttrition(
     role: worker.role,
     fatigueLevel,
     fatigueReasons,
+    why,
     attritionLevel,
     attritionReasons,
     consecutiveDays: maxStreak,

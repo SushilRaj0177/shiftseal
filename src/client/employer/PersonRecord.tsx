@@ -3,11 +3,14 @@ import { useParams } from 'react-router-dom';
 import type { CheckEvidence } from '../../shared/model.js';
 import type { ShiftRecord } from '../../shared/types.js';
 import { api, errorMessage } from '../lib/api.js';
-import { dayLabel } from '../lib/format.js';
+import { currencySymbol, dayLabel } from '../lib/format.js';
+import { compOffAllowed, countryPack } from '../../shared/countries/index.js';
+import { baseOf } from '../../shared/languages.js';
+import { useLang } from '../i18n/LangProvider.js';
 import { useApi } from '../lib/useApi.js';
 import type { WorkerRecord } from '../lib/types.js';
 import { AppBar, Card, Field, Kv, Notice, Pill, Sheet, Skeleton } from '../ui/index.js';
-import { FLAG_TITLES, flagTone } from './Overview.js';
+import { flagTitle, flagTone } from './Overview.js';
 import { useEmployer } from './EmployerApp.js';
 
 /** "PF, 1800, Employee PF" lines into deduction items. Lines that do not parse are ignored. */
@@ -30,18 +33,23 @@ function evidenceOf(rec: WorkerRecord, eventId?: string): CheckEvidence | undefi
   return ev ? (ev.payload as { evidence?: CheckEvidence }).evidence : undefined;
 }
 
-const TrustPill: React.FC<{ ev?: CheckEvidence }> = ({ ev }) =>
-  !ev ? null : (
+const TrustPill: React.FC<{ ev?: CheckEvidence }> = ({ ev }) => {
+  const { t } = useLang();
+  return !ev ? null : (
     <Pill tone={ev.trust === 'high' ? 'good' : ev.trust === 'medium' ? 'neutral' : 'danger'}>
-      {ev.insideSite ? 'On site' : ev.location ? 'Away' : 'No location'}
+      {ev.insideSite ? t('eOnSiteShort') : ev.location ? t('eAwayFromSite') : t('eNoLocationShort')}
       {ev.qrValid ? ' · QR' : ''}
     </Pill>
   );
+};
 
 export const PersonRecord: React.FC = () => {
   const { uid = '' } = useParams();
   const { base, reload: reloadDash } = useEmployer();
+  const { t, tx, lang, currency } = useLang();
   const wp = base.workplace;
+  const pack = countryPack(wp);
+  const cur = currencySymbol(lang, currency);
   const isOwner = base.member.role === 'owner';
   const rec = useApi<WorkerRecord>(`/workplaces/${wp.id}/workers/${uid}/record`);
   const [form, setForm] = useState<Record<string, string>>({});
@@ -94,55 +102,55 @@ export const PersonRecord: React.FC = () => {
           monthlySalary: Number(val('monthlySalary', w.monthlySalary ?? 0)),
           overtime: val('overtime', w.overtime ?? 'paid'),
           recurringDeductions: parseDeductions(val('deductions', '')),
+          serviceFrom: form.serviceFrom || undefined,
         },
       });
       setForm({});
-    }, 'Saved.');
+    }, t('eSaved'));
 
   const submitEdit = () =>
-    run(async () => {
-      if (!editing) return;
-      const target =
-        editing.kind === 'in' ? editing.shift.checkInEventId : editing.shift.checkOutEventId;
-      const res = await api<{ flags: { code: string }[] }>(`/workplaces/${wp.id}/shifts/edit`, {
-        body: { workerUid: uid, targetEventId: target, newTime, reason },
-      });
-      setEditing(null);
-      setReason('');
-      if (res.flags.length)
-        throw new Error(
-          `Saved, and flagged for the owner: ${res.flags.map((f) => FLAG_TITLES[f.code]).join(', ')}.`
-        );
-    }, `Saved. ${w.name} has been told, with your reason.`);
+    run(
+      async () => {
+        if (!editing) return;
+        const target =
+          editing.kind === 'in' ? editing.shift.checkInEventId : editing.shift.checkOutEventId;
+        const res = await api<{ flags: { code: string }[] }>(`/workplaces/${wp.id}/shifts/edit`, {
+          body: { workerUid: uid, targetEventId: target, newTime, reason },
+        });
+        setEditing(null);
+        setReason('');
+        if (res.flags.length)
+          throw new Error(
+            t('eSavedFlagged', res.flags.map((f) => flagTitle(f.code, tx)).join(', '))
+          );
+      },
+      t('eSavedTold', w.name)
+    );
 
   return (
     <>
       <AppBar back=".." title={w.name} />
       {msg && <Notice kind={msg.kind}>{msg.text}</Notice>}
-      {!rec.data.verification.ok && (
-        <Notice kind="error">
-          This worker's record chain is broken. Do not edit; contact support.
-        </Notice>
-      )}
+      {!rec.data.verification.ok && <Notice kind="error">{t('eChainBroken')}</Notice>}
 
       <div className="cols">
         <Card flush>
           <div style={{ padding: '16px 16px 8px' }}>
-            <h2 className="t-headline">Shifts</h2>
+            <h2 className="t-headline">{t('eShifts')}</h2>
           </div>
           {rec.data.shifts.length === 0 && (
             <p className="muted" style={{ padding: 16 }}>
-              No shifts yet.
+              {t('eNoShifts')}
             </p>
           )}
           {rec.data.shifts.slice(0, 30).map((s) => (
             <div key={s.date} className="list-row" style={{ cursor: 'default', flexWrap: 'wrap' }}>
               <span className="grow stack-sm" style={{ minWidth: 140 }}>
-                <span className="t-strong">{dayLabel(s.date)}</span>
+                <span className="t-strong">{dayLabel(s.date, lang)}</span>
                 <span className="t-caption muted">
-                  {s.checkInTime} – {s.checkOutTime ?? 'on site'}
+                  {s.checkInTime} – {s.checkOutTime ?? t('eOnSiteShort')}
                   {s.edits.length
-                    ? ` · edited (was ${s.originalCheckInTime}–${s.originalCheckOutTime ?? ''})`
+                    ? ` · ${t('eEditedWas', `${s.originalCheckInTime}–${s.originalCheckOutTime ?? ''}`)}`
                     : ''}
                 </span>
               </span>
@@ -157,7 +165,7 @@ export const PersonRecord: React.FC = () => {
                     setNewTime(s.checkOutTime ?? '');
                   }}
                 >
-                  Correct
+                  {t('eCorrect')}
                 </button>
               )}
             </div>
@@ -166,22 +174,30 @@ export const PersonRecord: React.FC = () => {
 
         <div className="stack">
           <Card>
-            <h2 className="t-headline">Details</h2>
-            <Field label="Job title">
+            <h2 className="t-headline">{t('eDetails')}</h2>
+            <Field label={t('eJobTitle')}>
               <input
                 className="input"
                 value={val('title', w.title)}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
               />
             </Field>
-            <Field label="Team (anonymous feedback is grouped by team)">
+            <Field label={t('eTeamField')}>
               <input
                 className="input"
                 value={val('team', w.team)}
                 onChange={(e) => setForm({ ...form, team: e.target.value })}
               />
             </Field>
-            <Field label="Paid">
+            <Field label={tx('serviceFromLabel')} hint={t('eServiceHint')}>
+              <input
+                type="date"
+                className="input"
+                value={val('serviceFrom', w.serviceFrom ?? w.joinedAt.slice(0, 10))}
+                onChange={(e) => setForm({ ...form, serviceFrom: e.target.value })}
+              />
+            </Field>
+            <Field label={t('ePaid')}>
               <div className="segmented" role="group">
                 {(['hourly', 'daily', 'monthly'] as const).map((k) => (
                   <button
@@ -190,17 +206,13 @@ export const PersonRecord: React.FC = () => {
                     aria-pressed={payType === k}
                     onClick={() => setForm({ ...form, payType: k })}
                   >
-                    {k === 'hourly'
-                      ? 'By the hour'
-                      : k === 'daily'
-                        ? 'By the day'
-                        : 'Monthly salary'}
+                    {k === 'hourly' ? t('eByHour') : k === 'daily' ? t('eByDay') : t('lineSalary')}
                   </button>
                 ))}
               </div>
             </Field>
             {payType === 'hourly' && (
-              <Field label="Hourly rate (₹)">
+              <Field label={`${t('eHourlyRate')} (${cur})`}>
                 <input
                   className="input"
                   inputMode="decimal"
@@ -210,7 +222,7 @@ export const PersonRecord: React.FC = () => {
               </Field>
             )}
             {payType === 'daily' && (
-              <Field label="Daily wage (₹)">
+              <Field label={`${t('eDailyWage')} (${cur})`}>
                 <input
                   className="input"
                   inputMode="decimal"
@@ -221,7 +233,7 @@ export const PersonRecord: React.FC = () => {
             )}
             {payType === 'monthly' && (
               <>
-                <Field label="Monthly salary (₹)">
+                <Field label={`${t('lineSalary')} (${cur})`}>
                   <input
                     className="input"
                     inputMode="decimal"
@@ -229,22 +241,22 @@ export const PersonRecord: React.FC = () => {
                     onChange={(e) => setForm({ ...form, monthlySalary: e.target.value })}
                   />
                 </Field>
-                <Field label="Extra hours">
+                <Field label={t('eExtraHours')}>
                   <select
                     className="select"
                     value={val('overtime', w.overtime ?? 'paid')}
                     onChange={(e) => setForm({ ...form, overtime: e.target.value })}
                   >
-                    <option value="paid">Paid as overtime (2×)</option>
-                    <option value="comp_off">Given back as comp-off leave</option>
-                    <option value="none">Not compensated (exempt role)</option>
+                    <option value="paid">{t('eOtPaid')}</option>
+                    {compOffAllowed(wp) && <option value="comp_off">{t('eOtCompOff')}</option>}
+                    <option value="none">{t('eOtExempt')}</option>
                   </select>
                 </Field>
               </>
             )}
             <Field
-              label="Monthly deductions (one per line: type, amount, reason)"
-              hint="For example: PF, 1800, Employee PF 12% of basic"
+              label={t('eDeductions')}
+              hint={t('eDeductionsHint', pack.pay.deductions.map((d) => tx(`ded_${d}`)).join(', '))}
             >
               <textarea
                 className="textarea"
@@ -263,24 +275,22 @@ export const PersonRecord: React.FC = () => {
               disabled={busy || Object.keys(form).length === 0}
               onClick={save}
             >
-              Save
+              {t('eSave')}
             </button>
           </Card>
           <Card>
-            <h2 className="t-headline">Phone</h2>
+            <h2 className="t-headline">{t('eColPhone')}</h2>
             <Kv
-              k="Registered"
+              k={t('eRegistered')}
               v={
                 w.device
-                  ? `${w.device.platform}, ${new Date(w.device.boundAt).toLocaleDateString()}`
-                  : 'Not yet'
+                  ? `${w.device.platform}, ${dayLabel(w.device.boundAt.slice(0, 10), lang)}`
+                  : t('eNoneYet')
               }
             />
             {w.pendingDevice && (
               <>
-                <Notice kind="warn">
-                  A new phone is waiting. Approve it only if {w.name} told you they changed phones.
-                </Notice>
+                <Notice kind="warn">{t('eNewPhoneWaiting', w.name)}</Notice>
                 <button
                   type="button"
                   className="btn btn-primary btn-sm"
@@ -288,36 +298,36 @@ export const PersonRecord: React.FC = () => {
                   onClick={() =>
                     run(
                       () => api(`/workplaces/${wp.id}/members/${uid}/device/approve`, { body: {} }),
-                      'Approved.'
+                      t('eApproved')
                     )
                   }
                 >
-                  Approve new phone
+                  {t('eApprovePhone')}
                 </button>
               </>
             )}
           </Card>
           {rec.data.flags.length > 0 && (
             <Card>
-              <h2 className="t-headline">Flags</h2>
+              <h2 className="t-headline">{t('eFlags')}</h2>
               {rec.data.flags.slice(0, 10).map((f) => (
                 <div key={f.id} className="between">
                   <span className="stack-sm">
-                    <span className="t-strong">{FLAG_TITLES[f.code] ?? f.code}</span>
-                    <span className="t-caption muted">{f.message}</span>
+                    <span className="t-strong">{flagTitle(f.code, tx)}</span>
+                    {baseOf(lang) === 'en' && <span className="t-caption muted">{f.message}</span>}
                   </span>
-                  <Pill tone={f.status === 'open' ? flagTone(f) : 'neutral'}>{f.status}</Pill>
+                  <Pill tone={f.status === 'open' ? flagTone(f) : 'neutral'}>
+                    {f.status === 'open' ? t('eOpen') : t('eResolved')}
+                  </Pill>
                 </div>
               ))}
             </Card>
           )}
           {isOwner && (
             <Card>
-              <h2 className="t-headline">Internal Committee (POSH)</h2>
-              <span className="t-caption muted">
-                Committee members read confidential complaints. Nobody else, including you, can see
-                them unless you are a member.
-              </span>
+              <h2 className="t-headline">{t('committeeLabel')}</h2>
+              <span className="t-caption muted">{t('handlerSectionBody')}</span>
+              <span className="t-caption muted">{t('eHandlersPrivacy')}</span>
               <label className="row-flex">
                 <input
                   type="checkbox"
@@ -332,13 +342,13 @@ export const PersonRecord: React.FC = () => {
                             icPresiding: e.target.checked ? w.icPresiding : false,
                           },
                         }),
-                      'Committee updated.'
+                      t('eUpdated')
                     )
                   }
                 />
-                On the committee
+                {t('handlerMember')}
               </label>
-              {w.icMember && (
+              {w.icMember && pack.complaints.presiding && (
                 <label className="row-flex">
                   <input
                     type="checkbox"
@@ -350,11 +360,11 @@ export const PersonRecord: React.FC = () => {
                             method: 'PATCH',
                             body: { icPresiding: e.target.checked },
                           }),
-                        'Committee updated.'
+                        t('eUpdated')
                       )
                     }
                   />
-                  Presiding officer
+                  {t('presiding')}
                 </label>
               )}
             </Card>
@@ -370,23 +380,23 @@ export const PersonRecord: React.FC = () => {
                       method: 'PATCH',
                       body: { role: w.role === 'worker' ? 'supervisor' : 'worker' },
                     }),
-                  'Role updated.'
+                  t('eUpdated')
                 )
               }
             >
-              {w.role === 'worker' ? 'Make supervisor' : 'Make worker'}
+              {w.role === 'worker' ? t('eMakeSupervisor') : t('eMakeWorker')}
             </button>
           )}
         </div>
       </div>
 
       {editing && (
-        <Sheet title={`Correct ${dayLabel(editing.shift.date)}`} onClose={() => setEditing(null)}>
-          <p className="muted">
-            The original time stays in the record. {w.name} is told immediately, with your reason,
-            and can disagree.
-          </p>
-          <Field label="Check-out time">
+        <Sheet
+          title={t('eCorrectDay', dayLabel(editing.shift.date, lang))}
+          onClose={() => setEditing(null)}
+        >
+          <p className="muted">{t('eCorrectBody', w.name)}</p>
+          <Field label={t('eCheckOutTime')}>
             <input
               type="time"
               className="input"
@@ -394,7 +404,7 @@ export const PersonRecord: React.FC = () => {
               onChange={(e) => setNewTime(e.target.value)}
             />
           </Field>
-          <Field label="Reason (required)">
+          <Field label={t('eReasonRequired')}>
             <textarea
               className="textarea"
               value={reason}
@@ -407,7 +417,7 @@ export const PersonRecord: React.FC = () => {
             disabled={busy || reason.trim().length < 5 || !newTime}
             onClick={submitEdit}
           >
-            Save correction
+            {t('eSaveCorrection')}
           </button>
         </Sheet>
       )}

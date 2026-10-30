@@ -127,7 +127,7 @@ workplaceRouter.patch('/members/:uid', requireRole('supervisor'), async (req, re
     const repo = getRepo();
     const target = await repo.getMember(workplace.id, String(req.params.uid));
     if (!target) throw new AppError(404, 'MEMBER_NOT_FOUND', 'Member not found.');
-    // The owner can only be put on the POSH committee, nothing else.
+    // The owner can only be named a complaint handler here, nothing else.
     const committeeOnly = Object.keys(body).every((k) => k === 'icMember' || k === 'icPresiding');
     if (target.role === 'owner' && !committeeOnly) {
       throw new AppError(403, 'FORBIDDEN', 'The owner cannot be changed here.');
@@ -149,6 +149,7 @@ workplaceRouter.patch('/members/:uid', requireRole('supervisor'), async (req, re
       'payType',
       'overtime',
       'recurringDeductions',
+      'serviceFrom',
     ];
     if (target.uid === me.uid && Object.keys(body).some((k) => payFields.includes(k))) {
       throw new AppError(403, 'FORBIDDEN', 'You cannot set your own wage.');

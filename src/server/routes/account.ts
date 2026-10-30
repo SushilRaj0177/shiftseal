@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { defaultLabels } from '../services/labels.js';
 import {
   COUNTRIES,
   countryPack,
@@ -145,8 +146,8 @@ accountRouter.post('/workplaces', async (req, res, next) => {
       role: 'owner',
       name: ownerName,
       phone: user.phone,
-      title: 'Owner',
-      team: 'Management',
+      title: defaultLabels(wp.country).owner,
+      team: defaultLabels(wp.country).management,
       hourlyRate: 0,
       dailyWage: 0,
       language: user.language,
@@ -227,8 +228,8 @@ accountRouter.post('/invites/accept', async (req, res, next) => {
       role: invite.role,
       name: body.name,
       phone: req.identity!.phone,
-      title: invite.role === 'supervisor' ? 'Supervisor' : 'Worker',
-      team: 'General',
+      title: defaultLabels(wp.country)[invite.role === 'supervisor' ? 'supervisor' : 'worker'],
+      team: defaultLabels(wp.country).general,
       hourlyRate: 0,
       dailyWage: 0,
       language: body.language,

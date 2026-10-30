@@ -1,5 +1,6 @@
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import { createHash } from 'node:crypto';
 import type { Request, Response, NextFunction } from 'express';
 
 export const securityHeaders = helmet({
@@ -54,14 +55,37 @@ export const aiRateLimiter = rateLimit({
   },
 });
 
+/**
+ * Per person: each signed-in caller (by their token) gets 180 requests a
+ * minute. Keyed by token, not address, because a whole site of workers often
+ * shares one Wi-Fi or carrier address.
+ */
 export const apiRateLimiter = rateLimit({
   windowMs: 60 * 1000,
   max: 180,
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: (req) => {
+    const auth = req.headers.authorization;
+    return auth
+      ? `t:${createHash('sha256').update(auth).digest('base64url').slice(0, 22)}`
+      : `ip:${req.ip ?? ''}`;
+  },
   message: {
     error: 'RATE_LIMIT_EXCEEDED',
     message: 'Too many requests. Please slow down.',
+  },
+});
+
+/** Per address, a ceiling high enough for a busy shared site but not for a flood. */
+export const addressRateLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 3000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    error: 'RATE_LIMIT_EXCEEDED',
+    message: 'Too many requests from this network. Please slow down.',
   },
 });
 
