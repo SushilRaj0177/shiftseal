@@ -13,7 +13,7 @@ export const Pill: React.FC<{ tone?: Tone; children: React.ReactNode }> = ({
 
 export const Tile: React.FC<{
   icon: IconName;
-  tone?: 'good' | 'warn' | 'danger' | 'neutral';
+  tone?: 'good' | 'warn' | 'danger' | 'neutral' | 'seal';
   small?: boolean;
 }> = ({ icon, tone, small }) => (
   <span className={`tile${small ? ' sm' : ''}${tone ? ` ${tone}` : ''}`} aria-hidden="true">

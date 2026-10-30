@@ -184,7 +184,7 @@ export const Home: React.FC = () => {
                     value={progress}
                     size={112}
                     stroke={9}
-                    color="var(--on-navy)"
+                    color="var(--seal)"
                     label={`${Math.round(progress * 100)}% ${t('ofShift')}`}
                   >
                     <span
@@ -272,7 +272,7 @@ export const Home: React.FC = () => {
               >
                 <Tile
                   icon={s.edits.length ? 'pencil' : 'lock'}
-                  tone={s.edits.length ? 'warn' : undefined}
+                  tone={s.edits.length ? 'warn' : 'seal'}
                 />
                 <span className="grow stack-sm" style={{ gap: 0 }}>
                   <span className="t-strong">{dayLabel(s.date, lang)}</span>

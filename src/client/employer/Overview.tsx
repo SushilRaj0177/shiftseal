@@ -200,7 +200,7 @@ export const Overview: React.FC = () => {
               value={dash.kpis.workers ? dash.kpis.onSite / dash.kpis.workers : 0}
               size={64}
               stroke={7}
-              color="var(--on-navy)"
+              color="var(--seal)"
               label="On site now"
             >
               <span className="t-strong t-num">{dash.kpis.onSite}</span>

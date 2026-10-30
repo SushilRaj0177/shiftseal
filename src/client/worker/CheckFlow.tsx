@@ -92,8 +92,8 @@ export const CheckFlow: React.FC = () => {
         <div className="screen-body">
           <div className="spacer" />
           <div className="stack center" style={{ alignItems: 'center' }}>
-            <span className="tile good" style={{ width: 64, height: 64, borderRadius: 20 }}>
-              <Icon name="check" size={32} />
+            <span className="seal-stamp" aria-hidden="true">
+              <Icon name="check" size={40} />
             </span>
             <h1 className="t-title">{wasIn ? t('checkedIn', time) : t('checkedOut', time)}</h1>
           </div>

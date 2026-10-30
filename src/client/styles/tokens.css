@@ -27,6 +27,11 @@
   --brass: #b78a3e;
   --brass-soft: #f6eedd;
 
+  /* Seal vermilion: the colour of stamp ink. Used only where something is sealed. */
+  --seal: #f2441d;
+  --seal-soft: #fde7e0;
+  --seal-glow: rgba(242, 68, 29, 0.35);
+
   --good: #1f6b43;
   --good-soft: #e3f1e8;
   --warn: #8a5000;
@@ -67,6 +72,9 @@
     --navy-2: #1d2e52;
     --brass: #d3a95d;
     --brass-soft: #2c2415;
+    --seal: #ff6a3d;
+    --seal-soft: #3a1a10;
+    --seal-glow: rgba(255, 106, 61, 0.35);
     --good: #6bcb95;
     --good-soft: #15291e;
     --warn: #f0b350;
