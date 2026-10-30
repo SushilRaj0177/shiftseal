@@ -1,4 +1,11 @@
 import type { Language } from '../../shared/types.js';
+import { de } from './locales/de.js';
+import { es } from './locales/es.js';
+import { fr } from './locales/fr.js';
+import { ja } from './locales/ja.js';
+import { ko } from './locales/ko.js';
+import { pt } from './locales/pt.js';
+import { zh } from './locales/zh.js';
 
 /** Worker-facing text. `{0}`, `{1}` are filled in by `t()`. */
 export const en = {
@@ -285,7 +292,7 @@ export const en = {
 } as const;
 
 export type StringKey = keyof typeof en;
-type Dict = Record<StringKey, string>;
+export type Dict = Record<StringKey, string>;
 
 export const ta: Dict = {
   appName: 'Shiftseal',
@@ -835,4 +842,4 @@ export const hi: Dict = {
   hoursUnit: 'घं',
 };
 
-export const dictionaries: Record<Language, Dict> = { en, ta, hi };
+export const dictionaries: Record<Language, Dict> = { en, ta, hi, es, fr, de, pt, ja, zh, ko };

@@ -1,4 +1,5 @@
 import type { Language, SectorId } from '../../shared/types.js';
+import { promptLanguageName } from '../../shared/languages.js';
 
 export const SYSTEM_INSTRUCTION = `You are a structured extraction and plain-language assistant for Shiftseal, a decent work verification platform.
 CRITICAL RULES:
@@ -44,7 +45,7 @@ Output: {"date":"2026-10-24","extraHours":2,"reason":"Concrete slab pouring over
 }
 
 export function buildExplainPayPrompt(payFacts: Record<string, number>, lang: Language): string {
-  const langName = lang === 'ta' ? 'Tamil (தமிழ்)' : lang === 'hi' ? 'Hindi (हिंदी)' : 'English';
+  const langName = promptLanguageName(lang);
   return `Answer the worker's question about their weekly payslip in plain, short ${langName}.
 You MUST ONLY use numbers from the following ground-truth payFacts JSON:
 ${JSON.stringify(payFacts)}
@@ -69,7 +70,7 @@ export function buildStructureHazardPrompt(
   zoneName: string,
   lang: Language
 ): string {
-  const langName = lang === 'ta' ? 'Tamil (தமிழ்)' : lang === 'hi' ? 'Hindi (हिंदी)' : 'English';
+  const langName = promptLanguageName(lang);
   return `Extract a structured workplace safety hazard report for sector "${sector}" in zone "${zoneName}".
 Keep "description" in ${langName} (clear and concise) and provide "englishSummary" in English for the site safety dashboard.
 
@@ -85,7 +86,7 @@ Output: {
 }
 
 export function buildAnonymiseFeedbackPrompt(lang: Language): string {
-  const langName = lang === 'ta' ? 'Tamil (தமிழ்)' : lang === 'hi' ? 'Hindi (हिंदी)' : 'English';
+  const langName = promptLanguageName(lang);
   return `Remove all personally identifying details (supervisor names, worker names, phone numbers, exact dates/times, specific room/gate identifiers that could identify the speaker) from this workplace feedback.
 Write "cleanText" in ${langName} and "cleanTextEnglish" in English. List which categories were removed in "removed".
 

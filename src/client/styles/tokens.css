@@ -85,3 +85,12 @@ html[lang='ta'] body {
 html[lang='hi'] body {
   font-family: 'Noto Sans Devanagari', var(--font);
 }
+html[lang='ja'] body {
+  font-family: 'Inter', 'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic', 'Meiryo', sans-serif;
+}
+html[lang='zh'] body {
+  font-family: 'Inter', 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+}
+html[lang='ko'] body {
+  font-family: 'Inter', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+}

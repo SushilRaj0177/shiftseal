@@ -20,6 +20,7 @@ import type {
   WorkplaceRecord,
 } from '../../shared/model.js';
 import type { PayPeriod } from '../../shared/time.js';
+import type { Language } from '../../shared/languages.js';
 
 /** Response shapes of the Shiftseal API, as the app uses them. */
 
@@ -44,7 +45,7 @@ export interface PublicMember {
   recurringDeductions?: { type: string; amount: number; reason: string }[];
   icMember?: boolean;
   icPresiding?: boolean;
-  language: 'en' | 'ta' | 'hi';
+  language: Language;
   joinedAt: string;
   status: 'active' | 'removed';
   device: { platform: string; boundAt: string } | null;

@@ -1,8 +1,7 @@
 import React from 'react';
 import { Icon } from './Icon.js';
 import { useLang } from '../i18n/LangProvider.js';
-
-const BCP47 = { en: 'en-IN', ta: 'ta-IN', hi: 'hi-IN' } as const;
+import { localeOf } from '../../shared/languages.js';
 
 /** Reads text aloud in the worker's language, when the phone has a voice for it. */
 export const ListenButton: React.FC<{ text: string }> = ({ text }) => {
@@ -11,7 +10,7 @@ export const ListenButton: React.FC<{ text: string }> = ({ text }) => {
   const speak = () => {
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = BCP47[lang];
+    u.lang = localeOf(lang);
     const voice = window.speechSynthesis
       .getVoices()
       .find((v) => v.lang.toLowerCase().startsWith(lang));

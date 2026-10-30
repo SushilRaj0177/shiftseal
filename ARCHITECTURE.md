@@ -24,7 +24,7 @@ flowchart LR
     rules -->|"Claims, hazards, flags"| employer([Employer must act])
 ```
 
-1. **Understand.** Gemini turns speech or text (Tamil, Hindi, English or a mix) into a fixed JSON shape. Output is schema-constrained and validated again with zod.
+1. **Understand.** Gemini turns speech or text, in any of the app's ten languages or a mix, into a fixed JSON shape. Output is schema-constrained and validated again with zod.
 2. **Decide.** Hours, overtime, pay, claim matching, hazard severity and evidence flags are plain, tested functions in `src/shared/rules/`. The AI never produces a number used for money or safety.
 3. **Check.** When the AI explains a payslip, every number in its answer is compared with the computed values (`factcheck.ts`); one mismatch and a template is shown instead. If feedback cannot be anonymised, nothing is saved.
 
@@ -46,6 +46,7 @@ flowchart LR
 | Employer app | `src/client/employer/` | Setup, invites and posters, gate screen, dashboard, people and wages, review of claims, hazards and flags. |
 | Sign-in | `src/client/auth/`, `src/server/auth/` | Firebase phone (SMS code) and Google sign-in; the server verifies every ID token and loads the caller's role from their membership. |
 | API | `src/server/routes/` | `account.ts` (profile, workplaces, invites), `workplace.ts` (members, phones, gate codes, checks, corrections), `reports.ts` (overview, dashboard, claims, hazards, feedback, pay, flags, AI), `leave.ts`, `complaints.ts`. |
+| Languages | `src/shared/languages.ts`, `src/client/i18n/` | One list of supported languages used by the client, the API schemas and the AI prompts. Worker strings per language in `i18n/locales/`; a test checks every language has every string with the same placeholders. |
 | Rules | `src/shared/rules/` | `hours`, `pay` (hourly, daily, monthly salary), `claims`, `severity`, `fatigue`, `burnout`, `leave`, `anonymity`, `factcheck`, `flags`. Rulesets per sector (construction, campus, office) plus common rules (salary deadline, leave defaults, POSH) in `rules/rulesets/`. |
 | Record | `src/shared/ledger/ledger.ts` | SHA-256 hash chain per worker: `CHECK_IN`, `CHECK_OUT`, `EDIT`, `LEAVE`. Nothing is overwritten. |
 | Leave | `src/server/routes/leave.ts`, `rules/leave.ts` | Requests, decisions, cancellations and withdrawals, each also sealed into the worker's chain. Balances per calendar year; comp-off earned from approved extra hours. Work-from-home days relax the site check. |

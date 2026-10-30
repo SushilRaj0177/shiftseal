@@ -14,10 +14,12 @@ How it works: [`ARCHITECTURE.md`](ARCHITECTURE.md) · Designs: [Figma](https://w
 
 ## For workers
 
+The worker app is in English, Tamil, Hindi, Spanish, French, German, Portuguese, Japanese, Chinese (Simplified) and Korean. The employer dashboard is in English.
+
 - **Sign in with your phone number.** Join your workplace by scanning the poster at the gate or typing the invite code.
 - **Check in at the gate.** Scan the code, and your phone signs the record and keeps its own copy. Works without a signal: the check is saved and sent later.
 - **See every change.** If a supervisor corrects your hours, you are told immediately, with their reason, and can disagree in one tap.
-- **A payslip you can follow.** Every line is marked *law* or *workplace policy*. Ask why your pay changed, by voice, in Tamil, Hindi or English. Every number in the answer is checked.
+- **A payslip you can follow.** Every line is marked *law* or *workplace policy*. Ask why your pay changed, by voice or text. Every number in the answer is checked.
 - **Claim missed overtime** in your own words; it is checked against your records and the employer must decide before payday.
 - **Report hazards** with a photo; dangerous ones can never be rated low.
 - **Speak up anonymously.** Names and places are removed, your words are not kept, and nothing shows until five people have spoken.

@@ -16,6 +16,7 @@ import {
   anonymisedFeedbackOutputSchema,
 } from '../../shared/schemas.js';
 import { check } from '../../shared/rules/factcheck.js';
+import { LANGUAGE_CODES } from '../../shared/languages.js';
 import {
   SYSTEM_INSTRUCTION,
   buildStructureClaimPrompt,
@@ -154,7 +155,7 @@ export async function structureClaim(
       date: { type: Type.STRING, description: 'ISO date YYYY-MM-DD' },
       extraHours: { type: Type.NUMBER, description: 'Number of extra overtime hours claimed' },
       reason: { type: Type.STRING, description: 'Short summary of work done during overtime' },
-      detectedLanguage: { type: Type.STRING, enum: ['en', 'ta', 'hi'] },
+      detectedLanguage: { type: Type.STRING, enum: [...LANGUAGE_CODES] },
       confidence: { type: Type.NUMBER },
     },
     required: ['date', 'extraHours', 'reason', 'detectedLanguage', 'confidence'],
@@ -296,7 +297,7 @@ export async function structureHazard(
       description: { type: Type.STRING },
       aiSeverity: { type: Type.STRING, enum: ['low', 'medium', 'high', 'critical'] },
       englishSummary: { type: Type.STRING },
-      detectedLanguage: { type: Type.STRING, enum: ['en', 'ta', 'hi'] },
+      detectedLanguage: { type: Type.STRING, enum: [...LANGUAGE_CODES] },
     },
     required: ['hazardType', 'description', 'aiSeverity', 'englishSummary', 'detectedLanguage'],
   };

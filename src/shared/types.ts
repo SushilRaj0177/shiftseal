@@ -1,4 +1,5 @@
-export type Language = 'en' | 'ta' | 'hi';
+import type { Language } from './languages.js';
+export type { Language };
 
 export type SectorId = 'construction' | 'campus' | 'office';
 

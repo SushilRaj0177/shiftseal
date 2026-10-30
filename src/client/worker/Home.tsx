@@ -7,6 +7,7 @@ import { getRule } from '../../shared/rules/index.js';
 import { api, errorMessage } from '../lib/api.js';
 import { dayLabel, hoursLabel, initials, minutesSince, nowHHMM } from '../lib/format.js';
 import { firstName } from '../lib/format.js';
+import { localeOf } from '../../shared/languages.js';
 import { queuedCount } from '../lib/queue.js';
 import { useLang } from '../i18n/LangProvider.js';
 import { Icon } from '../components/Icon.js';
@@ -58,7 +59,7 @@ export const Home: React.FC = () => {
           ? computeShiftDurationHours(s.checkInTime, s.checkOutTime).hours
           : 0;
         return {
-          label: new Intl.DateTimeFormat(lang === 'en' ? 'en-IN' : `${lang}-IN`, {
+          label: new Intl.DateTimeFormat(localeOf(lang), {
             weekday: 'narrow',
             timeZone: 'UTC',
           }).format(new Date(`${date}T00:00:00Z`)),

@@ -1,17 +1,10 @@
 import React from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import type { Language } from '../../shared/types.js';
 import { useLang } from '../i18n/LangProvider.js';
 import { useAuth } from './AuthProvider.js';
-import { Brand } from '../ui/index.js';
+import { Brand, LanguagePicker } from '../ui/index.js';
 import { Guilloche } from '../ui/visuals.js';
 import { Icon } from '../components/Icon.js';
-
-const LANGS: { code: Language; native: string; english: string }[] = [
-  { code: 'en', native: 'English', english: '' },
-  { code: 'ta', native: 'தமிழ்', english: 'Tamil' },
-  { code: 'hi', native: 'हिन्दी', english: 'Hindi' },
-];
 
 export const Welcome: React.FC = () => {
   const { t, lang, setLang } = useLang();
@@ -41,25 +34,7 @@ export const Welcome: React.FC = () => {
       </section>
       <div className="screen-body" style={{ paddingTop: 24 }}>
         <span className="t-label">{t('language')}</span>
-        <div className="card flush" role="radiogroup" aria-label={t('language')}>
-          {LANGS.map((l) => (
-            <button
-              key={l.code}
-              type="button"
-              role="radio"
-              aria-checked={lang === l.code}
-              className="list-row"
-              style={lang === l.code ? { background: 'var(--accent-soft)' } : undefined}
-              onClick={() => setLang(l.code)}
-            >
-              <span className="grow t-strong" lang={l.code}>
-                {l.native}
-              </span>
-              {l.english && <span className="t-caption faint">{l.english}</span>}
-              <span className="radio-dot" aria-hidden="true" />
-            </button>
-          ))}
-        </div>
+        <LanguagePicker value={lang} onChange={setLang} label={t('language')} />
         <div className="spacer" />
         <button type="button" className="btn btn-primary" onClick={() => start('worker')}>
           {t('getStarted')}

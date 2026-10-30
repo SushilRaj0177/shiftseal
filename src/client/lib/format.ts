@@ -1,9 +1,9 @@
 import type { Language } from '../../shared/types.js';
 
-const LOCALE: Record<Language, string> = { en: 'en-IN', ta: 'ta-IN', hi: 'hi-IN' };
+import { localeOf } from '../../shared/languages.js';
 
 export function money(n: number, lang: Language = 'en'): string {
-  return new Intl.NumberFormat(LOCALE[lang], {
+  return new Intl.NumberFormat(localeOf(lang), {
     style: 'currency',
     currency: 'INR',
     maximumFractionDigits: 0,
@@ -11,7 +11,7 @@ export function money(n: number, lang: Language = 'en'): string {
 }
 
 export function dayLabel(date: string, lang: Language = 'en'): string {
-  return new Intl.DateTimeFormat(LOCALE[lang], {
+  return new Intl.DateTimeFormat(localeOf(lang), {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
@@ -20,7 +20,7 @@ export function dayLabel(date: string, lang: Language = 'en'): string {
 }
 
 export function longDay(date: string, lang: Language = 'en'): string {
-  return new Intl.DateTimeFormat(LOCALE[lang], {
+  return new Intl.DateTimeFormat(localeOf(lang), {
     weekday: 'long',
     day: 'numeric',
     month: 'short',

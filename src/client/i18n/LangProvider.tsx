@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { Language } from '../../shared/types.js';
+import { isLanguage } from '../../shared/languages.js';
 import { dictionaries, type StringKey } from './strings.js';
 
 interface LangContextValue {
@@ -14,12 +15,12 @@ const KEY = 'shiftseal.lang';
 function initial(): Language {
   try {
     const saved = localStorage.getItem(KEY);
-    if (saved === 'en' || saved === 'ta' || saved === 'hi') return saved;
+    if (isLanguage(saved)) return saved;
   } catch {
     // storage unavailable
   }
   const nav = navigator.language.slice(0, 2);
-  return nav === 'ta' || nav === 'hi' ? nav : 'en';
+  return isLanguage(nav) ? nav : 'en';
 }
 
 export function format(template: string, args: (string | number)[]): string {

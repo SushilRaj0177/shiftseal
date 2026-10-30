@@ -4,14 +4,8 @@ import type { Language } from '../../shared/types.js';
 import { api } from '../lib/api.js';
 import { useLang } from '../i18n/LangProvider.js';
 import { useAuth } from '../auth/AuthProvider.js';
-import { AppBar, Card, Kv } from '../ui/index.js';
+import { AppBar, Card, Kv, LanguagePicker } from '../ui/index.js';
 import { useWorker } from './WorkerApp.js';
-
-const LANGS: [Language, string][] = [
-  ['en', 'English'],
-  ['ta', 'தமிழ்'],
-  ['hi', 'हिन्दी'],
-];
 
 export const Settings: React.FC = () => {
   const { t, lang, setLang } = useLang();
@@ -29,19 +23,7 @@ export const Settings: React.FC = () => {
       <AppBar back={`/w/${wp.id}`} title={t('settings')} />
       <div className="screen-body">
         <span className="t-label">{t('language')}</span>
-        <div className="segmented" role="group" aria-label={t('language')}>
-          {LANGS.map(([code, label]) => (
-            <button
-              key={code}
-              type="button"
-              aria-pressed={lang === code}
-              onClick={() => choose(code)}
-              lang={code}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        <LanguagePicker value={lang} onChange={choose} label={t('language')} />
         <Card>
           <Kv k={t('workplace')} v={wp.name} />
           <Kv k={t('yourName')} v={me.name} />

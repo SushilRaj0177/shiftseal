@@ -1,6 +1,7 @@
 import { z } from 'zod/v3';
+import { LANGUAGE_CODES } from './languages.js';
 
-export const languageSchema = z.enum(['en', 'ta', 'hi']);
+export const languageSchema = z.enum(LANGUAGE_CODES);
 export const sectorSchema = z.enum(['construction', 'campus', 'office']);
 export const severitySchema = z.enum(['low', 'medium', 'high', 'critical']);
 

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   buildFallbackStructuredClaim,
   buildFallbackHazard,
+  detectScript,
 } from '../../src/server/gemini/fallbacks.js';
 import { buildStructureClaimPrompt, recentWeekdays } from '../../src/server/gemini/prompts.js';
 
@@ -46,5 +47,17 @@ describe('fallbacks (used only when Gemini is unavailable)', () => {
     const prompt = buildStructureClaimPrompt('2026-10-27', 'ta');
     expect(prompt).toContain('2026-10-27 (Tuesday)');
     expect(prompt).toContain('"Saturday" or "last Saturday" -> "2026-10-24"');
+  });
+
+  it('detects the language from its script and reads weekdays in new languages', () => {
+    expect(detectScript('土曜日に2時間残業しました', 'en')).toBe('ja');
+    expect(detectScript('星期六加班两个小时', 'en')).toBe('zh');
+    expect(detectScript('토요일에 2시간 더 일했어요', 'en')).toBe('ko');
+    expect(detectScript("J'ai travaillé samedi", 'fr')).toBe('fr');
+    const claim = buildFallbackStructuredClaim('土曜日に3時間残業しました', 'ja', '2026-10-27');
+    expect(claim).toMatchObject({ date: '2026-10-24', extraHours: 3, detectedLanguage: 'ja' });
+    expect(
+      buildFallbackStructuredClaim('Trabajé 2 horas extra el sábado', 'es', '2026-10-27').date
+    ).toBe('2026-10-24');
   });
 });

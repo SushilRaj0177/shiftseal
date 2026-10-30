@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { apiImage } from '../lib/api.js';
 import { useNavigate } from 'react-router-dom';
 import { Icon, type IconName } from '../components/Icon.js';
+import { LANGUAGES, type Language } from '../../shared/languages.js';
 
 export type Tone = 'good' | 'warn' | 'danger' | 'accent' | 'neutral';
 
@@ -178,3 +179,28 @@ export const AuthImage: React.FC<{ path: string; alt: string }> = ({ path, alt }
     <Skeleton height={180} />
   );
 };
+
+/** Grid of every supported language, each shown in its own script. */
+export const LanguagePicker: React.FC<{
+  value: Language;
+  onChange(l: Language): void;
+  label: string;
+}> = ({ value, onChange, label }) => (
+  <div className="lang-grid" role="radiogroup" aria-label={label}>
+    {LANGUAGES.map((l) => (
+      <button
+        key={l.code}
+        type="button"
+        role="radio"
+        aria-checked={value === l.code}
+        className="choice"
+        onClick={() => onChange(l.code)}
+      >
+        <span className="t-strong" lang={l.code}>
+          {l.native}
+        </span>
+        {l.code !== 'en' && <span className="t-caption faint">{l.english}</span>}
+      </button>
+    ))}
+  </div>
+);

@@ -22,7 +22,7 @@ describe('HTTP security hardening', () => {
     const res = await request(app)
       .patch('/api/me')
       .set('Authorization', 'Bearer dev:sec-user')
-      .send({ language: 'fr' });
+      .send({ language: 'xx' });
     expect(res.status).toBe(400);
     expect(res.body.error).toBe('VALIDATION_ERROR');
     expect(JSON.stringify(res.body)).not.toMatch(/at \w+ \(|node_modules/);
