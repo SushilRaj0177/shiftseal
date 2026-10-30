@@ -107,6 +107,8 @@ describe('hours.ts', () => {
     expect(res.normalHours).toBe(8);
     expect(res.otHours).toBe(2);
     expect(res.ruleRefs.map((r) => r.id)).toEqual(['hours.daily', 'ot.weekly', 'ot.multiplier']);
-    expect(res.ruleRefs[0].source).toMatch(/Occupational Safety, Health and Working Conditions Code/);
+    expect(res.ruleRefs[0].source).toMatch(
+      /Occupational Safety, Health and Working Conditions Code/
+    );
   });
 });
