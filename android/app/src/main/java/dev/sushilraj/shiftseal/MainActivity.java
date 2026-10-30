@@ -21,6 +21,9 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 /**
  * Shiftseal on Android: the web app in a WebView, plus a bridge for what a
@@ -55,6 +58,15 @@ public class MainActivity extends AppCompatActivity {
         root.addView(offline, new LinearLayout.LayoutParams(-1, -1));
         root.addView(web, new LinearLayout.LayoutParams(-1, -1));
         setContentView(root);
+        // Android 15 draws apps edge to edge; keep the page clear of the status bar,
+        // the navigation bar and the keyboard.
+        ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
+            Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars()
+                    | WindowInsetsCompat.Type.displayCutout()
+                    | WindowInsetsCompat.Type.ime());
+            v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+            return WindowInsetsCompat.CONSUMED;
+        });
 
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
