@@ -11,6 +11,8 @@ import { PersonRecord } from './PersonRecord.js';
 import { Review } from './Review.js';
 import { Invite, GateDisplay } from './Invite.js';
 import { WorkplaceSettings } from './WorkplaceSettings.js';
+import { Leave } from './Leave.js';
+import { CommitteeInbox, Complaints } from '../complaints/Complaints.js';
 
 interface EmployerContextValue {
   base: WorkplaceResponse;
@@ -80,6 +82,8 @@ export default function EmployerApp() {
     <EmployerContext.Provider value={value}>
       <Routes>
         <Route path="gate" element={<GateDisplay />} />
+        <Route path="complaints" element={<Complaints back={`/e/${wp}/settings`} />} />
+        <Route path="committee" element={<CommitteeInbox back={`/e/${wp}`} />} />
         <Route
           path="*"
           element={
@@ -97,6 +101,12 @@ export default function EmployerApp() {
                       : ' '}
                   </span>
                 </div>
+                {base.data.member.icMember && (
+                  <NavLink to={link('committee')} className="nav-item" style={{ order: 99 }}>
+                    <Icon name="lock" />
+                    Committee inbox
+                  </NavLink>
+                )}
                 {NAV.map((n) => {
                   const c = dash.data && n.count ? n.count(dash.data) : 0;
                   return (
@@ -118,6 +128,7 @@ export default function EmployerApp() {
                   <Route path="people" element={<People />} />
                   <Route path="people/:uid" element={<PersonRecord />} />
                   <Route path="review" element={<Review />} />
+                  <Route path="leave" element={<Leave />} />
                   <Route path="invite" element={<Invite />} />
                   <Route path="settings" element={<WorkplaceSettings />} />
                 </Routes>

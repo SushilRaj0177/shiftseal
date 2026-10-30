@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import type { Language } from '../../shared/types.js';
 import { api } from '../lib/api.js';
 import { useLang } from '../i18n/LangProvider.js';
@@ -52,6 +52,14 @@ export const Settings: React.FC = () => {
             vClass={deviceStatus === 'pending' ? 'c-warn' : 'c-good'}
           />
         </Card>
+        <Link className="btn btn-secondary" to={`/w/${wp.id}/complaints`}>
+          {t('complaintEntry')}
+        </Link>
+        {me.icMember && (
+          <Link className="btn btn-secondary" to={`/w/${wp.id}/committee`}>
+            {t('committeeInbox')}
+          </Link>
+        )}
         <div className="spacer" />
         <button
           type="button"

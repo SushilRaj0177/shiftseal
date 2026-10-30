@@ -1,6 +1,6 @@
 export type Language = 'en' | 'ta' | 'hi';
 
-export type SectorId = 'construction' | 'campus';
+export type SectorId = 'construction' | 'campus' | 'office';
 
 export type RuleKind = 'law' | 'policy';
 
@@ -60,7 +60,7 @@ export interface WorkerProfile {
 }
 
 // Ledger types
-export type LedgerEventType = 'CHECK_IN' | 'CHECK_OUT' | 'EDIT';
+export type LedgerEventType = 'CHECK_IN' | 'CHECK_OUT' | 'EDIT' | 'LEAVE';
 
 export interface LedgerCheckInPayload {
   date: string; // YYYY-MM-DD (shift start date)
@@ -104,7 +104,11 @@ export interface LedgerEvent {
   workerId: string;
   type: LedgerEventType;
   createdAt: string;
-  payload: LedgerCheckInPayload | LedgerCheckOutPayload | LedgerEditPayload;
+  payload:
+    | LedgerCheckInPayload
+    | LedgerCheckOutPayload
+    | LedgerEditPayload
+    | import('./model.js').LedgerLeavePayload;
   prevHash: string;
   hash: string;
 }
@@ -165,7 +169,7 @@ export interface DeductionItem {
 
 export interface PayslipLine {
   id: string;
-  kind: 'normal' | 'overtime' | 'claim_overtime' | 'deduction' | 'net';
+  kind: 'salary' | 'unpaid_leave' | 'normal' | 'overtime' | 'claim_overtime' | 'deduction' | 'net';
   labelKey: string;
   hours?: number;
   rate?: number;
@@ -225,6 +229,8 @@ export interface OvertimeClaim {
   resolvedAt?: string;
   createdAt: string;
   kind: 'overtime_claim' | 'edit_disagree';
+  /** How approved extra hours are compensated: overtime pay, or comp-off leave. */
+  compensation?: 'pay' | 'comp_off';
   relatedEditEventId?: string;
   isDemoFallback?: boolean;
 }
@@ -234,7 +240,13 @@ export interface WorkerNotification {
   id: string;
   workerId: string;
   workplaceId: string;
-  type: 'SHIFT_EDITED' | 'DISPUTE_RESOLVED' | 'HAZARD_UPDATED' | 'DEVICE_APPROVED';
+  type:
+    | 'SHIFT_EDITED'
+    | 'DISPUTE_RESOLVED'
+    | 'HAZARD_UPDATED'
+    | 'DEVICE_APPROVED'
+    | 'LEAVE_DECIDED'
+    | 'LEAVE_REVOKED';
   date: string;
   oldValue?: string;
   newValue?: string;

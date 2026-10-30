@@ -103,6 +103,7 @@ export const Claim: React.FC = () => {
       <div className="screen-body">
         <h1 className="t-title">{t('claimTitle')}</h1>
         <p className="muted">{t('claimBody')}</p>
+        {overview?.overtime === 'comp_off' && <Notice kind="info">{t('compOffNote')}</Notice>}
         {!result && (
           <>
             <HoldToTalk

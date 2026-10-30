@@ -14,6 +14,12 @@ const PRESETS = {
     { code: 'BASEMENT', name: 'Basement', kind: 'basement' },
     { code: 'CRANE', name: 'Crane area', kind: 'crane' },
   ],
+  office: [
+    { code: 'RECEPTION', name: 'Reception', kind: 'gate' },
+    { code: 'FLOOR-1', name: 'Floor 1', kind: 'building' },
+    { code: 'PANTRY', name: 'Pantry', kind: 'cafeteria' },
+    { code: 'PARKING', name: 'Parking', kind: 'pin' },
+  ],
   campus: [
     { code: 'GATE', name: 'Main gate', kind: 'gate' },
     { code: 'HOSTEL', name: 'Hostel', kind: 'hostel' },
@@ -21,6 +27,8 @@ const PRESETS = {
     { code: 'CANTEEN', name: 'Cafeteria', kind: 'cafeteria' },
   ],
 };
+
+const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 const STATES = [
   'Tamil Nadu',
@@ -41,7 +49,10 @@ export default function CreateWorkplace() {
   const navigate = useNavigate();
   const [name, setName] = useState('');
   const [ownerName, setOwnerName] = useState('');
-  const [sector, setSector] = useState<'construction' | 'campus'>('construction');
+  const [sector, setSector] = useState<'construction' | 'campus' | 'office'>('construction');
+  const [payCycle, setPayCycle] = useState<'weekly' | 'monthly'>('weekly');
+  const [payDayOfMonth, setPayDayOfMonth] = useState(1);
+  const [weeklyOff, setWeeklyOff] = useState<number[]>([0]);
   const [state, setState] = useState('Tamil Nadu');
   const [shiftStart, setShiftStart] = useState('08:00');
   const [shiftEnd, setShiftEnd] = useState('17:00');
@@ -77,6 +88,9 @@ export default function CreateWorkplace() {
           shiftStart,
           shiftEnd,
           payDay,
+          payCycle,
+          payDayOfMonth: payCycle === 'monthly' ? payDayOfMonth : undefined,
+          weeklyOff,
           geofence: { center: { lat: centre.lat, lng: centre.lng }, radiusM: radius },
           zones: zones.filter((z) => z.name.trim()).map((z) => ({ ...z, name: z.name.trim() })),
         },
@@ -118,6 +132,7 @@ export default function CreateWorkplace() {
             [
               ['construction', 'Construction site', 'Zones, scaffolds, crane areas', 'scaffold'],
               ['campus', 'Campus or facilities', 'Housekeeping, security, hostels', 'building'],
+              ['office', 'Office', 'Salaried staff, leave, work from home', 'doc'],
             ] as const
           ).map(([key, title, sub, icon]) => (
             <button
@@ -129,6 +144,12 @@ export default function CreateWorkplace() {
               onClick={() => {
                 setSector(key);
                 setZones(PRESETS[key].map((z) => ({ ...z })));
+                setPayCycle(key === 'office' ? 'monthly' : 'weekly');
+                setWeeklyOff(key === 'office' ? [0, 6] : [0]);
+                if (key === 'office') {
+                  setShiftStart('09:30');
+                  setShiftEnd('18:30');
+                }
               }}
             >
               <Icon name={icon} size={22} />
@@ -164,20 +185,72 @@ export default function CreateWorkplace() {
             />
           </Field>
         </div>
-        <Field label="Pay day">
-          <select
-            className="select"
-            value={payDay}
-            onChange={(e) => setPayDay(Number(e.target.value))}
-          >
-            {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map(
-              (d, i) => (
+        <Field label="Pay cycle">
+          <div className="segmented" role="group">
+            <button
+              type="button"
+              aria-pressed={payCycle === 'weekly'}
+              onClick={() => setPayCycle('weekly')}
+            >
+              Weekly wages
+            </button>
+            <button
+              type="button"
+              aria-pressed={payCycle === 'monthly'}
+              onClick={() => setPayCycle('monthly')}
+            >
+              Monthly salary
+            </button>
+          </div>
+        </Field>
+        {payCycle === 'weekly' ? (
+          <Field label="Pay day">
+            <select
+              className="select"
+              value={payDay}
+              onChange={(e) => setPayDay(Number(e.target.value))}
+            >
+              {DAYS.map((d, i) => (
                 <option key={d} value={i}>
                   {d}
                 </option>
-              )
-            )}
-          </select>
+              ))}
+            </select>
+          </Field>
+        ) : (
+          <Field
+            label="Salary paid on day of the next month"
+            hint="The law requires monthly wages by the 7th."
+          >
+            <input
+              className="input"
+              inputMode="numeric"
+              value={payDayOfMonth}
+              onChange={(e) =>
+                setPayDayOfMonth(
+                  Math.min(28, Math.max(1, Number(e.target.value.replace(/\D/g, '')) || 1))
+                )
+              }
+            />
+          </Field>
+        )}
+        <Field label="Weekly off">
+          <div className="segmented" role="group">
+            {DAYS.map((d, i) => (
+              <button
+                key={d}
+                type="button"
+                aria-pressed={weeklyOff.includes(i)}
+                onClick={() =>
+                  setWeeklyOff(
+                    weeklyOff.includes(i) ? weeklyOff.filter((x) => x !== i) : [...weeklyOff, i]
+                  )
+                }
+              >
+                {d.slice(0, 2)}
+              </button>
+            ))}
+          </div>
         </Field>
 
         <Card>

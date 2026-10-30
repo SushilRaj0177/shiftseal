@@ -55,6 +55,16 @@ export const createWorkplaceSchema = z.object({
   shiftStart: hhmm,
   shiftEnd: hhmm,
   payDay: z.number().int().min(0).max(6).default(6),
+  payCycle: z.enum(['weekly', 'monthly']).default('weekly'),
+  payDayOfMonth: z.number().int().min(1).max(28).optional(),
+  weeklyOff: z.array(z.number().int().min(0).max(6)).max(3).optional(),
+  leavePolicy: z
+    .object({
+      casual: z.number().min(0).max(60),
+      sick: z.number().min(0).max(60),
+      earned: z.number().min(0).max(60),
+    })
+    .optional(),
   geofence: geofenceSchema,
   zones: z.array(zoneSchema).min(1).max(40),
   ownerName: name,
@@ -85,6 +95,21 @@ export const updateMemberSchema = z.object({
   dailyWage: z.number().min(0).max(1_000_000).optional(),
   role: z.enum(['supervisor', 'worker']).optional(),
   status: z.enum(['active', 'removed']).optional(),
+  payType: z.enum(['hourly', 'daily', 'monthly']).optional(),
+  monthlySalary: z.number().min(0).max(10_000_000).optional(),
+  overtime: z.enum(['paid', 'comp_off', 'none']).optional(),
+  recurringDeductions: z
+    .array(
+      z.object({
+        type: z.string().trim().min(2).max(40),
+        amount: z.number().min(1).max(1_000_000),
+        reason: z.string().trim().min(3, 'A reason is required for every deduction').max(200),
+      })
+    )
+    .max(10)
+    .optional(),
+  icMember: z.boolean().optional(),
+  icPresiding: z.boolean().optional(),
 });
 
 export const registerDeviceSchema = z.object({
@@ -183,6 +208,53 @@ export const submitFeedbackRequestSchema = z.object({
 export const confirmPaymentSchema = z.object({
   periodStart: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   receivedAmount: z.number().min(0).max(10_000_000),
+  receivedOn: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
+});
+
+const ymd = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+
+export const requestLeaveSchema = z.object({
+  type: z.enum(['casual', 'sick', 'earned', 'comp_off', 'unpaid', 'wfh']),
+  from: ymd,
+  to: ymd,
+  halfDay: z.boolean().optional(),
+  reason: z.string().trim().min(2).max(300),
+});
+
+export const decideLeaveSchema = z.object({
+  leaveId: id,
+  decision: z.enum(['approved', 'rejected']),
+  reason: z.string().trim().max(300).optional(),
+});
+
+export const leaveIdSchema = z.object({ leaveId: id });
+
+export const revokeLeaveSchema = z.object({
+  leaveId: id,
+  reason: z.string().trim().min(5, 'Give a clear reason').max(300),
+});
+
+export const fileComplaintSchema = z.object({
+  respondentName: z.string().trim().min(1).max(100),
+  incidentDate: ymd,
+  place: z.string().trim().min(1).max(200),
+  description: z.string().trim().min(10).max(5000),
+  witnesses: z.string().trim().max(500).optional(),
+  excludedCommitteeUids: z.array(id).max(10).default([]),
+});
+
+export const complaintMessageSchema = z.object({
+  complaintId: id,
+  text: z.string().trim().min(1).max(3000),
+});
+
+export const complaintStatusSchema = z.object({
+  complaintId: id,
+  status: z.enum(['received', 'inquiry', 'report_submitted', 'closed']),
+  note: z.string().trim().max(1000).optional(),
 });
 
 export const resolveFlagSchema = z.object({

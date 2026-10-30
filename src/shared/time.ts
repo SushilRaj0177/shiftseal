@@ -65,3 +65,36 @@ export function minutesBetween(from: string, to: string): number {
   if (diff < 0) diff += 24 * 60;
   return diff;
 }
+
+export function daysInMonth(date: string): number {
+  const [y, m] = date.split('-').map(Number);
+  return new Date(Date.UTC(y, m, 0)).getUTCDate();
+}
+
+/** The calendar month containing `today`; salary for it is paid on `payDayOfMonth` of the next month. */
+export function monthlyPeriodFor(today: string, payDayOfMonth: number): PayPeriod {
+  const start = `${today.slice(0, 7)}-01`;
+  const end = `${today.slice(0, 7)}-${String(daysInMonth(today)).padStart(2, '0')}`;
+  const next = addDays(end, 1);
+  return { start, end, payDate: `${next.slice(0, 7)}-${String(payDayOfMonth).padStart(2, '0')}` };
+}
+
+export interface PayCycleSettings {
+  payCycle?: 'weekly' | 'monthly';
+  payDay: number;
+  payDayOfMonth?: number;
+}
+
+/** The pay period containing `date`, for a workplace's pay cycle. */
+export function periodFor(wp: PayCycleSettings, date: string): PayPeriod {
+  return wp.payCycle === 'monthly'
+    ? monthlyPeriodFor(date, wp.payDayOfMonth ?? 1)
+    : payPeriodFor(date, wp.payDay);
+}
+
+/** Every date from `from` to `to`, inclusive. */
+export function eachDay(from: string, to: string): string[] {
+  const out: string[] = [];
+  for (let d = from; d <= to && out.length < 400; d = addDays(d, 1)) out.push(d);
+  return out;
+}

@@ -21,6 +21,7 @@ export const PaymentPrompt: React.FC<{ compact?: boolean }> = ({ compact }) => {
   const { t, lang } = useLang();
   const { wp, overview, reload } = useWorker();
   const [amount, setAmount] = useState('');
+  const [receivedOn, setReceivedOn] = useState('');
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   if (
@@ -38,7 +39,11 @@ export const PaymentPrompt: React.FC<{ compact?: boolean }> = ({ compact }) => {
     try {
       const received = Number(amount);
       await api(`/workplaces/${wp.id}/payments/confirm`, {
-        body: { periodStart: overview.lastPeriod.start, receivedAmount: received },
+        body: {
+          periodStart: overview.lastPeriod.start,
+          receivedAmount: received,
+          receivedOn: receivedOn || undefined,
+        },
       });
       setMsg(
         received + 1 >= expected
@@ -59,6 +64,17 @@ export const PaymentPrompt: React.FC<{ compact?: boolean }> = ({ compact }) => {
         {t('confirmPayTitle', periodLabel(overview.lastPeriod, lang))}
       </span>
       <span className="t-caption muted">{t('confirmPayBody', money(expected, lang))}</span>
+      {overview.payType === 'monthly' && (
+        <Field label={t('receivedOn')}>
+          <input
+            type="date"
+            className="input"
+            value={receivedOn}
+            max={overview.today}
+            onChange={(e) => setReceivedOn(e.target.value)}
+          />
+        </Field>
+      )}
       <div className="row-flex">
         <div className="prefix-input grow">
           <span>₹</span>
@@ -84,6 +100,8 @@ export const PaymentPrompt: React.FC<{ compact?: boolean }> = ({ compact }) => {
 };
 
 function lineLabel(line: PayslipLine, t: ReturnType<typeof useLang>['t']): string {
+  if (line.kind === 'salary') return t('lineSalary');
+  if (line.kind === 'unpaid_leave') return t('lineUnpaid');
   if (line.kind === 'normal') return t('lineRegular');
   if (line.kind === 'overtime') return t('lineOvertime');
   if (line.kind === 'claim_overtime') return t('lineClaim');

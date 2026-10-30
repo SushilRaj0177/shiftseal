@@ -21,6 +21,14 @@ export interface CalculatePayslipInput {
   approvedClaimHours?: number;
   approvedClaimRefs?: string[];
   deductions?: DeductionItem[];
+  /** Salaried staff: the monthly salary, replacing hourly or daily wages. */
+  monthlySalary?: number;
+  /** Calendar days in the pay period, for pro-rating unpaid leave. */
+  daysInPeriod?: number;
+  /** Approved unpaid leave days in the period (loss of pay). */
+  unpaidLeaveDays?: number;
+  /** Salaried staff only: whether extra hours are paid as overtime. */
+  overtimePaid?: boolean;
 }
 
 export function calculatePayslip(input: CalculatePayslipInput): PayslipCalculationResult {
@@ -28,45 +36,78 @@ export function calculatePayslip(input: CalculatePayslipInput): PayslipCalculati
   const otMultiplierRule = getRule(input.sector, 'ot.multiplier');
   const deductionRule = getRule(input.sector, 'pay.deductionReasonRequired');
 
-  const rate =
-    input.hourlyRate !== undefined
+  const salaried = input.monthlySalary !== undefined;
+  const basisRule = getRule(input.sector, 'pay.monthlyHourlyBasis');
+  const rate = salaried
+    ? roundMoney(input.monthlySalary! / basisRule.value)
+    : input.hourlyRate !== undefined
       ? input.hourlyRate
       : roundMoney((input.dailyWage ?? 640) / dailyRule.value);
 
   const otRate = roundMoney(rate * otMultiplierRule.value);
+  const payOvertime = !salaried || input.overtimePaid === true;
 
   const allShiftRefs = input.hoursResult.perDay.flatMap((d) => d.shiftRefs);
   const otShiftRefs = input.hoursResult.perDay
     .filter((d) => d.dailyOtHours > 0)
     .flatMap((d) => d.shiftRefs);
 
-  const normalAmount = roundMoney(input.hoursResult.normalHours * rate);
-  const otAmount = roundMoney(input.hoursResult.otHours * otRate);
-  const claimedHours = input.approvedClaimHours ?? 0;
+  const otHours = payOvertime ? input.hoursResult.otHours : 0;
+  const otAmount = roundMoney(otHours * otRate);
+  const claimedHours = payOvertime ? (input.approvedClaimHours ?? 0) : 0;
   const claimedAmount = roundMoney(claimedHours * otRate);
 
-  const lines: PayslipLine[] = [
-    {
+  const lines: PayslipLine[] = [];
+  let baseAmount: number;
+  if (salaried) {
+    const days = input.daysInPeriod ?? 30;
+    const lopDays = input.unpaidLeaveDays ?? 0;
+    const lopAmount = roundMoney((input.monthlySalary! / days) * lopDays);
+    baseAmount = roundMoney(input.monthlySalary! - lopAmount);
+    lines.push({
+      id: 'line-salary',
+      kind: 'salary',
+      labelKey: 'Monthly salary',
+      amount: roundMoney(input.monthlySalary!),
+      shiftRefs: allShiftRefs,
+    });
+    if (lopDays > 0) {
+      lines.push({
+        id: 'line-unpaid-leave',
+        kind: 'unpaid_leave',
+        labelKey: `Unpaid leave (${lopDays} of ${days} days)`,
+        hours: lopDays,
+        rate: roundMoney(input.monthlySalary! / days),
+        amount: -lopAmount,
+        shiftRefs: [],
+      });
+    }
+  } else {
+    baseAmount = roundMoney(input.hoursResult.normalHours * rate);
+    lines.push({
       id: 'line-normal',
       kind: 'normal',
       labelKey: 'Normal shift pay',
       hours: input.hoursResult.normalHours,
       rate,
-      amount: normalAmount,
+      amount: baseAmount,
       ruleRef: dailyRule,
       shiftRefs: allShiftRefs,
-    },
-    {
+    });
+  }
+
+  if (payOvertime) {
+    lines.push({
       id: 'line-ot',
       kind: 'overtime',
       labelKey: 'Overtime pay (2x rate)',
-      hours: input.hoursResult.otHours,
+      hours: otHours,
       rate: otRate,
       amount: otAmount,
-      ruleRef: otMultiplierRule,
+      ruleRef: salaried ? basisRule : otMultiplierRule,
       shiftRefs: otShiftRefs.length > 0 ? otShiftRefs : allShiftRefs,
-    },
-  ];
+    });
+  }
 
   if (claimedHours > 0) {
     lines.push({
@@ -109,7 +150,7 @@ export function calculatePayslip(input: CalculatePayslipInput): PayslipCalculati
     });
   }
 
-  const grossPay = roundMoney(normalAmount + otAmount + claimedAmount);
+  const grossPay = roundMoney(baseAmount + otAmount + claimedAmount);
   const netPay = roundMoney(grossPay - totalDeductions);
 
   lines.push({
@@ -125,7 +166,7 @@ export function calculatePayslip(input: CalculatePayslipInput): PayslipCalculati
     weekLabel: input.weekLabel,
     hourlyRate: rate,
     normalHours: input.hoursResult.normalHours,
-    otHours: input.hoursResult.otHours,
+    otHours,
     claimedOtHours: claimedHours,
     grossPay,
     totalDeductions,

@@ -10,6 +10,8 @@ import type {
 } from '../../shared/types.js';
 import type {
   CheckEvidence,
+  LeaveRequest,
+  LeaveType,
   FlagRecord,
   MemberRole,
   PaymentConfirmation,
@@ -36,6 +38,12 @@ export interface PublicMember {
   team: string;
   hourlyRate: number;
   dailyWage: number;
+  payType?: 'hourly' | 'daily' | 'monthly';
+  monthlySalary?: number;
+  overtime?: 'paid' | 'comp_off' | 'none';
+  recurringDeductions?: { type: string; amount: number; reason: string }[];
+  icMember?: boolean;
+  icPresiding?: boolean;
   language: 'en' | 'ta' | 'hi';
   joinedAt: string;
   status: 'active' | 'removed';
@@ -74,7 +82,40 @@ export interface WorkerOverview {
   hazards: HazardReport[];
   feedbackGroup: GroupStatus;
   flags: FlagRecord[];
+  payType: 'hourly' | 'daily' | 'monthly';
+  overtime: 'paid' | 'comp_off' | 'none';
+  leave: {
+    balances: LeaveBalance[];
+    pending: number;
+    today: LeaveRequest | null;
+    upcoming: LeaveRequest[];
+  };
 }
+
+export interface LeaveBalance {
+  type: 'casual' | 'sick' | 'earned' | 'comp_off';
+  entitled: number;
+  used: number;
+  pending: number;
+  available: number;
+}
+
+export interface LeaveResponse {
+  today: string;
+  balances: LeaveBalance[];
+  requests: LeaveRequest[];
+  team: LeaveRequest[];
+}
+
+export interface CommitteeInfo {
+  committee: { uid: string; name: string; presiding: boolean }[];
+  required: boolean;
+  isMember: boolean;
+  complaintWindowDays: number;
+  inquiryDays: number;
+}
+
+export type { LeaveRequest, LeaveType };
 
 export interface PersonSummary {
   uid: string;
@@ -82,7 +123,8 @@ export interface PersonSummary {
   title: string;
   team: string;
   role: MemberRole;
-  status: 'on_site' | 'checked_out' | 'absent';
+  status: 'on_site' | 'checked_out' | 'absent' | 'on_leave' | 'wfh';
+  icMember: boolean;
   checkIn: string | null;
   checkOut: string | null;
   rateSet: boolean;
@@ -104,12 +146,21 @@ export interface Dashboard {
     openHazards: number;
     openFlags: number;
     overtimeOwed: number;
+    pendingLeave: number;
   };
   claims: OvertimeClaim[];
   hazards: HazardReport[];
   flags: FlagRecord[];
   hotspots: { code: string; name: string; kind: string; count: number; isHotspot: boolean }[];
   fatigue: FatigueAttritionSignal[];
+  burnout: {
+    workerId: string;
+    workerName: string;
+    level: 'low' | 'medium' | 'high';
+    reasons: string[];
+  }[];
+  leave: { pending: LeaveRequest[]; today: LeaveRequest[] };
+  complaints: { committeeSize: number; open: number; overdue: number };
   feedbackGroups: GroupStatus[];
 }
 

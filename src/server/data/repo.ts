@@ -17,7 +17,9 @@ export type Collection =
   | 'payments'
   | 'deductions'
   | 'receipts'
-  | 'photos';
+  | 'photos'
+  | 'leave'
+  | 'complaints';
 
 export interface Identified {
   id: string;

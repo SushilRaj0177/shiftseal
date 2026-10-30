@@ -8,7 +8,8 @@ import { useLang } from '../i18n/LangProvider.js';
 import type { StringKey } from '../i18n/strings.js';
 import { HoldToTalk } from '../components/HoldToTalk.js';
 import { Icon, zoneIcon } from '../components/Icon.js';
-import { Card, Notice, Pill, Spinner } from '../ui/index.js';
+import { Link } from 'react-router-dom';
+import { Card, Notice, Pill, Spinner, Tile } from '../ui/index.js';
 import { TabBar, useWorker } from './WorkerApp.js';
 
 interface Structured {
@@ -258,6 +259,21 @@ export const Report: React.FC = () => {
         <button type="button" className="btn btn-primary" disabled={!result || busy} onClick={send}>
           {t('sendReport')}
         </button>
+
+        <Link
+          to={`/w/${wp.id}/complaints`}
+          className="card flush"
+          style={{ textDecoration: 'none', color: 'inherit', marginTop: 8 }}
+        >
+          <span className="list-row">
+            <Tile icon="lock" tone="neutral" />
+            <span className="grow stack-sm" style={{ gap: 0 }}>
+              <span className="t-strong">{t('complaintEntry')}</span>
+              <span className="t-caption muted">{t('complaintEntrySub')}</span>
+            </span>
+            <Icon name="chev" size={18} />
+          </span>
+        </Link>
       </div>
       <TabBar />
     </main>

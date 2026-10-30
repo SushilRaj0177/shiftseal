@@ -8,6 +8,8 @@ const STATUS = {
   on_site: <Pill tone="good">On site</Pill>,
   checked_out: <Pill>Checked out</Pill>,
   absent: <Pill tone="neutral">Not in</Pill>,
+  on_leave: <Pill tone="accent">On leave</Pill>,
+  wfh: <Pill tone="accent">From home</Pill>,
 };
 
 export const People: React.FC = () => {
@@ -50,6 +52,7 @@ export const People: React.FC = () => {
                       <span className="t-caption muted">
                         {p.title}
                         {p.role === 'supervisor' ? ' · supervisor' : ''}
+                        {p.icMember ? ' · committee' : ''}
                       </span>
                     </Link>
                   </td>

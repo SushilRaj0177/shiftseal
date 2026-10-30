@@ -1,7 +1,7 @@
 import { z } from 'zod/v3';
 
 export const languageSchema = z.enum(['en', 'ta', 'hi']);
-export const sectorSchema = z.enum(['construction', 'campus']);
+export const sectorSchema = z.enum(['construction', 'campus', 'office']);
 export const severitySchema = z.enum(['low', 'medium', 'high', 'critical']);
 
 // Size limits: audio <= 2 MB (approx 2.8M base64 chars), images <= 1 MB (approx 1.4M base64 chars), text <= 2000 chars

@@ -31,7 +31,7 @@ export const CheckFlow: React.FC = () => {
     sessionStorage.removeItem('shiftseal.pendingScan');
     return pending && tokenFromScan(pending);
   });
-  const [skipQr, setSkipQr] = useState(false);
+  const [skipQr, setSkipQr] = useState(overview?.leave.today?.type === 'wfh');
   const [phase, setPhase] = useState<Phase>('collect');
   const [result, setResult] = useState<CheckResponse | null>(null);
   const [error, setError] = useState<string | null>(null);

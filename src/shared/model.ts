@@ -34,8 +34,16 @@ export interface WorkplaceRecord {
   timezone: string;
   shiftStart: string; // HH:mm
   shiftEnd: string; // HH:mm
-  /** Day of the week pay is made, 0 = Sunday. */
+  /** Day of the week pay is made, 0 = Sunday (weekly pay cycle). */
   payDay: number;
+  /** Weekly (wage workers) or monthly (salaried staff). Weekly if unset. */
+  payCycle?: 'weekly' | 'monthly';
+  /** Day of the month salary is paid for the previous month (monthly pay cycle). */
+  payDayOfMonth?: number;
+  /** Days of the week that are off, 0 = Sunday. Sunday only if unset. */
+  weeklyOff?: number[];
+  /** Paid leave days per calendar year. Rule defaults if unset. */
+  leavePolicy?: { casual: number; sick: number; earned: number };
   geofence: Geofence;
   zones: SiteZone[];
   ownerUid: string;
@@ -69,6 +77,16 @@ export interface MemberRecord {
   team: string;
   hourlyRate: number;
   dailyWage: number;
+  /** How this person is paid. Hourly or daily wage if unset. */
+  payType?: 'hourly' | 'daily' | 'monthly';
+  monthlySalary?: number;
+  /** Extra hours: paid as overtime, credited as comp-off leave, or neither (salaried, exempt). */
+  overtime?: 'paid' | 'comp_off' | 'none';
+  /** Fixed monthly deductions shown on every payslip, each with its reason (PF, ESI, PT, TDS). */
+  recurringDeductions?: { type: string; amount: number; reason: string }[];
+  /** Member of the Internal Committee under the POSH Act. */
+  icMember?: boolean;
+  icPresiding?: boolean;
   language: Language;
   joinedAt: string;
   status: 'active' | 'removed';
@@ -127,6 +145,8 @@ export interface CheckEvidence {
   clientTime: string;
   serverTime: string;
   clockSkewS: number;
+  /** Checked from an approved work-from-home day. */
+  remote?: boolean;
   trust: TrustLevel;
 }
 
@@ -153,6 +173,10 @@ export type FlagCode =
   | 'HAZARD_FIX_NO_PHOTO'
   | 'HAZARD_FIX_DISPUTED'
   // worker side
+  | 'LEAVE_REVOKED'
+  | 'SALARY_LATE'
+  | 'POSH_NO_COMMITTEE'
+  | 'POSH_OVERDUE'
   | 'CLAIM_NO_SHIFT'
   | 'CLAIM_EXCEEDS_DAY'
   | 'CLAIM_DUPLICATE'
@@ -163,7 +187,7 @@ export type FlagCode =
 export type FlagSeverity = 'info' | 'review' | 'serious';
 
 export interface FlagSubject {
-  kind: 'event' | 'claim' | 'hazard' | 'payment' | 'supervisor' | 'device';
+  kind: 'event' | 'claim' | 'hazard' | 'payment' | 'supervisor' | 'device' | 'leave' | 'workplace';
   id: string;
   workerUid?: string;
 }
@@ -193,6 +217,8 @@ export interface PaymentConfirmation {
   periodEnd: string;
   expectedNet: number;
   receivedAmount: number;
+  /** The date the money arrived (for late-salary checks). */
+  receivedOn?: string;
   createdAt: string;
 }
 
@@ -215,4 +241,75 @@ export interface DailyDigest {
   root: string;
   sealedAt: string;
   sig: string;
+}
+
+// ---------- Leave ----------
+
+export type LeaveType = 'casual' | 'sick' | 'earned' | 'comp_off' | 'unpaid' | 'wfh';
+export type LeaveStatus = 'pending' | 'approved' | 'rejected' | 'cancelled' | 'revoked';
+
+export interface LeaveRequest {
+  id: string;
+  workplaceId: string;
+  workerUid: string;
+  workerName: string;
+  type: LeaveType;
+  from: string; // YYYY-MM-DD
+  to: string; // YYYY-MM-DD
+  halfDay?: boolean;
+  /** Working days the request covers (weekly offs excluded). */
+  days: number;
+  reason: string;
+  status: LeaveStatus;
+  createdAt: string;
+  decidedBy?: string;
+  decidedAt?: string;
+  decisionReason?: string;
+}
+
+/** Sealed into the worker's chain whenever a leave request changes. */
+export interface LedgerLeavePayload {
+  leaveId: string;
+  action: 'requested' | 'approved' | 'rejected' | 'cancelled' | 'revoked';
+  type: LeaveType;
+  from: string;
+  to: string;
+  days: number;
+  byUid: string;
+  byName: string;
+  reason?: string;
+}
+
+// ---------- Confidential complaints (POSH) ----------
+
+export type ComplaintStatus = 'received' | 'inquiry' | 'report_submitted' | 'closed';
+
+export interface ComplaintMessage {
+  id: string;
+  fromRole: 'complainant' | 'committee';
+  fromName: string;
+  text: string;
+  at: string;
+}
+
+/**
+ * A complaint to the Internal Committee. Only the complainant and committee
+ * members (minus any the complainant excluded) can read it. The owner sees
+ * counts only, unless the owner is on the committee.
+ */
+export interface Complaint {
+  id: string;
+  workplaceId: string;
+  complainantUid: string;
+  complainantName: string;
+  respondentName: string;
+  incidentDate: string;
+  place: string;
+  description: string;
+  witnesses?: string;
+  excludedCommitteeUids: string[];
+  status: ComplaintStatus;
+  createdAt: string;
+  updatedAt: string;
+  messages: ComplaintMessage[];
 }

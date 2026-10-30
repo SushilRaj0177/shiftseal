@@ -1,12 +1,12 @@
 # Shiftseal
 
-**Every hour counted. Every rupee explained.** Tamper-evident shift records for shift workers and the people who employ them.
+**Every hour counted. Every rupee explained.** Tamper-evident work records for shift workers, office staff, and the people who employ them.
 
 [![CI](https://github.com/SushilRaj0177/shiftseal/actions/workflows/ci.yml/badge.svg)](https://github.com/SushilRaj0177/shiftseal/actions/workflows/ci.yml)
 
 > **Principle:** the AI understands, code decides, and nothing reaches a worker unchecked.
 
-On a construction site or a campus, a worker's hours usually live in a register the employer controls. Overtime disappears, complaints carry risk, and hazards are reported after someone is hurt. Shiftseal gives the worker their own proof, and gives the employer evidence they can stand behind.
+Whether it is a construction site, a campus or an office, someone else usually keeps the record of a person's time: hours, overtime, leave, salary dates. Overtime disappears, approved leave gets withdrawn, salaries arrive late, complaints carry risk, and hazards are reported after someone is hurt. Shiftseal gives each person their own proof, and gives the employer evidence they can stand behind.
 
 How it works: [`ARCHITECTURE.md`](ARCHITECTURE.md) · Designs: [Figma](https://www.figma.com/design/viMV0sdG4YQXTDyAN6qucK) · System model: [FigJam](https://www.figma.com/board/DXbOejYuuG4GDZP0KnsHtc)
 
@@ -21,11 +21,17 @@ How it works: [`ARCHITECTURE.md`](ARCHITECTURE.md) · Designs: [Figma](https://w
 - **Claim missed overtime** in your own words; it is checked against your records and the employer must decide before payday.
 - **Report hazards** with a photo; dangerous ones can never be rated low.
 - **Speak up anonymously.** Names and places are removed, your words are not kept, and nothing shows until five people have spoken.
-- **Confirm what you were paid.** If it is less than the payslip, the owner sees it.
+- **Confirm what you were paid, and when.** If it is less than the payslip, or a salary arrives after the legal deadline, the owner sees it.
+- **Leave and work from home.** See your balances, ask for leave in two taps; every request and decision is sealed into your record. On an approved work-from-home day you check in from home without being flagged.
+- **Raise a confidential complaint** about harassment. It goes only to the Internal Committee (POSH Act), never to your manager or the owner, and you can exclude committee members.
 
 ## For employers
 
-- Set up a site in minutes: boundary from your own location, zones, shift times, pay day.
+- Set up a site or an office in minutes: boundary from your own location, zones, shift times, weekly or monthly pay, weekly offs.
+- Pay people by the hour, by the day, or a monthly salary with PF, ESI, professional tax and TDS lines; extra hours paid as overtime or given back as comp-off.
+- Approve leave and work-from-home days; see who is away today.
+- Burnout signals for office staff: late nights, work on days off, months without leave.
+- Name an Internal Committee; the dashboard shows only how many complaints are open or overdue.
 - A gate screen whose code changes every 30 seconds, or a printable poster.
 - A dashboard of what needs action: hazards with deadlines, claims before payday, new phones to approve, wages to set, near-miss hotspots, fatigue and attrition signals, team feedback.
 - Corrections with a required reason. The original stays in the record.
@@ -41,6 +47,7 @@ Every check-in carries evidence: a precise location against the site boundary, t
 | Unapproved phone, phone clock wrong | One person repeatedly cutting hours |
 | Overtime on a day with no check-in, more hours than fit in a day, duplicate claims, no co-worker on site that late | Payment lower than the payslip, as confirmed by the worker |
 | Hazard reported away from the zone or without a photo | Hazard marked fixed without a photo, or disputed by the reporter |
+| | Approved leave withdrawn, salary paid after the 7th, no Internal Committee at 10+ people, complaint inquiry past 90 days |
 
 Nobody can close a flag about themselves, and flags about the employer can only be closed by the owner.
 

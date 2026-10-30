@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { api, errorMessage } from '../lib/api.js';
 import { getFix } from '../lib/location.js';
 import { useAuth } from '../auth/AuthProvider.js';
@@ -99,6 +99,29 @@ export const WorkplaceSettings: React.FC = () => {
           <h2 className="t-headline">Account</h2>
           <Kv k="Signed in as" v={base.member.name} />
           <Kv k="Role" v={base.member.role} />
+          {isOwner && (
+            <label className="row-flex">
+              <input
+                type="checkbox"
+                checked={Boolean(base.member.icMember)}
+                onChange={async (e) => {
+                  try {
+                    await api(`/workplaces/${wp.id}/members/${base.member.uid}`, {
+                      method: 'PATCH',
+                      body: { icMember: e.target.checked },
+                    });
+                    window.location.reload();
+                  } catch (err) {
+                    setMsg({ kind: 'error', text: errorMessage(err) });
+                  }
+                }}
+              />
+              I am on the Internal Committee (POSH)
+            </label>
+          )}
+          <Link className="btn btn-secondary btn-sm" to="../complaints">
+            Raise a confidential complaint
+          </Link>
           <button
             type="button"
             className="btn btn-secondary btn-sm"

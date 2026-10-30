@@ -5,10 +5,19 @@ import type {
   ShiftRecord,
   WorkerProfile,
 } from '../../shared/types.js';
-import type { MemberRecord, WorkplaceRecord } from '../../shared/model.js';
+import type { LeaveRequest, MemberRecord, WorkplaceRecord } from '../../shared/model.js';
 import { calculateWeekHours } from '../../shared/rules/hours.js';
 import { calculatePayslip } from '../../shared/rules/pay.js';
-import { addDays, isWithin, payPeriodFor, weekdayOf, type PayPeriod } from '../../shared/time.js';
+import {
+  addDays,
+  daysInMonth,
+  eachDay,
+  isWithin,
+  periodFor,
+  weekdayOf,
+  type PayPeriod,
+} from '../../shared/time.js';
+import type { HoursCalculationResult } from '../../shared/types.js';
 
 export interface StoredDeduction extends DeductionItem {
   workerUid: string;
@@ -42,15 +51,10 @@ export function overtimeTrend(
   wp: WorkplaceRecord,
   today: string
 ): [number, number, number] {
-  const current = payPeriodFor(today, wp.payDay);
-  const periods = [2, 1, 0].map((n) => payPeriodFor(addDays(current.start, -7 * n), wp.payDay));
-  const ot = periods.map(
-    (p) =>
-      calculateWeekHours(
-        shifts.filter((s) => isWithin(s.date, p.start, p.end)),
-        wp.sector
-      ).otHours
-  );
+  const current = periodFor(wp, today);
+  const prev = periodFor(wp, addDays(current.start, -1));
+  const periods = [periodFor(wp, addDays(prev.start, -1)), prev, current];
+  const ot = periods.map((p) => hoursForPeriod(shifts, wp.sector, p).otHours);
   return [ot[0], ot[1], ot[2]];
 }
 
@@ -88,6 +92,64 @@ export function approvedClaimHours(claims: OvertimeClaim[], period: PayPeriod): 
 }
 
 /**
+ * Hours for a pay period. Weekly limits apply week by week, so a monthly
+ * period is split into 7-day blocks from its first day and summed.
+ */
+export function hoursForPeriod(
+  shifts: ShiftRecord[],
+  sector: WorkplaceRecord['sector'],
+  period: PayPeriod
+): HoursCalculationResult {
+  const blocks: HoursCalculationResult[] = [];
+  for (let start = period.start; start <= period.end; start = addDays(start, 7)) {
+    const end = addDays(start, 6) < period.end ? addDays(start, 6) : period.end;
+    blocks.push(
+      calculateWeekHours(
+        shifts.filter((s) => isWithin(s.date, start, end)),
+        sector
+      )
+    );
+  }
+  const sum = (
+    k: 'normalHours' | 'otHours' | 'dailyOtHours' | 'weeklyExtraOtHours' | 'totalHours'
+  ) => Math.round(blocks.reduce((n, b) => n + b[k], 0) * 100) / 100;
+  return {
+    normalHours: sum('normalHours'),
+    otHours: sum('otHours'),
+    dailyOtHours: sum('dailyOtHours'),
+    weeklyExtraOtHours: sum('weeklyExtraOtHours'),
+    totalHours: sum('totalHours'),
+    perDay: blocks.flatMap((b) => b.perDay),
+    ruleRefs: blocks[0]?.ruleRefs ?? [],
+  };
+}
+
+/** Approved unpaid leave days that fall inside a period (weekly offs excluded). */
+export function unpaidLeaveDays(
+  leave: LeaveRequest[],
+  period: PayPeriod,
+  weeklyOff: number[]
+): number {
+  let days = 0;
+  for (const r of leave) {
+    if (r.status !== 'approved' || r.type !== 'unpaid') continue;
+    const inside = eachDay(r.from, r.to).filter(
+      (d) => isWithin(d, period.start, period.end) && !weeklyOff.includes(weekdayOf(d))
+    ).length;
+    days += r.halfDay ? Math.min(inside, 0.5) : inside;
+  }
+  return days;
+}
+
+export function payTypeOf(m: MemberRecord): 'hourly' | 'daily' | 'monthly' {
+  return m.payType ?? (m.hourlyRate > 0 ? 'hourly' : 'daily');
+}
+
+export function weeklyOffOf(wp: WorkplaceRecord): number[] {
+  return wp.weeklyOff ?? [0];
+}
+
+/**
  * The payslip for one pay period, or null when the employer has not set a
  * wage yet (we never guess someone's pay).
  */
@@ -97,21 +159,44 @@ export function payslipFor(
   shifts: ShiftRecord[],
   claims: OvertimeClaim[],
   deductions: StoredDeduction[],
-  period: PayPeriod
+  period: PayPeriod,
+  leave: LeaveRequest[] = []
 ): PayslipCalculationResult | null {
-  if (member.hourlyRate <= 0 && member.dailyWage <= 0) return null;
-  const inPeriod = shifts.filter((s) => isWithin(s.date, period.start, period.end));
-  const hoursResult = calculateWeekHours(inPeriod, wp.sector);
+  const type = payTypeOf(member);
+  const salary = member.monthlySalary ?? 0;
+  if (type === 'monthly' ? salary <= 0 : member.hourlyRate <= 0 && member.dailyWage <= 0)
+    return null;
+  const hoursResult = hoursForPeriod(shifts, wp.sector, period);
+  const recurring = (member.recurringDeductions ?? []).map((d, i) => ({
+    id: `recurring-${i}`,
+    type: d.type,
+    amount: d.amount,
+    reason: d.reason,
+  }));
+  const oneOff = deductions
+    .filter((d) => d.workerUid === member.uid && d.periodStart === period.start)
+    .map(({ id, type: t, amount, reason }) => ({ id, type: t, amount, reason }));
+  const paidClaims = claims.filter((c) => c.compensation !== 'comp_off');
   return calculatePayslip({
     workerId: member.uid,
     weekLabel: periodLabel(period),
     sector: wp.sector,
-    hourlyRate: member.hourlyRate > 0 ? member.hourlyRate : undefined,
-    dailyWage: member.dailyWage > 0 ? member.dailyWage : undefined,
+    hourlyRate: type === 'hourly' ? member.hourlyRate : undefined,
+    dailyWage: type === 'daily' ? member.dailyWage : undefined,
+    monthlySalary: type === 'monthly' ? salary : undefined,
+    daysInPeriod: type === 'monthly' ? daysInMonth(period.start) : undefined,
+    unpaidLeaveDays:
+      type === 'monthly' ? unpaidLeaveDays(leave, period, weeklyOffOf(wp)) : undefined,
+    overtimePaid: type === 'monthly' ? member.overtime === 'paid' : undefined,
     hoursResult,
-    approvedClaimHours: approvedClaimHours(claims, period),
-    deductions: deductions
-      .filter((d) => d.workerUid === member.uid && d.periodStart === period.start)
-      .map(({ id, type, amount, reason }) => ({ id, type, amount, reason })),
+    approvedClaimHours: approvedClaimHours(paidClaims, period),
+    deductions: [...recurring, ...oneOff],
   });
+}
+
+/** Comp-off hours earned from approved extra-hours claims. */
+export function compOffHours(claims: OvertimeClaim[]): number {
+  return claims
+    .filter((c) => c.compensation === 'comp_off' && c.resolutionStatus === 'approved')
+    .reduce((n, c) => n + (c.supportedHours > 0 ? c.supportedHours : c.extraHours), 0);
 }

@@ -7,7 +7,12 @@ import type {
   OvertimeClaim,
   WorkerNotification,
 } from '../../shared/types.js';
-import type { FlagRecord, PaymentConfirmation } from '../../shared/model.js';
+import type {
+  Complaint,
+  FlagRecord,
+  LeaveRequest,
+  PaymentConfirmation,
+} from '../../shared/model.js';
 import {
   aiClaimSchema,
   aiExplainPaySchema,
@@ -35,7 +40,12 @@ import {
   assessPayment,
   hazardFixDisputed,
 } from '../../shared/rules/flags.js';
-import { addDays, localParts, minutesBetween, payPeriodFor } from '../../shared/time.js';
+import { addDays, localParts, minutesBetween, periodFor } from '../../shared/time.js';
+import { evaluateBurnout } from '../../shared/rules/burnout.js';
+import { leaveOn } from '../../shared/rules/leave.js';
+import { assessPoshCompliance } from '../../shared/rules/flags.js';
+import { complaintCounts } from './complaints.js';
+import { balancesFor } from './leave.js';
 import { atLeast, ctx, requireRole } from '../auth/membership.js';
 import { getRepo } from '../data/index.js';
 import { aiRateLimiter } from '../middleware/security.js';
@@ -49,7 +59,12 @@ import {
 import { openShift } from '../services/chain.js';
 import { raiseFlags, visibleFlags } from '../services/flags.js';
 import { newId } from '../services/ids.js';
-import { memberAsProfile, payslipFor, type StoredDeduction } from '../services/payroll.js';
+import {
+  memberAsProfile,
+  payslipFor,
+  weeklyOffOf,
+  type StoredDeduction,
+} from '../services/payroll.js';
 
 export const reportsRouter = Router({ mergeParams: true });
 
@@ -75,12 +90,18 @@ async function savePhoto(
 
 async function loadWorkerData(workplaceId: string, uid: string) {
   const repo = getRepo();
-  const [chain, claims, deductions] = await Promise.all([
+  const [chain, claims, deductions, leave] = await Promise.all([
     repo.getChain(workplaceId, uid),
     repo.list<OvertimeClaim>(workplaceId, 'claims'),
     repo.list<StoredDeduction>(workplaceId, 'deductions'),
+    repo.list<LeaveRequest>(workplaceId, 'leave'),
   ]);
-  return { chain, claims: claims.filter((c) => c.workerId === uid), deductions };
+  return {
+    chain,
+    claims: claims.filter((c) => c.workerId === uid),
+    deductions,
+    leave: leave.filter((r) => r.workerUid === uid),
+  };
 }
 
 // ------------------------------------------------------------------ worker overview
@@ -90,9 +111,10 @@ reportsRouter.get('/me', async (req, res, next) => {
     const { workplace, member } = ctx(req);
     const repo = getRepo();
     const date = today(workplace.timezone);
-    const period = payPeriodFor(date, workplace.payDay);
-    const lastPeriod = payPeriodFor(addDays(period.start, -1), workplace.payDay);
-    const { chain, claims, deductions } = await loadWorkerData(workplace.id, member.uid);
+    const period = periodFor(workplace, date);
+    const lastPeriod = periodFor(workplace, addDays(period.start, -1));
+    const { chain, claims, deductions, leave } = await loadWorkerData(workplace.id, member.uid);
+    const { balances } = await balancesFor(workplace, member.uid, date.slice(0, 4));
     const shifts = latestView(chain);
     const [notifications, hazards, feedback, flags, payments, receipts] = await Promise.all([
       repo.list<WorkerNotification>(workplace.id, 'notifications'),
@@ -111,8 +133,19 @@ reportsRouter.get('/me', async (req, res, next) => {
       chain,
       chainVerification: verify(chain),
       receipts: receipts.filter((r) => r.workerUid === member.uid),
-      payslip: payslipFor(member, workplace, shifts, claims, deductions, period),
-      lastPayslip: payslipFor(member, workplace, shifts, claims, deductions, lastPeriod),
+      payslip: payslipFor(member, workplace, shifts, claims, deductions, period, leave),
+      lastPayslip: payslipFor(member, workplace, shifts, claims, deductions, lastPeriod, leave),
+      payType: member.payType ?? (member.hourlyRate > 0 ? 'hourly' : 'daily'),
+      overtime: member.overtime ?? 'paid',
+      leave: {
+        balances,
+        pending: leave.filter((r) => r.status === 'pending').length,
+        today: leaveOn(leave, date) ?? null,
+        upcoming: leave
+          .filter((r) => r.status === 'approved' && r.from > date)
+          .sort((a, b) => a.from.localeCompare(b.from))
+          .slice(0, 3),
+      },
       lastPeriod,
       lastPayment:
         payments.find((p) => p.workerUid === member.uid && p.periodStart === lastPeriod.start) ??
@@ -145,20 +178,24 @@ reportsRouter.get('/dashboard', requireRole('supervisor'), async (req, res, next
     const { workplace } = ctx(req);
     const repo = getRepo();
     const date = today(workplace.timezone);
-    const period = payPeriodFor(date, workplace.payDay);
-    const [members, claims, hazards, feedback, flags, deductions] = await Promise.all([
-      repo.listMembers(workplace.id),
-      repo.list<OvertimeClaim>(workplace.id, 'claims'),
-      repo.list<HazardReport>(workplace.id, 'hazards'),
-      repo.list<AnonymousFeedbackEntry>(workplace.id, 'feedback'),
-      repo.list<FlagRecord>(workplace.id, 'flags'),
-      repo.list<StoredDeduction>(workplace.id, 'deductions'),
-    ]);
+    const period = periodFor(workplace, date);
+    const [members, claims, hazards, feedback, flags, deductions, leave, complaints] =
+      await Promise.all([
+        repo.listMembers(workplace.id),
+        repo.list<OvertimeClaim>(workplace.id, 'claims'),
+        repo.list<HazardReport>(workplace.id, 'hazards'),
+        repo.list<AnonymousFeedbackEntry>(workplace.id, 'feedback'),
+        repo.list<FlagRecord>(workplace.id, 'flags'),
+        repo.list<StoredDeduction>(workplace.id, 'deductions'),
+        repo.list<LeaveRequest>(workplace.id, 'leave'),
+        repo.list<Complaint>(workplace.id, 'complaints'),
+      ]);
     const active = members.filter((m) => m.status === 'active');
     const workers = active.filter((m) => m.role !== 'owner');
 
     const people = [];
     const fatigue = [];
+    const burnout = [];
     let otOwed = 0;
     let onSite = 0;
     for (const m of workers) {
@@ -168,7 +205,18 @@ reportsRouter.get('/dashboard', requireRole('supervisor'), async (req, res, next
       const open = openShift(chain);
       if (open) onSite += 1;
       const mine = claims.filter((c) => c.workerId === m.uid);
-      const slip = payslipFor(m, workplace, shifts, mine, deductions, period);
+      const theirLeave = leave.filter((r) => r.workerUid === m.uid);
+      const slip = payslipFor(m, workplace, shifts, mine, deductions, period, theirLeave);
+      const b = evaluateBurnout(
+        shifts,
+        theirLeave,
+        date,
+        weeklyOffOf(workplace),
+        workplace.sector,
+        m.joinedAt.slice(0, 10)
+      );
+      if (b.level !== 'low') burnout.push({ workerId: m.uid, workerName: m.name, ...b });
+      const away = leaveOn(theirLeave, date);
       otOwed +=
         slip?.lines
           .filter((l) => l.kind === 'overtime' || l.kind === 'claim_overtime')
@@ -182,10 +230,22 @@ reportsRouter.get('/dashboard', requireRole('supervisor'), async (req, res, next
         title: m.title,
         team: m.team,
         role: m.role,
-        status: open ? 'on_site' : todays ? 'checked_out' : 'absent',
+        status: open
+          ? 'on_site'
+          : todays
+            ? 'checked_out'
+            : away
+              ? away.type === 'wfh'
+                ? 'wfh'
+                : 'on_leave'
+              : 'absent',
         checkIn: todays?.checkInTime ?? null,
         checkOut: todays?.checkOutTime ?? null,
-        rateSet: m.hourlyRate > 0 || m.dailyWage > 0,
+        rateSet:
+          m.payType === 'monthly'
+            ? (m.monthlySalary ?? 0) > 0
+            : m.hourlyRate > 0 || m.dailyWage > 0,
+        icMember: Boolean(m.icMember),
         pendingDevice: Boolean(m.pendingDevice),
         hasDevice: Boolean(m.device),
         chainOk: verify(chain).ok,
@@ -209,6 +269,17 @@ reportsRouter.get('/dashboard', requireRole('supervisor'), async (req, res, next
     });
     const teams = [...new Set(workers.map((m) => m.team))];
 
+    // POSH compliance: counts only, never complaint details.
+    const counts = complaintCounts(complaints, getRule(workplace.sector, 'posh.inquiryDays').value);
+    const poshDrafts = assessPoshCompliance(
+      workplace.id,
+      active.length,
+      active.filter((m) => m.icMember).length,
+      getRule(workplace.sector, 'posh.committeeThreshold').value,
+      counts.overdue
+    ).filter((d) => !flags.some((f) => f.code === d.code && f.status === 'open'));
+    flags.push(...(await raiseFlags(workplace.id, poshDrafts)));
+
     res.json({
       today: date,
       period,
@@ -220,6 +291,7 @@ reportsRouter.get('/dashboard', requireRole('supervisor'), async (req, res, next
         openClaims: claims.filter((c) => c.resolutionStatus === 'pending').length,
         openHazards: hazards.filter((h) => h.status !== 'resolved').length,
         openFlags: flags.filter((f) => f.status === 'open').length,
+        pendingLeave: leave.filter((r) => r.status === 'pending').length,
         overtimeOwed: Math.round(otOwed),
       },
       claims: claims.sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
@@ -227,6 +299,18 @@ reportsRouter.get('/dashboard', requireRole('supervisor'), async (req, res, next
       flags: flags.sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
       hotspots,
       fatigue: fatigue.filter((f) => f.fatigueLevel !== 'low' || f.attritionLevel !== 'low'),
+      burnout,
+      leave: {
+        pending: leave
+          .filter((r) => r.status === 'pending')
+          .sort((a, b) => a.from.localeCompare(b.from)),
+        today: leave.filter((r) => r.status === 'approved' && r.from <= date && date <= r.to),
+      },
+      complaints: {
+        committeeSize: active.filter((m) => m.icMember).length,
+        open: counts.open,
+        overdue: counts.overdue,
+      },
       feedbackGroups: teams.map((t) => evaluateGroupAnonymity(workplace.id, t, feedback)),
     });
   } catch (err) {
@@ -286,6 +370,7 @@ reportsRouter.post('/claims', async (req, res, next) => {
       resolutionStatus: 'pending',
       createdAt: nowIso(),
       kind: 'overtime_claim',
+      compensation: member.overtime === 'comp_off' ? 'comp_off' : 'pay',
     };
     const flags = await raiseFlags(
       workplace.id,
@@ -535,7 +620,7 @@ reportsRouter.post('/payments/confirm', async (req, res, next) => {
   try {
     const body = confirmPaymentSchema.parse(req.body);
     const { workplace, member } = ctx(req);
-    const period = payPeriodFor(body.periodStart, workplace.payDay);
+    const period = periodFor(workplace, body.periodStart);
     if (period.start !== body.periodStart || period.payDate > today(workplace.timezone)) {
       throw new AppError(
         400,
@@ -543,9 +628,25 @@ reportsRouter.post('/payments/confirm', async (req, res, next) => {
         'You can confirm a payment once payday has passed.'
       );
     }
-    const { chain, claims, deductions } = await loadWorkerData(workplace.id, member.uid);
-    const slip = payslipFor(member, workplace, latestView(chain), claims, deductions, period);
+    const { chain, claims, deductions, leave } = await loadWorkerData(workplace.id, member.uid);
+    const slip = payslipFor(
+      member,
+      workplace,
+      latestView(chain),
+      claims,
+      deductions,
+      period,
+      leave
+    );
     if (!slip) throw new AppError(409, 'NO_PAYSLIP', 'Your wage has not been set yet.');
+    const receivedOn = body.receivedOn ?? today(workplace.timezone);
+    if (receivedOn > today(workplace.timezone))
+      throw new AppError(400, 'BAD_DATE', 'That date is in the future.');
+    // Monthly salaries are due by the 7th of the next month; weekly wages on pay day.
+    const dueDate =
+      workplace.payCycle === 'monthly'
+        ? addDays(period.end, getRule(workplace.sector, 'pay.monthlyDueDays').value)
+        : period.payDate;
     const confirmation: PaymentConfirmation = {
       id: `${member.uid}_${period.start}`,
       workplaceId: workplace.id,
@@ -554,11 +655,21 @@ reportsRouter.post('/payments/confirm', async (req, res, next) => {
       periodEnd: period.end,
       expectedNet: slip.netPay,
       receivedAmount: body.receivedAmount,
+      receivedOn,
       createdAt: nowIso(),
     };
     await getRepo().put(workplace.id, 'payments', confirmation);
-    const draft = assessPayment(confirmation.id, member.uid, slip.netPay, body.receivedAmount);
-    const flags = draft ? await raiseFlags(workplace.id, [draft]) : [];
+    const flags = await raiseFlags(
+      workplace.id,
+      assessPayment(
+        confirmation.id,
+        member.uid,
+        slip.netPay,
+        body.receivedAmount,
+        receivedOn,
+        dueDate
+      )
+    );
     res.status(201).json({ confirmation, flags });
   } catch (err) {
     next(err);
@@ -584,7 +695,7 @@ reportsRouter.post('/deductions', requireRole('supervisor'), async (req, res, ne
     const item: StoredDeduction = {
       id: newId('ded'),
       ...body,
-      periodStart: payPeriodFor(body.periodStart, workplace.payDay).start,
+      periodStart: periodFor(workplace, body.periodStart).start,
       createdBy: member.uid,
       createdAt: nowIso(),
     };
@@ -660,9 +771,17 @@ reportsRouter.post('/ai/explain-pay', aiRateLimiter, async (req, res, next) => {
   try {
     const body = aiExplainPaySchema.parse(req.body);
     const { workplace, member } = ctx(req);
-    const { chain, claims, deductions } = await loadWorkerData(workplace.id, member.uid);
-    const period = payPeriodFor(today(workplace.timezone), workplace.payDay);
-    const slip = payslipFor(member, workplace, latestView(chain), claims, deductions, period);
+    const { chain, claims, deductions, leave } = await loadWorkerData(workplace.id, member.uid);
+    const period = periodFor(workplace, today(workplace.timezone));
+    const slip = payslipFor(
+      member,
+      workplace,
+      latestView(chain),
+      claims,
+      deductions,
+      period,
+      leave
+    );
     if (!slip) throw new AppError(409, 'NO_PAYSLIP', 'Your wage has not been set yet.');
     res.json(await explainPay(body, slip, body.lang));
   } catch (err) {

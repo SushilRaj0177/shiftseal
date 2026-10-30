@@ -2,7 +2,7 @@ import { Router } from 'express';
 import QRCode from 'qrcode';
 import { z } from 'zod/v3';
 import type { LedgerEditPayload, WorkerNotification } from '../../shared/types.js';
-import type { DeviceBinding, FlagRecord, MemberRecord } from '../../shared/model.js';
+import type { DeviceBinding, FlagRecord, LeaveRequest, MemberRecord } from '../../shared/model.js';
 import {
   checkRequestSchema,
   createInviteSchema,
@@ -21,7 +21,8 @@ import {
   reducesHours,
   type FlagDraft,
 } from '../../shared/rules/flags.js';
-import { localParts, minutesBetween, payPeriodFor } from '../../shared/time.js';
+import { localParts, minutesBetween, periodFor } from '../../shared/time.js';
+import { leaveOn } from '../../shared/rules/leave.js';
 import { atLeast, ctx, requireRole } from '../auth/membership.js';
 import { getRepo } from '../data/index.js';
 import { qrSecret } from '../keys.js';
@@ -122,12 +123,30 @@ workplaceRouter.patch('/members/:uid', requireRole('supervisor'), async (req, re
     const repo = getRepo();
     const target = await repo.getMember(workplace.id, String(req.params.uid));
     if (!target) throw new AppError(404, 'MEMBER_NOT_FOUND', 'Member not found.');
-    if (target.role === 'owner')
+    // The owner can only be put on the POSH committee, nothing else.
+    const committeeOnly = Object.keys(body).every((k) => k === 'icMember' || k === 'icPresiding');
+    if (target.role === 'owner' && !committeeOnly) {
       throw new AppError(403, 'FORBIDDEN', 'The owner cannot be changed here.');
-    if ((body.role || body.status) && me.role !== 'owner') {
-      throw new AppError(403, 'FORBIDDEN', 'Only the owner can change roles or remove people.');
     }
-    if (target.uid === me.uid && (body.hourlyRate !== undefined || body.dailyWage !== undefined)) {
+    if (
+      (body.role || body.status || body.icMember !== undefined || body.icPresiding !== undefined) &&
+      me.role !== 'owner'
+    ) {
+      throw new AppError(
+        403,
+        'FORBIDDEN',
+        'Only the owner can change roles, the committee, or remove people.'
+      );
+    }
+    const payFields = [
+      'hourlyRate',
+      'dailyWage',
+      'monthlySalary',
+      'payType',
+      'overtime',
+      'recurringDeductions',
+    ];
+    if (target.uid === me.uid && Object.keys(body).some((k) => payFields.includes(k))) {
       throw new AppError(403, 'FORBIDDEN', 'You cannot set your own wage.');
     }
     const updated = { ...target, ...body };
@@ -314,6 +333,16 @@ workplaceRouter.post('/checks', async (req, res, next) => {
         ? qr.zoneCode
         : 'site';
     const integrity = await verifyIntegrity(body.integrityToken, device.binding.platform);
+    // On an approved work-from-home day, location is recorded but not compared with the site.
+    const remote = Boolean(
+      leaveOn(
+        (await getRepo().list<LeaveRequest>(workplace.id, 'leave')).filter(
+          (r) => r.workerUid === member.uid
+        ),
+        local.date,
+        ['wfh']
+      )
+    );
     const eventId = newId('ev');
     const assessed = assessCheck({
       eventId,
@@ -327,6 +356,7 @@ workplaceRouter.post('/checks', async (req, res, next) => {
       integrity,
       clientTime: p.clientTime,
       serverTime,
+      remote,
     });
 
     const repo = getRepo();
@@ -349,6 +379,7 @@ workplaceRouter.post('/checks', async (req, res, next) => {
         timestamp: local.time,
         zoneCode,
         source: qr.valid ? 'qr' : 'manual',
+        ...(remote ? { zoneCode: 'remote' } : {}),
         at: serverTime,
         receivedAt: now.toISOString(),
         nonce: p.nonce,
@@ -456,7 +487,7 @@ workplaceRouter.post('/shifts/edit', requireRole('supervisor'), async (req, res,
       newValue: body.newTime,
       originalEvidence: target!.evidence,
       editDate,
-      payDate: payPeriodFor(shiftDate, workplace.payDay).payDate,
+      payDate: periodFor(workplace, shiftDate).payDate,
     });
     const members = await repo.listMembers(workplace.id);
     const history = [];

@@ -9,6 +9,8 @@ const ICON = {
   DISPUTE_RESOLVED: 'scale',
   HAZARD_UPDATED: 'alert',
   DEVICE_APPROVED: 'phone',
+  LEAVE_DECIDED: 'clock',
+  LEAVE_REVOKED: 'pencil',
 } as const;
 
 export const Notifications: React.FC = () => {
@@ -31,7 +33,9 @@ export const Notifications: React.FC = () => {
               >
                 <Tile
                   icon={ICON[n.type]}
-                  tone={n.type === 'SHIFT_EDITED' ? 'warn' : undefined}
+                  tone={
+                    n.type === 'SHIFT_EDITED' || n.type === 'LEAVE_REVOKED' ? 'warn' : undefined
+                  }
                   small
                 />
                 <div className="grow stack-sm">

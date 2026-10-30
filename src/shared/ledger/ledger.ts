@@ -143,7 +143,7 @@ export function append(
     workerId: string;
     type: LedgerEventType;
     createdAt: string;
-    payload: LedgerCheckInPayload | LedgerCheckOutPayload | LedgerEditPayload;
+    payload: LedgerEvent['payload'];
   }
 ): LedgerEvent[] {
   const prevHash = chain.length === 0 ? 'GENESIS' : chain[chain.length - 1].hash;

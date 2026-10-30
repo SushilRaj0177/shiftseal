@@ -224,9 +224,12 @@ describe('claim, payment and hazard evidence', () => {
     );
   });
 
-  it('flags underpayment but not overpayment', () => {
-    expect(assessPayment('p', 'u', 5584, 4800)?.facts.shortBy).toBe(784);
-    expect(assessPayment('p', 'u', 5584, 5600)).toBeNull();
+  it('flags underpayment and late salary, but not overpayment', () => {
+    expect(assessPayment('p', 'u', 5584, 4800)[0].facts.shortBy).toBe(784);
+    expect(assessPayment('p', 'u', 5584, 5600)).toEqual([]);
+    const late = assessPayment('p', 'u', 30000, 30000, '2026-11-10', '2026-11-07');
+    expect(late.map((f) => f.code)).toEqual(['SALARY_LATE']);
+    expect(assessPayment('p', 'u', 30000, 30000, '2026-11-05', '2026-11-07')).toEqual([]);
   });
 
   it('flags hazard reports without photos or away from the zone, and fixes without photos', () => {

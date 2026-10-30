@@ -11,6 +11,7 @@ import { Icon } from '../components/Icon.js';
 import { Card, Notice, Pill, SectionHead, Skeleton, Tile } from '../ui/index.js';
 import { TabBar, useWorker } from './WorkerApp.js';
 import { PaymentPrompt } from './Pay.js';
+import { TYPE_KEY } from './Leave.js';
 
 export const Home: React.FC = () => {
   const { t, lang } = useLang();
@@ -41,6 +42,8 @@ export const Home: React.FC = () => {
   const weeklyLimit = getRule(wp.sector, 'ot.weekly').value;
   const pending = queuedCount(wp.id);
   const elapsed = open ? minutesSince(open.checkInTime, nowHHMM(wp.timezone)) / 60 : 0;
+  const away = overview?.leave.today ?? null;
+  const wfh = away?.type === 'wfh';
 
   return (
     <main className="screen has-tabs">
@@ -74,6 +77,11 @@ export const Home: React.FC = () => {
           </Notice>
         )}
         {note && <Notice kind="info">{note}</Notice>}
+        {away && (
+          <Notice kind="info">
+            {wfh ? t('wfhToday') : t('onLeaveToday', t(TYPE_KEY[away.type]).toLowerCase())}
+          </Notice>
+        )}
 
         {edits.map((n) => (
           <Card key={n.id} tone="warn">
@@ -150,8 +158,8 @@ export const Home: React.FC = () => {
                   {t('shiftHours', wp.shiftStart, wp.shiftEnd)}
                 </span>
                 <Link className="btn btn-primary" to={`${base}/check`}>
-                  <Icon name="qr" />
-                  {t('checkIn')}
+                  <Icon name={wfh ? 'home' : 'qr'} />
+                  {wfh ? t('startWfh') : t('checkIn')}
                 </Link>
               </>
             )}

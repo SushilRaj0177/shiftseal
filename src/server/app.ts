@@ -16,6 +16,8 @@ import { healthRouter } from './routes/health.js';
 import { accountRouter, publicRouter } from './routes/account.js';
 import { workplaceRouter } from './routes/workplace.js';
 import { reportsRouter } from './routes/reports.js';
+import { leaveRouter } from './routes/leave.js';
+import { complaintsRouter } from './routes/complaints.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -34,7 +36,15 @@ export function createApp() {
   app.use('/api', publicRouter);
   app.use('/api/invites', inviteRateLimiter);
   app.use('/api', accountRouter);
-  app.use('/api/workplaces/:wp', requireIdentity, loadMembership, workplaceRouter, reportsRouter);
+  app.use(
+    '/api/workplaces/:wp',
+    requireIdentity,
+    loadMembership,
+    workplaceRouter,
+    reportsRouter,
+    leaveRouter,
+    complaintsRouter
+  );
 
   // Serve static frontend in production
   const clientDistCandidates = [

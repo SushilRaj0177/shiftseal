@@ -31,6 +31,10 @@ export const FLAG_TITLES: Record<string, string> = {
   CLAIM_NOT_CORROBORATED: 'No one else on site that late',
   HAZARD_NO_PHOTO: 'Hazard reported without photo',
   HAZARD_OUTSIDE_ZONE: 'Reporter not near the zone',
+  LEAVE_REVOKED: 'Approved leave withdrawn',
+  SALARY_LATE: 'Salary paid late',
+  POSH_NO_COMMITTEE: 'No Internal Committee (POSH)',
+  POSH_OVERDUE: 'Complaint inquiry overdue',
 };
 
 export function flagTone(f: FlagRecord): Tone {
@@ -126,6 +130,15 @@ export const Overview: React.FC = () => {
         ),
         to: 'review?tab=flags',
       })),
+    ...dash.leave.pending.map((r) => ({
+      key: r.id,
+      icon: 'clock' as const,
+      tone: undefined,
+      title: `Leave request · ${r.workerName}`,
+      sub: `${r.type.replace('_', ' ')} · ${r.from}${r.to !== r.from ? ` to ${r.to}` : ''} · ${r.days} day(s)`,
+      pill: <Pill tone="warn">Decide</Pill>,
+      to: 'leave',
+    })),
     ...dash.people
       .filter((p) => p.pendingDevice)
       .map((p) => ({
@@ -156,7 +169,7 @@ export const Overview: React.FC = () => {
         <div className="stack-sm">
           <h1 className="t-title">{wp.name}</h1>
           <span className="muted">
-            Week {periodLabel(dash.period)} · payday{' '}
+            Pay period {periodLabel(dash.period)} · payday{' '}
             {new Date(`${dash.period.payDate}T00:00:00Z`).toUTCString().slice(0, 11)}
           </span>
         </div>
@@ -191,7 +204,7 @@ export const Overview: React.FC = () => {
               'Each has a deadline',
               dash.kpis.openHazards ? 'c-danger' : 'muted',
             ],
-            ['Overtime owed', money(dash.kpis.overtimeOwed), 'This pay week', 'muted'],
+            ['Overtime owed', money(dash.kpis.overtimeOwed), 'This pay period', 'muted'],
           ] as const
         ).map(([label, value, sub, cls]) => (
           <Card key={label}>
@@ -284,6 +297,35 @@ export const Overview: React.FC = () => {
                 </Pill>
               </div>
             ))}
+          </Card>
+          {dash.burnout.length > 0 && (
+            <Card>
+              <SectionHead title="Burnout watch" />
+              {dash.burnout.map((b) => (
+                <div key={b.workerId} className="between">
+                  <span className="stack-sm">
+                    <span className="t-strong">{b.workerName}</span>
+                    <span className="t-caption muted">{b.reasons.join(' · ')}</span>
+                  </span>
+                  <Pill tone={b.level === 'high' ? 'danger' : 'warn'}>
+                    {b.level === 'high' ? 'High' : 'Medium'}
+                  </Pill>
+                </div>
+              ))}
+            </Card>
+          )}
+          <Card>
+            <SectionHead title="Confidential complaints" />
+            {dash.complaints.committeeSize === 0 ? (
+              <span className="t-caption c-warn">
+                No Internal Committee named yet. Add members from a person's page under People.
+              </span>
+            ) : (
+              <span className="t-caption muted">
+                {dash.complaints.open} open, {dash.complaints.overdue} past the 90-day limit.
+                Committee of {dash.complaints.committeeSize}. Only the committee reads complaints.
+              </span>
+            )}
           </Card>
           <Card tone="subtle">
             <div className="row-flex">

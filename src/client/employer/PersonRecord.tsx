@@ -10,6 +10,21 @@ import { AppBar, Card, Field, Kv, Notice, Pill, Sheet, Skeleton } from '../ui/in
 import { FLAG_TITLES, flagTone } from './Overview.js';
 import { useEmployer } from './EmployerApp.js';
 
+/** "PF, 1800, Employee PF" lines into deduction items. Lines that do not parse are ignored. */
+function parseDeductions(text: string) {
+  return text
+    .split('\n')
+    .map((line) => line.split(',').map((x) => x.trim()))
+    .filter(
+      ([type, amount, ...reason]) => type && Number(amount) > 0 && reason.join(',').length >= 3
+    )
+    .map(([type, amount, ...reason]) => ({
+      type,
+      amount: Number(amount),
+      reason: reason.join(', '),
+    }));
+}
+
 function evidenceOf(rec: WorkerRecord, eventId?: string): CheckEvidence | undefined {
   const ev = rec.chain.find((e) => e.id === eventId);
   return ev ? (ev.payload as { evidence?: CheckEvidence }).evidence : undefined;
@@ -40,6 +55,8 @@ export const PersonRecord: React.FC = () => {
   if (!rec.data) return <Skeleton height={300} />;
   const w = rec.data.worker;
   const val = (k: string, fallback: string | number) => form[k] ?? String(fallback);
+  const payType = (form.payType ?? w.payType ?? (w.hourlyRate > 0 ? 'hourly' : 'daily')) as
+    'hourly' | 'daily' | 'monthly';
 
   const run = async (fn: () => Promise<void>, ok: string) => {
     setBusy(true);
@@ -62,8 +79,12 @@ export const PersonRecord: React.FC = () => {
         body: {
           title: val('title', w.title),
           team: val('team', w.team),
+          payType,
           hourlyRate: Number(val('hourlyRate', w.hourlyRate)),
           dailyWage: Number(val('dailyWage', w.dailyWage)),
+          monthlySalary: Number(val('monthlySalary', w.monthlySalary ?? 0)),
+          overtime: val('overtime', w.overtime ?? 'paid'),
+          recurringDeductions: parseDeductions(val('deductions', '')),
         },
       });
       setForm({});
@@ -151,7 +172,25 @@ export const PersonRecord: React.FC = () => {
                 onChange={(e) => setForm({ ...form, team: e.target.value })}
               />
             </Field>
-            <div className="grid-2">
+            <Field label="Paid">
+              <div className="segmented" role="group">
+                {(['hourly', 'daily', 'monthly'] as const).map((k) => (
+                  <button
+                    key={k}
+                    type="button"
+                    aria-pressed={payType === k}
+                    onClick={() => setForm({ ...form, payType: k })}
+                  >
+                    {k === 'hourly'
+                      ? 'By the hour'
+                      : k === 'daily'
+                        ? 'By the day'
+                        : 'Monthly salary'}
+                  </button>
+                ))}
+              </div>
+            </Field>
+            {payType === 'hourly' && (
               <Field label="Hourly rate (₹)">
                 <input
                   className="input"
@@ -160,7 +199,9 @@ export const PersonRecord: React.FC = () => {
                   onChange={(e) => setForm({ ...form, hourlyRate: e.target.value })}
                 />
               </Field>
-              <Field label="or daily wage (₹)">
+            )}
+            {payType === 'daily' && (
+              <Field label="Daily wage (₹)">
                 <input
                   className="input"
                   inputMode="decimal"
@@ -168,7 +209,45 @@ export const PersonRecord: React.FC = () => {
                   onChange={(e) => setForm({ ...form, dailyWage: e.target.value })}
                 />
               </Field>
-            </div>
+            )}
+            {payType === 'monthly' && (
+              <>
+                <Field label="Monthly salary (₹)">
+                  <input
+                    className="input"
+                    inputMode="decimal"
+                    value={val('monthlySalary', w.monthlySalary ?? 0)}
+                    onChange={(e) => setForm({ ...form, monthlySalary: e.target.value })}
+                  />
+                </Field>
+                <Field label="Extra hours">
+                  <select
+                    className="select"
+                    value={val('overtime', w.overtime ?? 'paid')}
+                    onChange={(e) => setForm({ ...form, overtime: e.target.value })}
+                  >
+                    <option value="paid">Paid as overtime (2×)</option>
+                    <option value="comp_off">Given back as comp-off leave</option>
+                    <option value="none">Not compensated (exempt role)</option>
+                  </select>
+                </Field>
+              </>
+            )}
+            <Field
+              label="Monthly deductions (one per line: type, amount, reason)"
+              hint="For example: PF, 1800, Employee PF 12% of basic"
+            >
+              <textarea
+                className="textarea"
+                value={val(
+                  'deductions',
+                  (w.recurringDeductions ?? [])
+                    .map((d) => `${d.type}, ${d.amount}, ${d.reason}`)
+                    .join('\n')
+                )}
+                onChange={(e) => setForm({ ...form, deductions: e.target.value })}
+              />
+            </Field>
             <button
               type="button"
               className="btn btn-primary btn-sm"
@@ -221,6 +300,54 @@ export const PersonRecord: React.FC = () => {
                   <Pill tone={f.status === 'open' ? flagTone(f) : 'neutral'}>{f.status}</Pill>
                 </div>
               ))}
+            </Card>
+          )}
+          {isOwner && (
+            <Card>
+              <h2 className="t-headline">Internal Committee (POSH)</h2>
+              <span className="t-caption muted">
+                Committee members read confidential complaints. Nobody else, including you, can see
+                them unless you are a member.
+              </span>
+              <label className="row-flex">
+                <input
+                  type="checkbox"
+                  checked={Boolean(w.icMember)}
+                  onChange={(e) =>
+                    run(
+                      () =>
+                        api(`/workplaces/${wp.id}/members/${uid}`, {
+                          method: 'PATCH',
+                          body: {
+                            icMember: e.target.checked,
+                            icPresiding: e.target.checked ? w.icPresiding : false,
+                          },
+                        }),
+                      'Committee updated.'
+                    )
+                  }
+                />
+                On the committee
+              </label>
+              {w.icMember && (
+                <label className="row-flex">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(w.icPresiding)}
+                    onChange={(e) =>
+                      run(
+                        () =>
+                          api(`/workplaces/${wp.id}/members/${uid}`, {
+                            method: 'PATCH',
+                            body: { icPresiding: e.target.checked },
+                          }),
+                        'Committee updated.'
+                      )
+                    }
+                  />
+                  Presiding officer
+                </label>
+              )}
             </Card>
           )}
           {isOwner && w.role !== 'owner' && (

@@ -44,6 +44,8 @@ export interface CheckInput {
   integrity: IntegrityVerdict;
   clientTime: string;
   serverTime: string;
+  /** An approved work-from-home day: location is recorded but not compared with the site. */
+  remote?: boolean;
 }
 
 export function assessCheck(input: CheckInput): { evidence: CheckEvidence; flags: FlagDraft[] } {
@@ -60,6 +62,10 @@ export function assessCheck(input: CheckInput): { evidence: CheckEvidence; flags
   let inside: boolean | undefined;
   if (!input.fix) {
     add('NO_LOCATION', 'review', 'No location was shared with this check.');
+  } else if (input.remote) {
+    if (input.fix.mocked) {
+      add('MOCK_LOCATION', 'serious', 'The phone reported a simulated (mock) location.');
+    }
   } else {
     const fix = evaluateFix(input.fix, input.fence);
     distance = fix.distanceM;
@@ -86,7 +92,10 @@ export function assessCheck(input: CheckInput): { evidence: CheckEvidence; flags
     }
   }
 
-  if (input.qr === 'none') add('NO_QR', 'review', 'Checked without scanning the site QR code.');
+  if (input.remote) {
+    // No gate to scan from home.
+  } else if (input.qr === 'none')
+    add('NO_QR', 'review', 'Checked without scanning the site QR code.');
   else if (!input.qrValid)
     add('QR_INVALID', 'serious', 'The scanned QR code was expired or not from this site.', {
       qr: input.qr,
@@ -136,6 +145,7 @@ export function assessCheck(input: CheckInput): { evidence: CheckEvidence; flags
       clientTime: input.clientTime,
       serverTime: input.serverTime,
       clockSkewS: Number.isFinite(skew) ? skew : 0,
+      remote: input.remote || undefined,
       trust,
     },
     flags,
@@ -304,18 +314,89 @@ export function assessPayment(
   paymentId: string,
   workerUid: string,
   expectedNet: number,
-  received: number
-): FlagDraft | null {
+  received: number,
+  receivedOn?: string,
+  dueDate?: string
+): FlagDraft[] {
+  const subject: FlagSubject = { kind: 'payment', id: paymentId, workerUid };
+  const flags: FlagDraft[] = [];
   const shortBy = Math.round(expectedNet - received);
-  if (shortBy < 1) return null;
+  if (shortBy >= 1) {
+    flags.push({
+      code: 'PAYMENT_MISMATCH',
+      severity: 'serious',
+      concerns: 'employer',
+      subject,
+      message: `Worker reports receiving ₹${received}, ₹${shortBy} less than the payslip.`,
+      facts: { expectedNet, received, shortBy },
+    });
+  }
+  if (receivedOn && dueDate && receivedOn > dueDate) {
+    flags.push({
+      code: 'SALARY_LATE',
+      severity: 'serious',
+      concerns: 'employer',
+      subject,
+      message: `Paid on ${receivedOn}; the legal deadline was ${dueDate}.`,
+      facts: { receivedOn, dueDate },
+    });
+  }
+  return flags;
+}
+
+// ---------------------------------------------------------------- leave
+
+export function leaveRevoked(
+  leaveId: string,
+  workerUid: string,
+  byName: string,
+  from: string,
+  to: string,
+  reason: string
+): FlagDraft {
   return {
-    code: 'PAYMENT_MISMATCH',
+    code: 'LEAVE_REVOKED',
     severity: 'serious',
     concerns: 'employer',
-    subject: { kind: 'payment', id: paymentId, workerUid },
-    message: `Worker reports receiving ₹${received}, ₹${shortBy} less than the payslip.`,
-    facts: { expectedNet, received, shortBy },
+    subject: { kind: 'leave', id: leaveId, workerUid },
+    message: `${byName} withdrew leave that had already been approved (${from} to ${to}).`,
+    facts: { from, to, reason: reason.slice(0, 200) },
   };
+}
+
+// ---------------------------------------------------------------- POSH
+
+/** Workplace-level compliance flags. They carry counts only, never complaint details. */
+export function assessPoshCompliance(
+  workplaceId: string,
+  headcount: number,
+  committeeSize: number,
+  threshold: number,
+  overdueComplaints: number
+): FlagDraft[] {
+  const subject: FlagSubject = { kind: 'workplace', id: workplaceId };
+  const flags: FlagDraft[] = [];
+  if (headcount >= threshold && committeeSize === 0) {
+    flags.push({
+      code: 'POSH_NO_COMMITTEE',
+      severity: 'serious',
+      concerns: 'employer',
+      subject,
+      message: `${headcount} people work here, but no Internal Committee has been named. The POSH Act requires one from ${threshold}.`,
+      facts: { headcount, threshold },
+    });
+  }
+  if (overdueComplaints > 0) {
+    flags.push({
+      code: 'POSH_OVERDUE',
+      severity: 'serious',
+      concerns: 'employer',
+      subject,
+      message: `${overdueComplaints} complaint(s) have been open longer than the 90-day inquiry limit.`,
+      facts: { overdueComplaints },
+    });
+  }
+  return flags;
 }
 
 // ---------------------------------------------------------------- hazards

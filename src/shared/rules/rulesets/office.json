@@ -1,0 +1,86 @@
+{
+  "sector": "office",
+  "name": "Offices (salaried and hourly staff)",
+  "rules": {
+    "hours.daily": {
+      "id": "hours.daily",
+      "value": 8,
+      "unit": "hours/day",
+      "kind": "law",
+      "source": "Tamil Nadu Shops and Establishments Act, 1947 & Occupational Safety, Health and Working Conditions Code, 2020 (India): normal daily hours",
+      "note": "Hours worked beyond 8 hours in a day are counted as daily overtime."
+    },
+    "ot.weekly": {
+      "id": "ot.weekly",
+      "value": 48,
+      "unit": "hours/week",
+      "kind": "law",
+      "source": "Occupational Safety, Health and Working Conditions Code, 2020 (India): normal weekly hours",
+      "note": "Hours worked beyond 48 normal hours in a week are counted as weekly overtime."
+    },
+    "ot.multiplier": {
+      "id": "ot.multiplier",
+      "value": 2,
+      "unit": "x hourly rate",
+      "kind": "law",
+      "source": "Code on Wages, 2019 (India): overtime rate at twice the ordinary rate of wages",
+      "note": "Mandatory 2x rate for all overtime hours."
+    },
+    "rest.weeklyDays": {
+      "id": "rest.weeklyDays",
+      "value": 1,
+      "unit": "days/week",
+      "kind": "law",
+      "source": "Occupational Safety, Health and Working Conditions Code, 2020 (India): weekly day of rest",
+      "note": "At least one rest day every 7 days."
+    },
+    "pay.deductionReasonRequired": {
+      "id": "pay.deductionReasonRequired",
+      "value": 1,
+      "unit": "boolean",
+      "kind": "policy",
+      "source": "Workplace policy: any wage deduction must specify an explicit written reason",
+      "note": "Unexplained wage deductions are flagged for review."
+    },
+    "rest.minGapHours": {
+      "id": "rest.minGapHours",
+      "value": 10,
+      "unit": "hours",
+      "kind": "policy",
+      "source": "Workplace policy: minimum turnaround rest between consecutive shifts",
+      "note": "Flags turnarounds shorter than 10 hours between shifts."
+    },
+    "fatigue.maxConsecutiveDays": {
+      "id": "fatigue.maxConsecutiveDays",
+      "value": 6,
+      "unit": "days",
+      "kind": "policy",
+      "source": "Workplace policy: maximum consecutive days worked without rest day",
+      "note": "Alert triggered when staff work more than 6 days or nights in a row."
+    },
+    "fatigue.maxRolling7dHours": {
+      "id": "fatigue.maxRolling7dHours",
+      "value": 55,
+      "unit": "hours/7d",
+      "kind": "policy",
+      "source": "Workplace policy: rolling 7-day cumulative hour ceiling",
+      "note": "Alert triggered when rolling 7-day hours exceed 55h."
+    },
+    "hazard.floorHigh": {
+      "id": "hazard.floorHigh",
+      "value": 3,
+      "unit": "severity_rank",
+      "kind": "policy",
+      "source": "Workplace safety policy: mandatory high-severity floor for office life-safety hazards",
+      "note": "Electrical, fire, gas leak, chemical, fall from height, and violence/weapon cannot be graded below High."
+    },
+    "hazard.hotspotThreshold": {
+      "id": "hazard.hotspotThreshold",
+      "value": 3,
+      "unit": "reports/14d",
+      "kind": "policy",
+      "source": "Workplace safety policy: near-miss zone hotspot threshold",
+      "note": "Zones with 3 or more reports within 14 days are flagged as active hotspots."
+    }
+  }
+}

@@ -18,6 +18,8 @@ import { Shift } from './Shift.js';
 import { CheckFlow } from './CheckFlow.js';
 import { Notifications } from './Notifications.js';
 import { Settings } from './Settings.js';
+import { Leave } from './Leave.js';
+import { CommitteeInbox, Complaints } from '../complaints/Complaints.js';
 
 interface WorkerContextValue {
   wp: WorkplaceRecord;
@@ -53,6 +55,7 @@ export const TabBar: React.FC = () => {
   const tabs = [
     { to: `/w/${wp}`, label: t('navHome'), icon: 'home' as const, end: true },
     { to: `/w/${wp}/pay`, label: t('navPay'), icon: 'wallet' as const },
+    { to: `/w/${wp}/leave`, label: t('navLeave'), icon: 'clock' as const },
     { to: `/w/${wp}/report`, label: t('navReport'), icon: 'alert' as const },
     { to: `/w/${wp}/speak`, label: t('navSpeak'), icon: 'chat' as const },
   ];
@@ -147,6 +150,9 @@ export default function WorkerApp() {
       <Routes>
         <Route index element={<Home />} />
         <Route path="pay" element={<Pay />} />
+        <Route path="leave" element={<Leave />} />
+        <Route path="complaints" element={<Complaints back={`/w/${wp}/report`} />} />
+        <Route path="committee" element={<CommitteeInbox back={`/w/${wp}/settings`} />} />
         <Route path="report" element={<Report />} />
         <Route path="speak" element={<SpeakUp />} />
         <Route path="claim" element={<Claim />} />

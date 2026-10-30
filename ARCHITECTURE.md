@@ -45,9 +45,11 @@ flowchart LR
 | Worker app | `src/client/worker/` | Home, check-in flow, Pay, Report, Speak up, shift receipts. Holds the phone's signing key and a copy of its own record. Queues checks when offline. |
 | Employer app | `src/client/employer/` | Setup, invites and posters, gate screen, dashboard, people and wages, review of claims, hazards and flags. |
 | Sign-in | `src/client/auth/`, `src/server/auth/` | Firebase phone (SMS code) and Google sign-in; the server verifies every ID token and loads the caller's role from their membership. |
-| API | `src/server/routes/` | `account.ts` (profile, workplaces, invites), `workplace.ts` (members, phones, gate codes, checks, corrections), `reports.ts` (overview, dashboard, claims, hazards, feedback, pay, flags, AI). |
-| Rules | `src/shared/rules/` | `hours`, `pay`, `claims`, `severity`, `fatigue`, `anonymity`, `factcheck`, `flags`. Rulesets per sector in `rules/rulesets/`. |
-| Record | `src/shared/ledger/ledger.ts` | SHA-256 hash chain per worker: `CHECK_IN`, `CHECK_OUT`, `EDIT`. Nothing is overwritten. |
+| API | `src/server/routes/` | `account.ts` (profile, workplaces, invites), `workplace.ts` (members, phones, gate codes, checks, corrections), `reports.ts` (overview, dashboard, claims, hazards, feedback, pay, flags, AI), `leave.ts`, `complaints.ts`. |
+| Rules | `src/shared/rules/` | `hours`, `pay` (hourly, daily, monthly salary), `claims`, `severity`, `fatigue`, `burnout`, `leave`, `anonymity`, `factcheck`, `flags`. Rulesets per sector (construction, campus, office) plus common rules (salary deadline, leave defaults, POSH) in `rules/rulesets/`. |
+| Record | `src/shared/ledger/ledger.ts` | SHA-256 hash chain per worker: `CHECK_IN`, `CHECK_OUT`, `EDIT`, `LEAVE`. Nothing is overwritten. |
+| Leave | `src/server/routes/leave.ts`, `rules/leave.ts` | Requests, decisions, cancellations and withdrawals, each also sealed into the worker's chain. Balances per calendar year; comp-off earned from approved extra hours. Work-from-home days relax the site check. |
+| Complaints | `src/server/routes/complaints.ts` | POSH Act complaints. Readable only by the complainant and committee members they did not exclude; never sent to the AI; the owner sees counts only. |
 | Storage | `src/server/data/` | `Repo` interface; Firestore in production, memory in tests and local development. |
 
 ### Data layout (Firestore)
@@ -58,7 +60,7 @@ invites/{code}                               workplace, role, optional phone
 workplaces/{wp}                              site boundary, zones, shift times, pay day
 workplaces/{wp}/members/{uid}                role, wage, team, approved phone key
 workplaces/{wp}/members/{uid}/events/{seq}   the worker's hash chain, one event per document
-workplaces/{wp}/{claims|hazards|feedback|notifications|flags|payments|deductions|receipts|photos}/{id}
+workplaces/{wp}/{claims|hazards|feedback|notifications|flags|payments|deductions|receipts|photos|leave|complaints}/{id}
 workplaces/{wp}/digests/{date}               sealed end-of-day fingerprint
 ```
 
@@ -109,6 +111,8 @@ Flags are produced by `src/shared/rules/flags.ts` and stored per workplace. They
 | Unapproved phone, failed device check, wrong phone clock | One editor repeatedly cutting hours |
 | Claim with no shift, longer than possible, duplicate, uncorroborated | Worker reports being paid less than the payslip |
 | Hazard away from its zone, or without a photo | Hazard closed without a photo, or disputed by the reporter |
+| | Approved leave withdrawn, salary received after the legal deadline |
+| | No Internal Committee at 10+ people, complaint inquiry past 90 days (counts only) |
 
 Workers see every flag about their own records. Nobody can close a flag about themselves; flags about the employer close only by the owner.
 
