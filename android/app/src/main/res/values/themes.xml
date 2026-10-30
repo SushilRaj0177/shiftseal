@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Shiftseal" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="colorPrimary">#13213f</item>
+        <item name="colorAccent">#f2441d</item>
+        <item name="android:windowBackground">@color/paper</item>
+        <item name="android:statusBarColor">@color/paper</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+    <color name="paper">#f4f2ec</color>
+</resources>

@@ -41,3 +41,16 @@ npm ci
 npm run build
 AUTH_MODE=dev STORE=memory npm start   # http://localhost:8080, developer sign-in, data in memory
 ```
+
+## Android app
+
+1. In Google Cloud, enable the **Play Integrity API** for the project the service runs in.
+2. In the Play Console, create the app `dev.sushilraj.shiftseal`, upload a build from `android/` (`./gradlew bundleRelease`, signed with your upload key), and under **App integrity** link the same Google Cloud project.
+3. Copy the **App signing key** SHA-256 fingerprint from the Play Console (App integrity, App signing), then:
+
+```bash
+gcloud run services update shiftseal --region asia-south1 \
+  --update-env-vars ANDROID_PACKAGE=dev.sushilraj.shiftseal,ANDROID_CERT_SHA256=<fingerprint>
+```
+
+Check-ins from the app then carry a Play Integrity verdict, and gate QR links open in the app. Until then the app still works; its checks are recorded with integrity `unavailable`.

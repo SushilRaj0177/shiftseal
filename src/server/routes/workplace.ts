@@ -337,7 +337,7 @@ workplaceRouter.post('/checks', async (req, res, next) => {
       qr.valid && qr.zoneCode && workplace.zones.some((z) => z.code === qr.zoneCode)
         ? qr.zoneCode
         : 'site';
-    const integrity = await verifyIntegrity(body.integrityToken, device.binding.platform);
+    const integrity = await verifyIntegrity(body.integrityToken, device.binding.platform, p.nonce);
     // On an approved work-from-home day, location is recorded but not compared with the site.
     const remote = Boolean(
       leaveOn(

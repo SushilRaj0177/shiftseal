@@ -126,8 +126,16 @@ Workers see every flag about their own records. Nobody can close a flag about th
 - Anonymous feedback is cleaned of names, places, times and IDs before saving; the original is never stored; it is linked only to a team, never a person; themes appear only once five people have responded.
 - Photos are compressed on the phone and visible only to the uploader and supervisors.
 
+## Android app
+
+`android/` is a small native shell around the same web app, so there is one UI to keep correct. It adds the two things a browser cannot prove:
+
+- **Mock location.** Location comes from the phone's own GPS through Google's fused location provider, which says whether a mock-location app produced the reading. A mocked reading is still recorded and is flagged for review.
+- **Play Integrity.** Each check asks Google for a token bound to that check's nonce. The server has Google decode it (`src/server/services/integrity.ts`) and accepts it only if it is this app, installed from Play, on a genuine device, for this check, within five minutes. Web check-ins, and Android ones before the Play Console is linked, record `unavailable`: lower trust, never blocked.
+
+The page talks to the phone through one bridge (`window.ShiftsealAndroid`, see `src/client/lib/native.ts` and `Bridge.java`). The app loads only the Shiftseal origin and the bridge answers only that origin; any other link opens in the browser. Gate QR links (`/c`) open in the app once `/.well-known/assetlinks.json` lists its signing certificate.
+
 ## Still to build
 
-- **Android app** (Capacitor): native location with mock-location detection and Google Play Integrity verdicts (`src/server/services/integrity.ts` currently returns `unavailable`).
 - **Push notifications** (Firebase Cloud Messaging); the apps poll for now.
 - **Anchoring daily fingerprints** somewhere neither side controls.

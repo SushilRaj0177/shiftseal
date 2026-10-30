@@ -4,6 +4,7 @@ import type { LocationFix } from '../../shared/model.js';
 import { api, ApiError, errorMessage } from '../lib/api.js';
 import { getDevice, nonce, sign } from '../lib/device.js';
 import { getFix } from '../lib/location.js';
+import { integrityToken } from '../lib/native.js';
 import { enqueue } from '../lib/queue.js';
 import { QrScanner, tokenFromScan } from '../lib/QrScanner.js';
 import type { CheckResponse } from '../lib/types.js';
@@ -55,7 +56,12 @@ export const CheckFlow: React.FC = () => {
       deviceId: device.deviceId,
       nonce: nonce(),
     };
-    const body = { payload, signature: await sign(payload) };
+    const body = {
+      payload,
+      signature: await sign(payload),
+      // In the Android app, Google Play vouches that this is the real app on a real phone.
+      integrityToken: await integrityToken(payload.nonce),
+    };
     try {
       const res = await api<CheckResponse>(`/workplaces/${wp.id}/checks`, { body });
       setResult(res);

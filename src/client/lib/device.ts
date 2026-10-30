@@ -1,3 +1,4 @@
+import { isAndroidApp } from './native.js';
 import {
   exportPublicJwk,
   generateDeviceKey,
@@ -51,10 +52,7 @@ export async function getDevice(): Promise<StoredDevice> {
 }
 
 export function platform(): 'android' | 'web' {
-  return (window as { Capacitor?: { getPlatform(): string } }).Capacitor?.getPlatform() ===
-    'android'
-    ? 'android'
-    : 'web';
+  return isAndroidApp() ? 'android' : 'web';
 }
 
 /** Registers this phone with a workplace. Returns `pending` if another phone is already bound. */

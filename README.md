@@ -70,6 +70,14 @@ npm run build
 AUTH_MODE=dev STORE=memory npm start   # http://localhost:8080 with developer sign-in
 ```
 
+Android app (`android/`, needs the Android SDK and JDK 17):
+
+```bash
+cd android && ./gradlew assembleDebug   # app/build/outputs/apk/debug/app-debug.apk
+```
+
+It opens the deployed site (`-PshiftsealUrl=https://...` for another). For Play Integrity and app links, set `ANDROID_PACKAGE=dev.sushilraj.shiftseal` and `ANDROID_CERT_SHA256` (Play Console, App signing) on the server.
+
 Deploying, including the Firebase sign-in setup: [`DEPLOY.md`](DEPLOY.md). Threat model: [`SECURITY.md`](SECURITY.md).
 
 ---

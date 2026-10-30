@@ -16,6 +16,16 @@ const envSchema = z
     FIREBASE_PROJECT_ID: z.string().min(1).optional(),
     FIREBASE_WEB_API_KEY: z.string().min(1).optional(),
     FIREBASE_AUTH_DOMAIN: z.string().min(1).optional(),
+    /** The Android app's package name; turns on Play Integrity checks and app links. */
+    ANDROID_PACKAGE: z
+      .string()
+      .regex(/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/)
+      .optional(),
+    /** SHA-256 fingerprints of the app's signing certificates, comma-separated (Play Console, App signing). */
+    ANDROID_CERT_SHA256: z
+      .string()
+      .regex(/^([0-9A-F]{2}(:[0-9A-F]{2}){31})(,\s*[0-9A-F]{2}(:[0-9A-F]{2}){31})*$/i)
+      .optional(),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV !== 'production') return;

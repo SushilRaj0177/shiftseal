@@ -19,6 +19,7 @@ import { workplaceRouter } from './routes/workplace.js';
 import { reportsRouter } from './routes/reports.js';
 import { leaveRouter } from './routes/leave.js';
 import { complaintsRouter } from './routes/complaints.js';
+import { assetLinks } from './routes/assetLinks.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -34,6 +35,7 @@ export function createApp() {
 
   app.use('/api', addressRateLimiter, apiRateLimiter);
   app.use('/api/health', healthRouter);
+  app.get('/.well-known/assetlinks.json', assetLinks);
   app.use('/api', publicRouter);
   app.use('/api/invites', inviteRateLimiter);
   app.use('/api', accountRouter);

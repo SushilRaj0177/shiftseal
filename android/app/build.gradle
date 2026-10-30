@@ -1,0 +1,46 @@
+plugins {
+    id 'com.android.application'
+}
+
+// The deployed web app this shell opens. Override with -PshiftsealUrl=... for a staging server.
+def shiftsealUrl = project.findProperty('shiftsealUrl') ?: 'https://shiftseal-872210045960.asia-south1.run.app'
+// Google Cloud project number that Play Integrity tokens are issued for.
+def cloudProjectNumber = project.findProperty('cloudProjectNumber') ?: '872210045960'
+
+android {
+    namespace 'dev.sushilraj.shiftseal'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId 'dev.sushilraj.shiftseal'
+        minSdk 24
+        targetSdk 36
+        versionCode 1
+        versionName '1.0'
+        manifestPlaceholders = [appHost: new URI(shiftsealUrl).host]
+        buildConfigField 'String', 'APP_URL', "\"${shiftsealUrl}\""
+        buildConfigField 'long', 'CLOUD_PROJECT_NUMBER', "${cloudProjectNumber}L"
+    }
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.8.0'
+    implementation 'com.google.android.gms:play-services-location:21.4.0'
+    implementation 'com.google.android.play:integrity:1.6.0'
+}
