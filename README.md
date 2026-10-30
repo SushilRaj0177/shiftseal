@@ -14,26 +14,26 @@ How it works: [`ARCHITECTURE.md`](ARCHITECTURE.md) · Designs: [Figma](https://w
 
 ## For workers
 
-The worker app is in English, Tamil, Hindi, Spanish, French, German, Portuguese, Japanese, Chinese (Simplified) and Korean. The employer dashboard is in English.
+Both apps are in English (India, UK, US), Tamil, Hindi, Spanish (Spain, Mexico), French, German, Portuguese (Brazil, Portugal), Japanese, Chinese (Simplified) and Korean. The rules, the currency and the legal wording come from the workplace's country, not the reader's language: a Tamil speaker working in Tokyo sees Japan's 36-agreement overtime caps and 年次有給休暇, in English where Tamil has no legal term.
 
 - **Sign in with your phone number.** Join your workplace by scanning the poster at the gate or typing the invite code.
 - **Check in at the gate.** Scan the code, and your phone signs the record and keeps its own copy. Works without a signal: the check is saved and sent later.
 - **See every change.** If a supervisor corrects your hours, you are told immediately, with their reason, and can disagree in one tap.
-- **A payslip you can follow.** Every line is marked *law* or *workplace policy*. Ask why your pay changed, by voice or text. Every number in the answer is checked.
+- **A payslip you can follow.** Every line is marked *law* or *workplace policy*. Ask why your pay changed, by voice or text, in your language. Every number in the answer is checked.
 - **Claim missed overtime** in your own words; it is checked against your records and the employer must decide before payday.
 - **Report hazards** with a photo; dangerous ones can never be rated low.
 - **Speak up anonymously.** Names and places are removed, your words are not kept, and nothing shows until five people have spoken.
 - **Confirm what you were paid, and when.** If it is less than the payslip, or a salary arrives after the legal deadline, the owner sees it.
 - **Leave and work from home.** See your balances, ask for leave in two taps; every request and decision is sealed into your record. On an approved work-from-home day you check in from home without being flagged.
-- **Raise a confidential complaint** about harassment. It goes only to the Internal Committee (POSH Act), never to your manager or the owner, and you can exclude committee members.
+- **Raise a confidential complaint** about harassment. It goes only to the people the law in your country says must receive it (India's Internal Committee, Japan's 相談窓口, France's référent harcèlement, Germany's AGG Beschwerdestelle, ...), never to your manager or the owner, and you can exclude any of them. The outside bodies you can go to are listed too.
 
 ## For employers
 
 - Set up a site or an office in minutes: boundary from your own location, zones, shift times, weekly or monthly pay, weekly offs.
-- Pay people by the hour, by the day, or a monthly salary with PF, ESI, professional tax and TDS lines; extra hours paid as overtime or given back as comp-off.
+- Pay people by the hour, by the day, or a monthly salary, weekly to monthly as the country allows, with that country's usual deductions (PF and ESI, 健康保険 and 厚生年金, INSS and IRRF, PAYE and National Insurance, ...); extra hours paid at the legal rate, or given back as time off where the law allows it.
 - Approve leave and work-from-home days; see who is away today.
 - Burnout signals for office staff: late nights, work on days off, months without leave.
-- Name an Internal Committee; the dashboard shows only how many complaints are open or overdue.
+- Name the people who receive harassment complaints, as your country requires; the dashboard shows only how many complaints are open or overdue.
 - A gate screen whose code changes every 30 seconds, or a printable poster.
 - A dashboard of what needs action: hazards with deadlines, claims before payday, new phones to approve, wages to set, near-miss hotspots, fatigue and attrition signals, team feedback.
 - Corrections with a required reason. The original stays in the record.
@@ -49,7 +49,7 @@ Every check-in carries evidence: a precise location against the site boundary, t
 | Unapproved phone, phone clock wrong | One person repeatedly cutting hours |
 | Overtime on a day with no check-in, more hours than fit in a day, duplicate claims, no co-worker on site that late | Payment lower than the payslip, as confirmed by the worker |
 | Hazard reported away from the zone or without a photo | Hazard marked fixed without a photo, or disputed by the reporter |
-| | Approved leave withdrawn, salary paid after the 7th, no Internal Committee at 10+ people, complaint inquiry past 90 days |
+| | Approved leave withdrawn, pay after the country's legal deadline, nobody named to receive harassment complaints where the law requires it, overdue inquiries, someone over a legal working-time limit |
 
 Nobody can close a flag about themselves, and flags about the employer can only be closed by the owner.
 
@@ -74,4 +74,25 @@ Deploying, including the Firebase sign-in setup: [`DEPLOY.md`](DEPLOY.md). Threa
 
 ---
 
-Shiftseal began as a Top 10 entry at Prompt Wars 2026 (UN SDG 8, decent work). Labour defaults follow India's labour codes (8 h a day, 48 h a week, overtime at twice the rate); every threshold is configurable per state and sector, and policy values are labelled as policy, not law.
+## Countries
+
+Each country is a pack in `src/shared/countries/` with sourced rules (statute and article), and its own wording in `src/client/i18n/countries/`. Policy values are labelled as policy, not law.
+
+| Country | Overtime | Legal limits shown | Leave | Harassment complaints go to |
+| --- | --- | --- | --- | --- |
+| India | after 8 h/day or 48 h/week, 2× | 48 h week | casual, sick, earned (policy) | Internal Committee (POSH Act), 10+ people |
+| Japan | after 8 h/40 h, +25%, +50% past 60 h/month; legal rest day +35%; night +25% | 36 agreement: 45 h/month, 360 h/year, under 100 h | 年休 by service (10–20 days) | 相談窓口 (every employer) |
+| South Korea | after 8 h/40 h, +50%; holidays +50%/+100%; night +50%; paid weekly rest day | 52 h week | 연차 by service (up to 25) | designated staff, 5+ employees |
+| China | after 8 h/40 h, 150%; rest days 200%; public holidays 300% | 36 h overtime a month, 3 h a day | 年休假 by working years (5/10/15) | complaint channel (every employer) |
+| France | after 35 h, +25% for 8 h then +50% | 10 h day, 48 h week, 44 h over 12 weeks | 25 days congés payés | référent harcèlement, 11+ |
+| Germany | contract (no statutory premium); night supplement | 10 h day, 48 h over 6 months | 20 days minimum | AGG Beschwerdestelle |
+| Spain | over 40 h, at least the ordinary rate | 80 overtime h/year, 9 h day | 30 calendar days | protocolo de acoso |
+| Mexico | first 9 h a week double, then triple; Sunday premium; 48 h week stepping to 40 by 2030 | 9 overtime h/week, 3/day | vacaciones dignas by service; aguinaldo, PTU | protocol (LFT art. 132 XXXI) |
+| Brazil | after 8 h/44 h, +50%; Sunday 100%; night +20% with a 52½-minute hour | 2 overtime h/day | 30 days férias; 13º salário | CIPA reporting channel |
+| Portugal | +25% first hour, +37.5% after; more past 100 h/year; rest days +50% | 150 h/year, 2 h/day | 22 working days; subsídios | code of conduct, 7+ |
+| UK | contract (no statutory premium) | 48 h average over 17 weeks | 28 days | duty to prevent sexual harassment; ACAS |
+| US | after 40 h, 1.5× (California: daily 8 h, 2× after 12, seventh day) | 40 h workweek | PTO and sick time (California, New York rules) | Title VII; EEOC, CRD, NYS DHR |
+
+---
+
+Shiftseal began as a Top 10 entry at Prompt Wars 2026 (UN SDG 8, decent work).

@@ -24,7 +24,7 @@ flowchart LR
     rules -->|"Claims, hazards, flags"| employer([Employer must act])
 ```
 
-1. **Understand.** Gemini turns speech or text, in any of the app's ten languages or a mix, into a fixed JSON shape. Output is schema-constrained and validated again with zod.
+1. **Understand.** Gemini turns speech or text, in any of the app's languages or a mix, into a fixed JSON shape. Output is schema-constrained and validated again with zod.
 2. **Decide.** Hours, overtime, pay, claim matching, hazard severity and evidence flags are plain, tested functions in `src/shared/rules/`. The AI never produces a number used for money or safety.
 3. **Check.** When the AI explains a payslip, every number in its answer is compared with the computed values (`factcheck.ts`); one mismatch and a template is shown instead. If feedback cannot be anonymised, nothing is saved.
 
@@ -47,10 +47,12 @@ flowchart LR
 | Sign-in | `src/client/auth/`, `src/server/auth/` | Firebase phone (SMS code) and Google sign-in; the server verifies every ID token and loads the caller's role from their membership. |
 | API | `src/server/routes/` | `account.ts` (profile, workplaces, invites), `workplace.ts` (members, phones, gate codes, checks, corrections), `reports.ts` (overview, dashboard, claims, hazards, feedback, pay, flags, AI), `leave.ts`, `complaints.ts`. |
 | Languages | `src/shared/languages.ts`, `src/client/i18n/` | One list of supported languages used by the client, the API schemas and the AI prompts. Worker strings per language in `i18n/locales/`; a test checks every language has every string with the same placeholders. |
-| Rules | `src/shared/rules/` | `hours`, `pay` (hourly, daily, monthly salary), `claims`, `severity`, `fatigue`, `burnout`, `leave`, `anonymity`, `factcheck`, `flags`. Rulesets per sector (construction, campus, office) plus common rules (salary deadline, leave defaults, POSH) in `rules/rulesets/`. |
+| Countries | `src/shared/countries/` | One pack per country (India, Japan, South Korea, China, France, Germany, Spain, Mexico, Brazil, Portugal, UK, US with California and New York): normal hours, overtime bands, rest-day, holiday, night and Sunday premiums, pay deadline, leave types and statutory leave by service, who must receive harassment complaints and outside bodies, legal limits, yearly payments. Every number cites its statute. |
+| Rules | `src/shared/rules/` | `hours` (prices hours by the country's bands, counting weekly, monthly and yearly thresholds), `pay`, `limits`, `claims`, `severity`, `fatigue`, `burnout`, `leave`, `anonymity`, `factcheck`, `flags`. A rule is looked up in the state, then the country, then the sector's policies (`rules/rulesets/`), then common wellbeing policies. |
 | Record | `src/shared/ledger/ledger.ts` | SHA-256 hash chain per worker: `CHECK_IN`, `CHECK_OUT`, `EDIT`, `LEAVE`. Nothing is overwritten. |
-| Leave | `src/server/routes/leave.ts`, `rules/leave.ts` | Requests, decisions, cancellations and withdrawals, each also sealed into the worker's chain. Balances per calendar year; comp-off earned from approved extra hours. Work-from-home days relax the site check. |
-| Complaints | `src/server/routes/complaints.ts` | POSH Act complaints. Readable only by the complainant and committee members they did not exclude; never sent to the AI; the owner sees counts only. |
+| Leave | `src/server/routes/leave.ts`, `rules/leave.ts` | The country's leave types, paid or unpaid, counted in working or calendar days as its law does. Requests, decisions, cancellations and withdrawals are sealed into the worker's chain. Employer allowances can exceed the statutory minimum, never fall below it. Work-from-home days relax the site check. |
+| Complaints | `src/server/routes/complaints.ts` | Harassment complaints to the people the country's law requires (India's Internal Committee, Japan's 相談窓口, ...). Readable only by the complainant and the handlers they did not exclude; never sent to the AI; the owner sees counts only. |
+| Languages | `src/shared/languages.ts`, `src/client/i18n/` | Locales carry a country (English India/UK/US, Spanish Spain/Mexico, Portuguese Brazil/Portugal). Text is looked up in the workplace country's wording first (in the reader's language, else English), then the locale's spelling, then the language. A test checks every language and country has every string. |
 | Storage | `src/server/data/` | `Repo` interface; Firestore in production, memory in tests and local development. |
 
 ### Data layout (Firestore)
@@ -108,12 +110,13 @@ Flags are produced by `src/shared/rules/flags.ts` and stored per workplace. They
 | About the worker's record | About the employer's record |
 | --- | --- |
 | Outside the site, imprecise or missing location, mock location | Edit contradicts a signed on-site check |
+| | Over one of the country's legal working-time limits |
 | Missing, expired or foreign gate code | Hours cut within two days of payday |
 | Unapproved phone, failed device check, wrong phone clock | One editor repeatedly cutting hours |
 | Claim with no shift, longer than possible, duplicate, uncorroborated | Worker reports being paid less than the payslip |
 | Hazard away from its zone, or without a photo | Hazard closed without a photo, or disputed by the reporter |
 | | Approved leave withdrawn, salary received after the legal deadline |
-| | No Internal Committee at 10+ people, complaint inquiry past 90 days (counts only) |
+| | Nobody named to receive harassment complaints where the law requires it, inquiry past the country's deadline (counts only) |
 
 Workers see every flag about their own records. Nobody can close a flag about themselves; flags about the employer close only by the owner.
 
