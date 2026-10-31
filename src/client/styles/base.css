@@ -272,14 +272,11 @@ html:is([lang='ta'], [lang='hi'], [lang='ja'], [lang='zh'], [lang='ko']) :is(.t-
   font-size: 17px;
 }
 .brand-mark {
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  background: var(--navy);
-  color: var(--seal);
-  box-shadow: inset 0 0 0 1px var(--seal-glow);
+  display: block;
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.25));
 }
 
 /* ---------- cards ---------- */

@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <style>
+      .t { font: 600 19px 'JetBrains Mono', ui-monospace, monospace; fill: #13213f; }
+      .t.was { fill: #d8391a; opacity: .85; }
+      .no { font: 600 13px 'JetBrains Mono', monospace; letter-spacing: .12em; fill: #13213f; opacity: .45; }
+      .day { font: 700 13px 'Figtree', sans-serif; letter-spacing: .08em; fill: #13213f; opacity: .5; }
+    </style>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d3060"/>
+      <stop offset="1" stop-color="#0a1226"/>
+    </linearGradient>
+    <radialGradient id="lamp" cx="0.22" cy="0.08" r="0.75">
+      <stop offset="0" stop-color="#e8c58a" stop-opacity=".28"/>
+      <stop offset="1" stop-color="#e8c58a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fbf6ea"/>
+      <stop offset="1" stop-color="#ece2cb"/>
+    </linearGradient>
+    <radialGradient id="wax" cx="0.36" cy="0.3" r="0.78">
+      <stop offset="0" stop-color="#ff6a3f"/>
+      <stop offset="0.45" stop-color="#e2401a"/>
+      <stop offset="0.85" stop-color="#b42a0e"/>
+      <stop offset="1" stop-color="#8a1d07"/>
+    </radialGradient>
+    <radialGradient id="well" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0.82" stop-color="#c7330f"/>
+      <stop offset="1" stop-color="#9c230a"/>
+    </radialGradient>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="3" seed="4"/>
+      <feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .07 0"/>
+      <feComposite in2="SourceGraphic" operator="in"/>
+    </filter>
+    <filter id="waxtex" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="3" seed="9" result="n"/>
+      <feDiffuseLighting in="n" surfaceScale="2.2" lighting-color="#fff" result="lit">
+        <feDistantLight azimuth="225" elevation="52"/>
+      </feDiffuseLighting>
+      <feComposite in="lit" in2="SourceGraphic" operator="in" result="tex"/>
+      <feBlend in="SourceGraphic" in2="tex" mode="multiply"/>
+    </filter>
+    <filter id="waxlight" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
+      <feColorMatrix in="SourceGraphic" type="luminanceToAlpha" result="h0"/>
+      <feTurbulence type="fractalNoise" baseFrequency=".012" numOctaves="2" seed="11" result="n"/>
+      <feColorMatrix in="n" type="luminanceToAlpha" result="na"/>
+      <feComposite in="h0" in2="na" operator="arithmetic" k2="1" k3="0" k4="0" result="h1"/>
+      <feComposite in="h1" in2="SourceAlpha" operator="in" result="h2"/>
+      <feGaussianBlur in="h2" stdDeviation="2.2" result="h"/>
+      <feDiffuseLighting in="h" surfaceScale="9" diffuseConstant="1.15" lighting-color="#fff" result="diff">
+        <feDistantLight azimuth="235" elevation="36"/>
+      </feDiffuseLighting>
+      <feSpecularLighting in="h" surfaceScale="9" specularConstant=".9" specularExponent="30" lighting-color="#ffe2d4" result="spec">
+        <feDistantLight azimuth="235" elevation="36"/>
+      </feSpecularLighting>
+      <feFlood flood-color="#a81d09" result="red"/>
+      <feComposite in="red" in2="SourceAlpha" operator="in" result="base"/>
+      <feComposite in="base" in2="diff" operator="arithmetic" k1="1.5" result="shaded"/>
+      <feComposite in="spec" in2="SourceAlpha" operator="in" result="specm"/>
+      <feComposite in="shaded" in2="specm" operator="arithmetic" k2="1" k3=".85"/>
+    </filter>
+    <filter id="blur6" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"/></filter>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="9"/></filter>
+    <filter id="blur2" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2"/></filter>
+    <filter id="blur1"><feGaussianBlur stdDeviation="1.1"/></filter>
+    <clipPath id="tile"><rect width="512" height="512" rx="112"/></clipPath>
+    <clipPath id="sealclip"><path d="M461.9 326.0L462.3 329.8L462.2 333.6L461.6 337.3L460.8 341.0L459.9 344.7L458.9 348.3L457.9 351.9L456.8 355.5L455.6 359.0L454.1 362.5L452.4 365.8L450.4 369.0L448.2 372.1L446.0 375.1L443.9 378.2L442.1 381.3L440.5 384.4L439.2 387.8L438.0 391.1L436.7 394.5L435.2 397.8L433.5 401.0L431.5 404.0L429.2 406.8L426.9 409.6L424.6 412.3L422.3 415.1L420.1 417.9L417.9 420.8L415.6 423.6L413.2 426.3L410.6 428.8L407.8 431.1L404.9 433.3L402.0 435.5L399.2 437.8L396.6 440.3L394.0 443.0L391.5 446.0L389.0 448.9L386.3 451.8L383.4 454.4L380.3 456.6L376.9 458.3L373.3 459.6L369.7 460.6L366.0 461.5L362.2 462.1L358.5 462.7L354.7 463.0L350.9 463.1L347.1 462.8L343.2 462.1L339.4 461.0L335.6 459.7L331.9 458.5L328.3 457.3L324.8 456.6L321.4 456.2L318.0 456.1L314.6 456.3L311.2 456.5L307.7 456.6L304.3 456.5L300.9 456.3L297.4 455.9L294.0 455.5L290.5 455.2L287.0 455.0L283.5 454.8L279.9 454.7L276.3 454.3L272.8 453.6L269.4 452.6L266.1 451.3L262.9 449.7L259.8 448.1L256.6 446.5L253.3 445.1L249.9 443.9L246.4 442.9L242.8 441.8L239.3 440.5L235.9 439.0L232.6 437.3L229.6 435.2L226.7 432.9L223.8 430.6L221.0 428.2L218.2 425.8L215.4 423.4L212.7 420.8L210.2 418.1L208.0 415.1L206.1 411.9L204.6 408.4L203.4 404.8L202.2 401.2L201.1 397.6L199.8 394.2L198.3 391.0L196.7 387.8L195.1 384.6L193.6 381.4L192.2 378.1L191.1 374.7L190.3 371.2L189.6 367.7L188.8 364.3L188.0 360.8L187.1 357.4L186.2 354.0L185.2 350.6L184.5 347.1L184.1 343.6L184.0 340.1L184.2 336.5L184.6 333.0L185.0 329.5L185.1 326.0L185.0 322.5L184.5 319.0L183.7 315.4L182.9 311.8L182.0 308.1L181.3 304.4L180.8 300.6L180.5 296.8L180.3 292.9L180.0 289.0L179.8 285.1L179.5 281.0L179.3 276.9L179.4 272.8L179.8 268.8L180.8 264.9L182.4 261.3L184.4 257.9L186.9 254.8L189.5 251.8L192.1 248.9L194.7 246.0L197.3 243.0L199.8 240.1L202.3 237.2L205.0 234.5L207.9 232.0L211.0 229.6L214.1 227.4L217.2 225.2L220.3 223.1L223.3 220.8L226.1 218.4L228.9 215.9L231.7 213.5L234.7 211.3L237.9 209.4L241.3 207.9L244.9 206.7L248.5 205.6L252.1 204.7L255.6 203.6L259.0 202.4L262.3 201.0L265.6 199.4L268.8 197.9L272.1 196.4L275.5 195.1L278.9 193.9L282.3 192.8L285.7 191.6L289.2 190.3L292.6 188.9L296.0 187.3L299.5 185.6L303.1 184.2L306.7 183.0L310.5 182.3L314.2 182.1L318.0 182.4L321.7 183.0L325.5 183.8L329.1 184.6L332.8 185.4L336.4 186.1L340.0 186.9L343.6 187.8L347.1 189.0L350.5 190.4L353.9 192.1L357.1 193.9L360.3 195.7L363.5 197.4L366.8 198.9L370.1 200.2L373.4 201.5L376.7 202.9L379.9 204.5L382.9 206.5L385.7 208.7L388.3 211.2L390.9 213.8L393.3 216.4L395.9 218.8L398.5 221.0L401.3 223.1L404.1 225.2L406.9 227.3L409.5 229.6L412.0 232.0L414.2 234.7L416.3 237.4L418.4 240.2L420.6 242.9L422.9 245.5L425.4 248.0L427.9 250.5L430.4 253.0L432.7 255.7L434.8 258.6L436.6 261.6L438.2 264.8L439.7 268.0L441.1 271.2L442.7 274.3L444.5 277.5L446.3 280.6L448.0 283.7L449.7 287.0L451.1 290.3L452.3 293.8L453.2 297.3L454.0 300.8L454.9 304.3L455.9 307.8L457.1 311.4L458.4 314.9L459.8 318.6L461.0 322.3Z"/></clipPath>
+  </defs>
+
+  <g >
+    <rect width="512" height="512" fill="url(#bg)"/><rect width="512" height="512" fill="url(#lamp)"/>
+    <g transform="translate(256 256) scale(0.8) translate(-256 -256)" >
+
+        <g transform="rotate(-9 230 230)">
+      <rect x="58" y="92" width="330" height="290" rx="14" fill="#000" opacity=".35" filter="url(#soft)" transform="translate(6 14)"/>
+      <rect x="58" y="92" width="330" height="290" rx="14" fill="url(#paper)"/>
+      <rect x="58" y="92" width="330" height="40" rx="14" fill="#13213f" opacity=".06"/>
+      <line x1="78" y1="92" x2="78" y2="382" stroke="#d8391a" stroke-opacity=".5" stroke-width="2.5"/>
+      <rect x="96" y="106" width="22" height="16" rx="4" fill="#13213f"/>
+      <circle cx="107" cy="114" r="3.5" fill="#d8391a"/>
+      <text x="370" y="120" text-anchor="end" class="no">No. 0044</text>
+      <line x1="86" y1="136" x2="372" y2="136" stroke="#13213f" stroke-width="4"/>
+      <text x="94" y="168" class="day">MON</text>
+      <text x="150" y="168" class="t">08:02</text>
+      <text x="232" y="168" class="t was">16:30</text>
+      <line x1="230" y1="161" x2="290" y2="161" stroke="#d8391a" stroke-width="3"/>
+      <text x="296" y="168" class="t">17:31</text>
+      <line x1="86" y1="184" x2="372" y2="184" stroke="#13213f" stroke-opacity=".16" stroke-width="2" stroke-dasharray="5 6"/>
+      <text x="94" y="212" class="day">TUE</text>
+      <text x="150" y="212" class="t">07:58</text>
+      <text x="232" y="212" class="t">17:04</text>
+      <line x1="86" y1="228" x2="372" y2="228" stroke="#13213f" stroke-opacity=".16" stroke-width="2" stroke-dasharray="5 6"/>
+      <text x="94" y="256" class="day">WED</text>
+      <text x="150" y="256" class="t">07:55</text>
+      <text x="232" y="256" class="t">18:40</text>
+      <line x1="86" y1="272" x2="372" y2="272" stroke="#13213f" stroke-opacity=".16" stroke-width="2" stroke-dasharray="5 6"/>
+      <text x="94" y="300" class="day">THU</text>
+      <text x="150" y="300" class="t">08:00</text>
+      <text x="232" y="300" class="t">17:02</text>
+      <line x1="86" y1="316" x2="372" y2="316" stroke="#13213f" stroke-opacity=".16" stroke-width="2" stroke-dasharray="5 6"/>
+      <text x="94" y="344" class="day">FRI</text>
+      <text x="150" y="344" class="t">07:57</text>
+      <text x="232" y="344" class="t">17:10</text>
+      <line x1="86" y1="360" x2="372" y2="360" stroke="#13213f" stroke-opacity=".16" stroke-width="2" stroke-dasharray="5 6"/>
+    </g>
+
+    <!-- the time card (see CARD) -->
+
+    <!-- the wax seal: drawn as a height map, then lit -->
+    <path d="M461.9 326.0L462.3 329.8L462.2 333.6L461.6 337.3L460.8 341.0L459.9 344.7L458.9 348.3L457.9 351.9L456.8 355.5L455.6 359.0L454.1 362.5L452.4 365.8L450.4 369.0L448.2 372.1L446.0 375.1L443.9 378.2L442.1 381.3L440.5 384.4L439.2 387.8L438.0 391.1L436.7 394.5L435.2 397.8L433.5 401.0L431.5 404.0L429.2 406.8L426.9 409.6L424.6 412.3L422.3 415.1L420.1 417.9L417.9 420.8L415.6 423.6L413.2 426.3L410.6 428.8L407.8 431.1L404.9 433.3L402.0 435.5L399.2 437.8L396.6 440.3L394.0 443.0L391.5 446.0L389.0 448.9L386.3 451.8L383.4 454.4L380.3 456.6L376.9 458.3L373.3 459.6L369.7 460.6L366.0 461.5L362.2 462.1L358.5 462.7L354.7 463.0L350.9 463.1L347.1 462.8L343.2 462.1L339.4 461.0L335.6 459.7L331.9 458.5L328.3 457.3L324.8 456.6L321.4 456.2L318.0 456.1L314.6 456.3L311.2 456.5L307.7 456.6L304.3 456.5L300.9 456.3L297.4 455.9L294.0 455.5L290.5 455.2L287.0 455.0L283.5 454.8L279.9 454.7L276.3 454.3L272.8 453.6L269.4 452.6L266.1 451.3L262.9 449.7L259.8 448.1L256.6 446.5L253.3 445.1L249.9 443.9L246.4 442.9L242.8 441.8L239.3 440.5L235.9 439.0L232.6 437.3L229.6 435.2L226.7 432.9L223.8 430.6L221.0 428.2L218.2 425.8L215.4 423.4L212.7 420.8L210.2 418.1L208.0 415.1L206.1 411.9L204.6 408.4L203.4 404.8L202.2 401.2L201.1 397.6L199.8 394.2L198.3 391.0L196.7 387.8L195.1 384.6L193.6 381.4L192.2 378.1L191.1 374.7L190.3 371.2L189.6 367.7L188.8 364.3L188.0 360.8L187.1 357.4L186.2 354.0L185.2 350.6L184.5 347.1L184.1 343.6L184.0 340.1L184.2 336.5L184.6 333.0L185.0 329.5L185.1 326.0L185.0 322.5L184.5 319.0L183.7 315.4L182.9 311.8L182.0 308.1L181.3 304.4L180.8 300.6L180.5 296.8L180.3 292.9L180.0 289.0L179.8 285.1L179.5 281.0L179.3 276.9L179.4 272.8L179.8 268.8L180.8 264.9L182.4 261.3L184.4 257.9L186.9 254.8L189.5 251.8L192.1 248.9L194.7 246.0L197.3 243.0L199.8 240.1L202.3 237.2L205.0 234.5L207.9 232.0L211.0 229.6L214.1 227.4L217.2 225.2L220.3 223.1L223.3 220.8L226.1 218.4L228.9 215.9L231.7 213.5L234.7 211.3L237.9 209.4L241.3 207.9L244.9 206.7L248.5 205.6L252.1 204.7L255.6 203.6L259.0 202.4L262.3 201.0L265.6 199.4L268.8 197.9L272.1 196.4L275.5 195.1L278.9 193.9L282.3 192.8L285.7 191.6L289.2 190.3L292.6 188.9L296.0 187.3L299.5 185.6L303.1 184.2L306.7 183.0L310.5 182.3L314.2 182.1L318.0 182.4L321.7 183.0L325.5 183.8L329.1 184.6L332.8 185.4L336.4 186.1L340.0 186.9L343.6 187.8L347.1 189.0L350.5 190.4L353.9 192.1L357.1 193.9L360.3 195.7L363.5 197.4L366.8 198.9L370.1 200.2L373.4 201.5L376.7 202.9L379.9 204.5L382.9 206.5L385.7 208.7L388.3 211.2L390.9 213.8L393.3 216.4L395.9 218.8L398.5 221.0L401.3 223.1L404.1 225.2L406.9 227.3L409.5 229.6L412.0 232.0L414.2 234.7L416.3 237.4L418.4 240.2L420.6 242.9L422.9 245.5L425.4 248.0L427.9 250.5L430.4 253.0L432.7 255.7L434.8 258.6L436.6 261.6L438.2 264.8L439.7 268.0L441.1 271.2L442.7 274.3L444.5 277.5L446.3 280.6L448.0 283.7L449.7 287.0L451.1 290.3L452.3 293.8L453.2 297.3L454.0 300.8L454.9 304.3L455.9 307.8L457.1 311.4L458.4 314.9L459.8 318.6L461.0 322.3Z" fill="#000" opacity=".6" filter="url(#soft)" transform="translate(12 18)"/>
+    <g filter="url(#waxlight)">
+      <path d="M461.9 326.0L462.3 329.8L462.2 333.6L461.6 337.3L460.8 341.0L459.9 344.7L458.9 348.3L457.9 351.9L456.8 355.5L455.6 359.0L454.1 362.5L452.4 365.8L450.4 369.0L448.2 372.1L446.0 375.1L443.9 378.2L442.1 381.3L440.5 384.4L439.2 387.8L438.0 391.1L436.7 394.5L435.2 397.8L433.5 401.0L431.5 404.0L429.2 406.8L426.9 409.6L424.6 412.3L422.3 415.1L420.1 417.9L417.9 420.8L415.6 423.6L413.2 426.3L410.6 428.8L407.8 431.1L404.9 433.3L402.0 435.5L399.2 437.8L396.6 440.3L394.0 443.0L391.5 446.0L389.0 448.9L386.3 451.8L383.4 454.4L380.3 456.6L376.9 458.3L373.3 459.6L369.7 460.6L366.0 461.5L362.2 462.1L358.5 462.7L354.7 463.0L350.9 463.1L347.1 462.8L343.2 462.1L339.4 461.0L335.6 459.7L331.9 458.5L328.3 457.3L324.8 456.6L321.4 456.2L318.0 456.1L314.6 456.3L311.2 456.5L307.7 456.6L304.3 456.5L300.9 456.3L297.4 455.9L294.0 455.5L290.5 455.2L287.0 455.0L283.5 454.8L279.9 454.7L276.3 454.3L272.8 453.6L269.4 452.6L266.1 451.3L262.9 449.7L259.8 448.1L256.6 446.5L253.3 445.1L249.9 443.9L246.4 442.9L242.8 441.8L239.3 440.5L235.9 439.0L232.6 437.3L229.6 435.2L226.7 432.9L223.8 430.6L221.0 428.2L218.2 425.8L215.4 423.4L212.7 420.8L210.2 418.1L208.0 415.1L206.1 411.9L204.6 408.4L203.4 404.8L202.2 401.2L201.1 397.6L199.8 394.2L198.3 391.0L196.7 387.8L195.1 384.6L193.6 381.4L192.2 378.1L191.1 374.7L190.3 371.2L189.6 367.7L188.8 364.3L188.0 360.8L187.1 357.4L186.2 354.0L185.2 350.6L184.5 347.1L184.1 343.6L184.0 340.1L184.2 336.5L184.6 333.0L185.0 329.5L185.1 326.0L185.0 322.5L184.5 319.0L183.7 315.4L182.9 311.8L182.0 308.1L181.3 304.4L180.8 300.6L180.5 296.8L180.3 292.9L180.0 289.0L179.8 285.1L179.5 281.0L179.3 276.9L179.4 272.8L179.8 268.8L180.8 264.9L182.4 261.3L184.4 257.9L186.9 254.8L189.5 251.8L192.1 248.9L194.7 246.0L197.3 243.0L199.8 240.1L202.3 237.2L205.0 234.5L207.9 232.0L211.0 229.6L214.1 227.4L217.2 225.2L220.3 223.1L223.3 220.8L226.1 218.4L228.9 215.9L231.7 213.5L234.7 211.3L237.9 209.4L241.3 207.9L244.9 206.7L248.5 205.6L252.1 204.7L255.6 203.6L259.0 202.4L262.3 201.0L265.6 199.4L268.8 197.9L272.1 196.4L275.5 195.1L278.9 193.9L282.3 192.8L285.7 191.6L289.2 190.3L292.6 188.9L296.0 187.3L299.5 185.6L303.1 184.2L306.7 183.0L310.5 182.3L314.2 182.1L318.0 182.4L321.7 183.0L325.5 183.8L329.1 184.6L332.8 185.4L336.4 186.1L340.0 186.9L343.6 187.8L347.1 189.0L350.5 190.4L353.9 192.1L357.1 193.9L360.3 195.7L363.5 197.4L366.8 198.9L370.1 200.2L373.4 201.5L376.7 202.9L379.9 204.5L382.9 206.5L385.7 208.7L388.3 211.2L390.9 213.8L393.3 216.4L395.9 218.8L398.5 221.0L401.3 223.1L404.1 225.2L406.9 227.3L409.5 229.6L412.0 232.0L414.2 234.7L416.3 237.4L418.4 240.2L420.6 242.9L422.9 245.5L425.4 248.0L427.9 250.5L430.4 253.0L432.7 255.7L434.8 258.6L436.6 261.6L438.2 264.8L439.7 268.0L441.1 271.2L442.7 274.3L444.5 277.5L446.3 280.6L448.0 283.7L449.7 287.0L451.1 290.3L452.3 293.8L453.2 297.3L454.0 300.8L454.9 304.3L455.9 307.8L457.1 311.4L458.4 314.9L459.8 318.6L461.0 322.3Z" fill="#c4c4c4"/>
+      <g clip-path="url(#sealclip)">
+        <circle cx="318" cy="326" r="122" fill="none" stroke="#fff" stroke-width="20" filter="url(#blur6)"/>
+        <circle cx="318" cy="326" r="110" fill="#7a7a7a" filter="url(#blur1)"/>
+        <g filter="url(#blur1)">
+    <line x1="318.0" y1="242.0" x2="318.0" y2="224.0" stroke="#c8c8c8" stroke-width="9.0" stroke-linecap="round"/>
+    <line x1="360.0" y1="253.3" x2="366.0" y2="242.9" stroke="#c8c8c8" stroke-width="6.0" stroke-linecap="round"/>
+    <line x1="390.7" y1="284.0" x2="401.1" y2="278.0" stroke="#c8c8c8" stroke-width="6.0" stroke-linecap="round"/>
+    <line x1="402.0" y1="326.0" x2="420.0" y2="326.0" stroke="#c8c8c8" stroke-width="9.0" stroke-linecap="round"/>
+    <line x1="390.7" y1="368.0" x2="401.1" y2="374.0" stroke="#c8c8c8" stroke-width="6.0" stroke-linecap="round"/>
+    <line x1="360.0" y1="398.7" x2="366.0" y2="409.1" stroke="#c8c8c8" stroke-width="6.0" stroke-linecap="round"/>
+    <line x1="318.0" y1="410.0" x2="318.0" y2="428.0" stroke="#c8c8c8" stroke-width="9.0" stroke-linecap="round"/>
+    <line x1="276.0" y1="398.7" x2="270.0" y2="409.1" stroke="#c8c8c8" stroke-width="6.0" stroke-linecap="round"/>
+    <line x1="245.3" y1="368.0" x2="234.9" y2="374.0" stroke="#c8c8c8" stroke-width="6.0" stroke-linecap="round"/>
+    <line x1="234.0" y1="326.0" x2="216.0" y2="326.0" stroke="#c8c8c8" stroke-width="9.0" stroke-linecap="round"/>
+    <line x1="245.3" y1="284.0" x2="234.9" y2="278.0" stroke="#c8c8c8" stroke-width="6.0" stroke-linecap="round"/>
+    <line x1="276.0" y1="253.3" x2="270.0" y2="242.9" stroke="#c8c8c8" stroke-width="6.0" stroke-linecap="round"/>
+    <line x1="318.0" y1="326.0" x2="280.2" y2="299.7" stroke="#c8c8c8" stroke-width="17.0" stroke-linecap="round"/>
+    <line x1="318.0" y1="326.0" x2="387.5" y2="290.6" stroke="#c8c8c8" stroke-width="15.0" stroke-linecap="round"/>
+    <circle cx="318.0" cy="326.0" r="12.0" fill="#c8c8c8"/>
+        </g>
+      </g>
+    </g>
+
+    </g>
+    <rect width="512" height="512" filter="url(#grain)" fill="#fff"/>
+  </g>
+</svg>
