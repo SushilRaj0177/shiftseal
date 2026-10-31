@@ -53,6 +53,8 @@ export function createApp() {
   const clientDistCandidates = [
     path.resolve(__dirname, '../../client'),
     path.resolve(__dirname, '../../../dist/client'),
+    // Running from source (tsx, tests): the repo's dist/client.
+    path.resolve(__dirname, '../../dist/client'),
   ];
   const clientDist = clientDistCandidates.find((dir) =>
     fs.existsSync(path.join(dir, 'index.html'))
@@ -73,6 +75,12 @@ export function createApp() {
     app.get('*', (req, res, next) => {
       if (req.path.startsWith('/api/')) {
         next();
+        return;
+      }
+      // A missing file (an icon, a script) is a 404, not the app page: answering
+      // it with index.html hides broken links and breaks the service worker.
+      if (/\.[a-z0-9]+$/i.test(req.path)) {
+        res.status(404).type('text/plain').send('Not found');
         return;
       }
       res.sendFile(path.join(clientDist, 'index.html'));
