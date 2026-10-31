@@ -1,0 +1,374 @@
+/*
+ * Finish: the last word on surfaces and type.
+ *
+ * Flat paper, hairlines instead of shadows, plain icons instead of tinted
+ * tiles, and one heading family (--head) for titles, section heads, labels
+ * and numbers. Body text stays in --font.
+ */
+:root {
+  --head: 'Archivo', 'Figtree', sans-serif;
+  --head-wide: 108;
+  --r-lg: 16px;
+  --r-md: 12px;
+}
+/* The old display, numeric and label voices all become the heading family. */
+:root,
+html[lang] {
+  --display: var(--head);
+  --numeric: var(--head);
+  --label: var(--head);
+}
+html[lang='ta'] {
+  --head: 'Archivo', 'Noto Sans Tamil', sans-serif;
+}
+html[lang='hi'] {
+  --head: 'Archivo', 'Noto Sans Devanagari', sans-serif;
+}
+html[lang='ja'] {
+  --head: 'Archivo', 'Noto Sans JP', sans-serif;
+}
+html[lang='zh'] {
+  --head: 'Archivo', 'Noto Sans SC', sans-serif;
+}
+html[lang='ko'] {
+  --head: 'Archivo', 'Noto Sans KR', sans-serif;
+}
+
+/* ---------- ink and paper: one accent, the seal ---------- */
+:root {
+  --bg: #f2f0eb;
+  --surface: #fbfaf7;
+  --surface-2: #f7f5f0;
+  --subtle: #e7e4dc;
+  --ink: #111214;
+  --ink-2: #4f4e55;
+  --ink-3: #6a6870;
+  --line: #dedad0;
+  --line-strong: #c6c1b4;
+  --accent: #111214;
+  --accent-pressed: #2a2b2f;
+  --accent-soft: #e7e4dc;
+  --accent-ink: #111214;
+  --on-accent: #ffffff;
+  --navy: #141518;
+  --navy-2: #26272c;
+  --on-navy: #f4f2ec;
+  --on-navy-2: #a3a19a;
+  --ring-track: rgba(255, 255, 255, 0.14);
+  --seal: #e2401b;
+  --seal-soft: #fbe3da;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e0e10;
+    --surface: #161619;
+    --surface-2: #1b1b1f;
+    --subtle: #24242a;
+    --ink: #f2f0ea;
+    --ink-2: #bdbab2;
+    --ink-3: #9c9991;
+    --line: #2a2a30;
+    --line-strong: #3d3d45;
+    --accent: #f2f0ea;
+    --accent-pressed: #ffffff;
+    --accent-soft: #2a2a30;
+    --accent-ink: #f2f0ea;
+    --on-accent: #111214;
+    --navy: #1b1b1f;
+    --navy-2: #2a2a30;
+    --on-navy: #f2f0ea;
+    --on-navy-2: #a3a19a;
+    --seal: #ff6a3d;
+    --seal-soft: #3a1a10;
+  }
+}
+/* Night surfaces (welcome, join, the gate poster): flat ink, no glow. */
+.welcome,
+.join-stage,
+.gate {
+  background: var(--navy);
+}
+html:has(.welcome),
+body:has(.welcome) {
+  background: var(--navy);
+}
+.welcome .grain,
+.join-stage .grain,
+.gate .grain {
+  display: none;
+}
+
+.link-btn {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+/* Tab bar: the current tab is ink with a rule above it, not a tinted lozenge. */
+.tabbar {
+  box-shadow: none;
+  background: var(--surface);
+}
+.tabbar a {
+  position: relative;
+}
+.tabbar a[aria-current='page'] {
+  color: var(--ink);
+  font-weight: 600;
+}
+.tabbar a[aria-current='page'] svg {
+  background: none;
+}
+.tabbar a[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 30%;
+  right: 30%;
+  height: 2px;
+  background: var(--ink);
+}
+
+/* Heroes: the number is the picture. */
+.hero .t-number {
+  font-size: clamp(40px, 11.5vw, 52px);
+  letter-spacing: -0.04em;
+  font-variation-settings: 'wdth' 92;
+}
+
+/* ---------- type ---------- */
+.t-display,
+.t-title,
+.t-greeting,
+.t-headline,
+.page-title,
+.step,
+.card h2,
+.section-head h2 {
+  font-family: var(--head);
+  font-variation-settings: 'wdth' var(--head-wide);
+  font-style: normal;
+}
+.t-display {
+  font-weight: 750;
+  letter-spacing: -0.018em;
+  word-spacing: 0.04em;
+  line-height: 1.04;
+}
+.t-title,
+.page-title {
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+}
+.t-greeting {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.t-headline {
+  font-weight: 650;
+  letter-spacing: -0.012em;
+  font-size: 18px;
+}
+.t-number {
+  font-family: var(--head);
+  font-variation-settings: 'wdth' var(--head-wide);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+/* Labels: small, sentence case, set in the heading face. No stamped capitals. */
+.t-label,
+.t-eyebrow {
+  font-family: var(--head);
+  font-variation-settings: 'wdth' 100;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-2);
+}
+.t-eyebrow {
+  color: var(--ink-3);
+}
+/* Accent words and notes are plain text, set apart by a rule rather than a slant. */
+.t-accent {
+  font-style: normal;
+  font-weight: inherit;
+  color: var(--accent-ink);
+}
+.t-note {
+  font-family: var(--font);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  padding-left: 12px;
+  border-left: 2px solid var(--line-strong);
+}
+
+/* ---------- surfaces ---------- */
+body {
+  background: var(--bg);
+}
+body::before {
+  display: none;
+}
+.card,
+.setting-row {
+  background: var(--surface);
+  box-shadow: none;
+}
+@media (prefers-color-scheme: dark) {
+  .card {
+    box-shadow: none;
+  }
+}
+.hero {
+  border-radius: var(--r-lg);
+  box-shadow: none;
+}
+.hero::after,
+.hero .grain {
+  display: none;
+}
+.onsite .ring {
+  display: none;
+}
+.btn-primary,
+.btn-secondary {
+  box-shadow: none;
+}
+.btn {
+  font-weight: 600;
+}
+.avatar.sm {
+  background: var(--navy);
+  box-shadow: none;
+}
+
+/* Status tags: square-ish, no leading dot. */
+.pill {
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-weight: 600;
+}
+.pill::before {
+  display: none;
+}
+
+/* Icons stand on their own; colour only when it carries meaning. */
+.tile {
+  width: 28px;
+  height: 28px;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--ink-2);
+}
+.tile.sm {
+  width: 24px;
+  height: 24px;
+}
+.tile.good,
+.tile.warn,
+.tile.danger,
+.tile.seal,
+.tile.neutral {
+  background: transparent;
+}
+.mic-bar .tile {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.mic-bar.recording .tile {
+  background: var(--danger);
+  color: #fff;
+}
+
+/* KPI cards: the number does the talking. */
+.stat-card {
+  box-shadow: none;
+}
+.stat-card::before {
+  display: none;
+}
+.stat-card-top svg {
+  display: none;
+}
+
+/* Empty: a sentence, not an illustration. */
+.empty {
+  padding: 22px 12px;
+}
+.empty-art {
+  display: none;
+}
+
+/* Forms. */
+.form-glyph {
+  display: none;
+}
+.step-n {
+  width: auto;
+  height: auto;
+  background: none;
+  box-shadow: none;
+  color: var(--ink-3);
+  font: inherit;
+}
+.promise::before {
+  display: none;
+}
+.promise .tile {
+  border-radius: 0;
+  box-shadow: none;
+}
+.composer,
+.photo-drop-icon {
+  box-shadow: none;
+}
+
+/* Leave balances: a number and a bar. */
+.balance {
+  gap: 6px;
+}
+.balance-num {
+  font-family: var(--head);
+  font-variation-settings: 'wdth' var(--head-wide);
+  font-size: 34px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+.balance-num small {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--ink-3);
+}
+.balance-bar {
+  display: block;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--subtle);
+  overflow: hidden;
+}
+.balance-bar i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+
+/* Contrast on the new surfaces. */
+.hero .seal-line {
+  color: #ff7a52;
+}
+.choice[aria-checked='true'] .faint,
+.choice[aria-pressed='true'] .faint {
+  color: var(--ink-2);
+}

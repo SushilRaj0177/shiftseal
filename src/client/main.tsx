@@ -7,6 +7,7 @@ import './styles/firstrun.css';
 import './styles/surfaces.css';
 import './styles/polish.css';
 import './styles/forms.css';
+import './styles/finish.css';
 
 const rootEl = document.getElementById('root');
 if (rootEl) {

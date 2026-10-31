@@ -40,13 +40,9 @@
   --danger-soft: #fae6e3;
 
   /*
-   * Type voices. Each kind of text has its own face:
-   *   --font     Figtree: everything you read and tap; warm and round.
-   *   --display  Fraunces, soft and slightly wonky: screen titles and headlines.
-   *   --numeric  Bricolage Grotesque: hours, money and section headings.
-   *   --label    JetBrains Mono: small labels, stamped like a printed record.
-   *   --mono     JetBrains Mono: clock times, codes and fingerprints.
-   * Other scripts fall through to their Noto pair (sans for text, serif for titles).
+   * Type voices. Headings, labels and numbers share one family (--head, set in
+   * finish.css, which also sets the final ink-and-paper palette); body text is
+   * Figtree; clock times and codes use JetBrains Mono.
    */
   --font: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --display: 'Fraunces', Georgia, serif;
