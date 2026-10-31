@@ -40,6 +40,7 @@ export const COUNTRY_KEYS = [
   'flagNoHandler',
   'serviceFromLabel',
   'overtimeRule',
+  'studentRule',
 ] as const;
 
 export type CountryKey = (typeof COUNTRY_KEYS)[number];

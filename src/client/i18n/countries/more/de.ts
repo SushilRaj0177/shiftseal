@@ -51,6 +51,8 @@ export const DE_MORE: CountryLanguages = {
     ext_ads: 'கூட்டாட்சிப் பாகுபாட்டு எதிர்ப்பு நிறுவனம்',
     limit_deDay: 'இன்று (அதிகபட்சம் 10 ம)',
     limit_deAvg: '6 மாதச் சராசரி (வாரத்துக்கு அதிகபட்சம் 48 ம)',
+    studentRule:
+      'வெளிநாட்டு மாணவர்கள்: ஆண்டுக்கு 140 முழு நாட்கள் அல்லது 280 அரை நாட்கள் (குடியிருப்புச் சட்டம், § 16b(3)); விரிவுரைக் காலத்தில் வாரத்துக்கு 20 மணிக்குள் இருந்தால் மாணவர் சமூகக் காப்பீட்டு விகிதம் தொடரும். 18 வயதுக்குட்பட்டோர்: நாளுக்கு 8 மணி, வாரத்துக்கு 40, 20:00–6:00 வேலை இல்லை (இளைஞர் வேலைப் பாதுகாப்புச் சட்டம்).',
   },
   hi: {
     recordBroken:
@@ -99,6 +101,8 @@ export const DE_MORE: CountryLanguages = {
     ext_ads: 'संघीय भेदभाव-विरोधी एजेंसी',
     limit_deDay: 'आज (अधिकतम 10 घं)',
     limit_deAvg: '6 महीने का औसत (हफ़्ते में अधिकतम 48 घं)',
+    studentRule:
+      'अंतरराष्ट्रीय छात्र: साल में 140 पूरे या 280 आधे दिन (निवास अधिनियम, § 16b(3)); लेक्चर के दौरान हफ़्ते में 20 घंटे तक रहने पर छात्र सामाजिक बीमा दरें बनी रहती हैं। 18 से कम: दिन में 8, हफ़्ते में 40 घंटे, 20:00–6:00 काम नहीं (युवा रोज़गार संरक्षण अधिनियम)।',
   },
   es: {
     recordBroken:
@@ -149,6 +153,8 @@ export const DE_MORE: CountryLanguages = {
     ext_ads: 'Agencia Federal Antidiscriminación',
     limit_deDay: 'Hoy (máximo 10 h)',
     limit_deAvg: 'Media de 6 meses (máximo 48 h/semana)',
+    studentRule:
+      'Estudiantes internacionales: 140 días completos o 280 medios días al año (Ley de Residencia, § 16b(3)); quedarse en 20 horas semanales durante las clases mantiene las cotizaciones de estudiante. Menores de 18: 8 horas al día, 40 a la semana, sin trabajo de 20:00 a 6:00 (Ley de Protección del Trabajo Juvenil).',
   },
   fr: {
     recordBroken:
@@ -200,6 +206,8 @@ export const DE_MORE: CountryLanguages = {
     ext_ads: 'Agence fédérale de lutte contre les discriminations',
     limit_deDay: 'Aujourd’hui (10 h maximum)',
     limit_deAvg: 'Moyenne sur 6 mois (48 h/semaine maximum)',
+    studentRule:
+      'Étudiants internationaux : 140 jours entiers ou 280 demi-journées par an (loi sur le séjour, § 16b(3)) ; rester à 20 heures par semaine pendant les cours préserve les cotisations étudiantes. Moins de 18 ans : 8 heures par jour, 40 par semaine, pas de travail de 20 h à 6 h (loi sur la protection des jeunes travailleurs).',
   },
   pt: {
     recordBroken:
@@ -250,6 +258,8 @@ export const DE_MORE: CountryLanguages = {
     ext_ads: 'Agência Federal Antidiscriminação',
     limit_deDay: 'Hoje (máximo 10 h)',
     limit_deAvg: 'Média de 6 meses (máximo 48 h/semana)',
+    studentRule:
+      'Estudantes internacionais: 140 dias completos ou 280 meios dias por ano (Lei de Residência, § 16b(3)); ficar nas 20 horas semanais durante as aulas mantém as contribuições de estudante. Menores de 18: 8 horas por dia, 40 por semana, sem trabalho das 20:00 às 6:00 (Lei de Proteção do Trabalho Juvenil).',
   },
   ja: {
     recordBroken:
@@ -298,6 +308,8 @@ export const DE_MORE: CountryLanguages = {
     ext_ads: '連邦反差別庁',
     limit_deDay: '今日(上限10時間)',
     limit_deAvg: '6か月平均(週48時間まで)',
+    studentRule:
+      '留学生:年間で全日140日または半日280日まで(滞在法第16b条第3項)。講義期間中に週20時間以内なら学生向けの社会保険料率が維持されます。18歳未満:1日8時間・週40時間、20時〜6時の労働は禁止(年少者労働保護法)。',
   },
   zh: {
     recordBroken:
@@ -345,6 +357,8 @@ export const DE_MORE: CountryLanguages = {
     ext_ads: '联邦反歧视署',
     limit_deDay: '今天(最多10小时)',
     limit_deAvg: '6个月平均(每周最多48小时)',
+    studentRule:
+      '国际学生:每年最多140个全天或280个半天(《居留法》第16b条第3款);授课期间每周不超过20小时,可保留学生社会保险费率。未满18岁:每天8小时、每周40小时,禁止20:00–6:00工作(《青少年劳动保护法》)。',
   },
   ko: {
     recordBroken:
@@ -393,5 +407,7 @@ export const DE_MORE: CountryLanguages = {
     ext_ads: '연방차별금지청',
     limit_deDay: '오늘(최대 10시간)',
     limit_deAvg: '6개월 평균(주 최대 48시간)',
+    studentRule:
+      '유학생: 연간 전일 140일 또는 반일 280일(체류법 제16b조 제3항). 강의 기간에 주 20시간 이내면 학생 사회보험료율이 유지됩니다. 18세 미만: 하루 8시간·주 40시간, 20시~6시 근로 금지(청소년근로보호법).',
   },
 };

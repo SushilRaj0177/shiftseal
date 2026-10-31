@@ -114,6 +114,12 @@ export interface UserAccount {
   language: Language;
   createdAt: string;
   memberships: { workplaceId: string; role: MemberRole }[];
+  /** Studying, and on a student visa or not; it changes the hours they may legally work. */
+  student?: 'student' | 'international';
+  /** Last day of an official school break, YYYY-MM-DD. */
+  breakUntil?: string;
+  /** Only used to apply the rules for young workers. */
+  birthDate?: string;
 }
 
 export interface InviteRecord {
@@ -189,6 +195,9 @@ export type FlagCode =
   | 'COMPLAINTS_NO_HANDLER'
   | 'COMPLAINT_OVERDUE'
   | 'LIMIT_EXCEEDED'
+  | 'STUDENT_LIMIT'
+  | 'MINOR_HOURS'
+  | 'MINOR_NIGHT'
   | 'LEAVE_MIN_NOT_TAKEN'
   | 'CLAIM_NO_SHIFT'
   | 'CLAIM_EXCEEDS_DAY'

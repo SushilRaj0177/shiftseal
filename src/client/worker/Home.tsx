@@ -308,7 +308,7 @@ const LimitMeter: React.FC<{ reading: LimitReading }> = ({ reading: r }) => {
       <div className="between">
         <span className="t-caption">{tx(`limit_${r.id}`)}</span>
         <span className="t-caption t-num">
-          <b>{r.value}</b> / {r.cap} {t('hoursUnit')}
+          <b>{r.value}</b> / {r.cap} {r.id === 'studentDays' ? t('unitDays') : t('hoursUnit')}
         </span>
       </div>
       <div className="limit-track" role="img" aria-label={`${r.value} / ${r.cap}`}>

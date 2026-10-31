@@ -8,7 +8,7 @@ export const languageSchema = z.preprocess(
   z.enum(LANGUAGE_CODES)
 );
 export const countrySchema = z.enum(COUNTRY_IDS as [CountryId, ...CountryId[]]);
-export const sectorSchema = z.enum(['construction', 'campus', 'office']);
+export const sectorSchema = z.enum(['construction', 'campus', 'office', 'retail']);
 export const severitySchema = z.enum(['low', 'medium', 'high', 'critical']);
 
 // Size limits: audio <= 2 MB (approx 2.8M base64 chars), images <= 1 MB (approx 1.4M base64 chars), text <= 2000 chars

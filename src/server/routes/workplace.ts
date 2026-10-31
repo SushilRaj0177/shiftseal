@@ -32,6 +32,12 @@ import { raiseFlags } from '../services/flags.js';
 import { checkCountrySettings } from './account.js';
 import { limitReadings } from '../../shared/rules/limits.js';
 import { assessLimits } from '../../shared/rules/flags.js';
+import {
+  assessMinorNight,
+  assessStudentLimits,
+  studentReadings,
+} from '../../shared/rules/students.js';
+import { shiftsEverywhere, studentProfileOf } from '../services/students.js';
 import { newId, newInviteCode } from '../services/ids.js';
 import { verifyIntegrity } from '../services/integrity.js';
 import { issueReceipt, sealDigest } from '../services/receipts.js';
@@ -419,7 +425,19 @@ workplaceRouter.post('/checks', async (req, res, next) => {
       const chainNow = await repo.getChain(workplace.id, member.uid);
       const readings = limitReadings(latestView(chainNow), workplace, local.date);
       const existing = await repo.list<FlagRecord>(workplace.id, 'flags');
-      overLimit = assessLimits(member.uid, readings).filter(
+      // Students and young workers: their own caps, counting every job they hold.
+      const user = await repo.getUser(member.uid);
+      const profile = studentProfileOf(user);
+      const everywhere = await shiftsEverywhere(user, member.uid, workplace.id);
+      const closed = latestView(chainNow).find((s) => s.checkOutEventId === event.id);
+      const student = [
+        ...assessStudentLimits(
+          member.uid,
+          studentReadings(profile, everywhere, workplace, local.date)
+        ),
+        ...(closed ? assessMinorNight(member.uid, closed, profile, workplace) : []),
+      ];
+      overLimit = [...assessLimits(member.uid, readings), ...student].filter(
         (d) => !existing.some((f) => f.code === d.code && f.subject.id === d.subject.id)
       );
     }

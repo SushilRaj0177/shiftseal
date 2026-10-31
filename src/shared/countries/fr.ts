@@ -9,7 +9,12 @@ export const FR: CountryPack = {
   weeklyOff: [0, 6],
   pay: {
     cycles: ['monthly'],
-    defaultCycle: { construction: 'monthly', campus: 'monthly', office: 'monthly' },
+    defaultCycle: {
+      construction: 'monthly',
+      campus: 'monthly',
+      retail: 'monthly',
+      office: 'monthly',
+    },
     deadline: { kind: 'payDay' },
     deductions: [
       'csg_crds',
@@ -57,7 +62,30 @@ export const FR: CountryPack = {
     { id: 'frAvg', metric: 'total', window: 'avgWeeks', weeks: 12, cap: 44, rule: 'limit.frAvg' },
     { id: 'frYear', metric: 'overtime', window: 'year', cap: 220, rule: 'limit.frYear' },
   ],
+  students: {
+    visa: { yearlyHours: 964, rule: 'student.visa' },
+    minors: {
+      age: 18,
+      daily: 8,
+      weekly: 35,
+      night: { from: '22:00', to: '06:00' },
+      under16: { night: { from: '20:00', to: '06:00' } },
+      rule: 'minor.hours',
+    },
+  },
   rules: byId(
+    law(
+      'student.visa',
+      964,
+      'hours/year',
+      'Code du travail, art. R5221-26 : 964 heures par an pour un titre de séjour « étudiant » (60 % de la durée légale)'
+    ),
+    law(
+      'minor.hours',
+      8,
+      'hours/day',
+      'Code du travail, art. L3162-1, L3163-1 et L3163-2 : 8 h par jour, 35 h par semaine, pas de travail de nuit (22 h–6 h ; 20 h–6 h avant 16 ans)'
+    ),
     law(
       'ot.weekly',
       35,

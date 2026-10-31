@@ -49,6 +49,8 @@ export const KR_TEXT: CountryStrings = {
     ded_local_income_tax: '지방소득세',
     ext_moel: '고용노동부 민원마당(진정)',
     limit_krWeek: '이번 주 근로시간(주 52시간 한도)',
+    studentRule:
+      '유학생(D-2): 학부생은 TOPIK 3급(3·4학년 4급) 이상이면 주중 25시간, 미달 시 10시간, 대학원생 30시간이며 주말·방학은 제한이 없습니다(시간제취업 허가 필수). 18세 미만: 1일 7시간·주 35시간, 야간·휴일근로는 본인 동의와 인가 필요(근로기준법 제69·70조).',
   },
   en: {
     recordBroken:
@@ -97,5 +99,7 @@ export const KR_TEXT: CountryStrings = {
     ded_local_income_tax: 'Local income tax',
     ext_moel: 'Ministry of Employment and Labor (petition)',
     limit_krWeek: 'Hours this week (52-hour cap)',
+    studentRule:
+      'International students (D-2): 25 weekday hours with TOPIK 3 (years 3–4: TOPIK 4), 10 without; graduate students 30; no cap at weekends or in vacations. A part-time work permit is needed first. Under 18: 7 hours a day, 35 a week; night and holiday work needs consent and approval (Labor Standards Act, Arts. 69–70).',
   },
 };

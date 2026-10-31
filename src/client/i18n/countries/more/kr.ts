@@ -51,6 +51,8 @@ export const KR_MORE: CountryLanguages = {
     ded_local_income_tax: 'உள்ளூர் வருமான வரி',
     ext_moel: 'வேலைவாய்ப்பு மற்றும் தொழிலாளர் அமைச்சகம் (மனு)',
     limit_krWeek: 'இந்த வார நேரம் (52 மணி வரம்பு)',
+    studentRule:
+      'வெளிநாட்டு மாணவர்கள் (D-2): TOPIK 3 (3–4ஆம் ஆண்டு: TOPIK 4) இருந்தால் வார நாட்களில் 25 மணி, இல்லையெனில் 10; முதுநிலை மாணவர்கள் 30; வார இறுதி, விடுமுறையில் வரம்பு இல்லை. முதலில் பகுதிநேர வேலை அனுமதி தேவை. 18 வயதுக்குட்பட்டோர்: நாளுக்கு 7 மணி, வாரத்துக்கு 35; இரவு, விடுமுறை வேலைக்கு ஒப்புதலும் அனுமதியும் தேவை (தொழிலாளர் தரச் சட்டம், பிரிவுகள் 69–70).',
   },
   hi: {
     recordBroken:
@@ -99,6 +101,8 @@ export const KR_MORE: CountryLanguages = {
     ded_local_income_tax: 'स्थानीय आयकर',
     ext_moel: 'रोज़गार और श्रम मंत्रालय (याचिका)',
     limit_krWeek: 'इस हफ़्ते के घंटे (52 घंटे की सीमा)',
+    studentRule:
+      'अंतरराष्ट्रीय छात्र (D-2): TOPIK 3 (तीसरे–चौथे साल में TOPIK 4) के साथ हफ़्ते के दिनों में 25 घंटे, उसके बिना 10; स्नातकोत्तर 30; सप्ताहांत और छुट्टियों में कोई सीमा नहीं। पहले पार्ट-टाइम काम की अनुमति चाहिए। 18 से कम: दिन में 7, हफ़्ते में 35 घंटे; रात और छुट्टी के काम के लिए सहमति और मंज़ूरी चाहिए (श्रम मानक अधिनियम, अनुच्छेद 69–70)।',
   },
   es: {
     recordBroken:
@@ -148,6 +152,8 @@ export const KR_MORE: CountryLanguages = {
     ded_local_income_tax: 'Impuesto local sobre la renta',
     ext_moel: 'Ministerio de Empleo y Trabajo (petición)',
     limit_krWeek: 'Horas esta semana (límite de 52 h)',
+    studentRule:
+      'Estudiantes internacionales (D-2): 25 horas entre semana con TOPIK 3 (3.º y 4.º curso: TOPIK 4), 10 sin él; posgrado 30; sin límite en fines de semana ni vacaciones. Antes hace falta el permiso de trabajo a tiempo parcial. Menores de 18: 7 horas al día y 35 a la semana; el trabajo nocturno y en festivos requiere consentimiento y autorización (Ley de Normas Laborales, arts. 69–70).',
   },
   fr: {
     recordBroken:
@@ -197,6 +203,8 @@ export const KR_MORE: CountryLanguages = {
     ded_local_income_tax: 'Impôt local sur le revenu',
     ext_moel: 'Ministère de l’Emploi et du Travail (requête)',
     limit_krWeek: 'Heures cette semaine (plafond de 52 h)',
+    studentRule:
+      'Étudiants internationaux (D-2) : 25 heures en semaine avec le TOPIK 3 (3e–4e année : TOPIK 4), 10 sans ; 30 en master et doctorat ; pas de plafond le week-end ni pendant les vacances. Il faut d’abord une autorisation de travail à temps partiel. Moins de 18 ans : 7 heures par jour, 35 par semaine ; nuit et jours fériés avec accord et autorisation (loi sur les normes du travail, arts. 69–70).',
   },
   de: {
     recordBroken:
@@ -246,6 +254,8 @@ export const KR_MORE: CountryLanguages = {
     ded_local_income_tax: 'Kommunale Einkommensteuer',
     ext_moel: 'Ministerium für Beschäftigung und Arbeit (Petition)',
     limit_krWeek: 'Stunden diese Woche (Grenze 52 h)',
+    studentRule:
+      'Internationale Studierende (D-2): mit TOPIK 3 (3.–4. Studienjahr: TOPIK 4) 25 Stunden an Werktagen, sonst 10; Masterstudierende 30; am Wochenende und in den Ferien ohne Grenze. Vorher ist eine Teilzeit-Arbeitserlaubnis nötig. Unter 18: 7 Stunden am Tag, 35 pro Woche; Nacht- und Feiertagsarbeit nur mit Zustimmung und Genehmigung (Arbeitsstandardgesetz, Art. 69–70).',
   },
   pt: {
     recordBroken:
@@ -295,6 +305,8 @@ export const KR_MORE: CountryLanguages = {
     ded_local_income_tax: 'Imposto local sobre o rendimento',
     ext_moel: 'Ministério do Emprego e do Trabalho (petição)',
     limit_krWeek: 'Horas esta semana (limite de 52 h)',
+    studentRule:
+      'Estudantes internacionais (D-2): 25 horas nos dias úteis com TOPIK 3 (3.º–4.º ano: TOPIK 4), 10 sem ele; pós-graduação 30; sem limite ao fim de semana nem nas férias. É preciso primeiro a autorização de trabalho a tempo parcial. Menores de 18: 7 horas por dia, 35 por semana; trabalho noturno e em feriados exige consentimento e autorização (Lei das Normas Laborais, arts. 69–70).',
   },
   ja: {
     recordBroken:
@@ -343,6 +355,8 @@ export const KR_MORE: CountryLanguages = {
     ded_local_income_tax: '地方所得税',
     ext_moel: '雇用労働部(陳情)',
     limit_krWeek: '今週の労働時間(上限52時間)',
+    studentRule:
+      '留学生(D-2):学部生はTOPIK3級(3・4年生は4級)以上で平日週25時間、未満は10時間、大学院生は30時間。週末と休暇中は上限なし。事前に時間制就業許可が必要です。18歳未満:1日7時間・週35時間、夜間・休日労働は本人の同意と認可が必要(勤労基準法第69・70条)。',
   },
   zh: {
     recordBroken: '此记录不一致。请把这个页面给地方雇佣劳动厅的劳动监督官或你的工会看。',
@@ -388,5 +402,7 @@ export const KR_MORE: CountryLanguages = {
     ded_local_income_tax: '地方所得税',
     ext_moel: '雇佣劳动部(请愿)',
     limit_krWeek: '本周工时(上限52小时)',
+    studentRule:
+      '国际学生(D-2):本科生TOPIK 3级(三、四年级4级)以上工作日每周25小时,未达标10小时;研究生30小时;周末和假期不限。须先取得兼职许可。未满18岁:每天7小时、每周35小时;夜间和节假日工作须本人同意并经批准(《劳动基准法》第69、70条)。',
   },
 };

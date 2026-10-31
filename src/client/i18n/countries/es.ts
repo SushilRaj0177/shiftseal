@@ -53,6 +53,8 @@ export const ES_TEXT: CountryStrings = {
     ext_itss: 'Inspección de Trabajo y Seguridad Social',
     limit_esYear: 'Horas extra este año (máximo 80)',
     limit_esDay: 'Hoy (máximo 9 horas ordinarias)',
+    studentRule:
+      'Estudiantes internacionales: hasta 30 horas a la semana (Real Decreto 1155/2024). Menores de 18: como máximo 8 horas al día, sin horas extra ni trabajo nocturno (Estatuto de los Trabajadores, arts. 6 y 34.3).',
   },
   en: {
     recordBroken:
@@ -104,5 +106,7 @@ export const ES_TEXT: CountryStrings = {
     ext_itss: 'Labour and Social Security Inspectorate',
     limit_esYear: 'Overtime this year (80 h maximum)',
     limit_esDay: 'Today (9 ordinary hours maximum)',
+    studentRule:
+      'International students: up to 30 hours a week (Royal Decree 1155/2024). Under 18: at most 8 hours a day, no overtime and no night work (Workers’ Statute, arts. 6 and 34.3).',
   },
 };

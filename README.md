@@ -104,3 +104,18 @@ Each country is a pack in `src/shared/countries/` with sourced rules (statute an
 ---
 
 Shiftseal began as a Top 10 entry at Prompt Wars 2026 (UN SDG 8, decent work).
+
+### Students and young workers
+
+Shops, cafés and convenience stores are a sector of their own. A worker can say in Settings that they study, or study on a student visa, and give their date of birth. Visa caps count **every job they hold**, so hours at another Shiftseal workplace are added in. The employer sees a badge, never the birth date, and is flagged when a check-out goes over a cap or keeps an under-18 at night.
+
+| Country | Student visa cap tracked | Under 18 |
+| --- | --- | --- |
+| Japan | 28 h in any 7 days, all jobs; 8 h/day in official long breaks | 8 h/day, 40 h/week, no 22:00–5:00 |
+| South Korea | 25 weekday h (TOPIK-dependent; weekends and vacations free) | 7 h/day, 35 h/week |
+| France | 964 h/year | 8 h/day, 35 h/week, no 22:00–6:00 (20:00 under 16) |
+| Germany | 140 full or 280 half days/year | 8 h/day, 40 h/week, no 20:00–6:00 |
+| Spain | 30 h/week | 8 h/day, no overtime, no night work |
+| UK | 20 h/week in term | 8 h/day, 40 h/week, no 22:00–6:00 |
+| US | 20 h/week on campus in term (F-1) | under 16: 18 h school week, no work 19:00–7:00 |
+| India, China, Mexico, Brazil, Portugal | described, not metered | hazardous work, overtime and night rules as each law sets |

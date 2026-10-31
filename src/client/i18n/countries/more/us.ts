@@ -54,6 +54,8 @@ export const US_MORE: CountryLanguages = {
     ext_nydhr: 'நியூயார்க் மாநில மனித உரிமைப் பிரிவு',
     limit_usWeek: 'இந்த வேலை வாரம் (40 மணிக்குப் பிறகு கூடுதல் நேரம்)',
     limit_caDay: 'இன்று (8 மணிக்குப் பிறகு கூடுதல் நேரம்)',
+    studentRule:
+      'F-1 மாணவர்கள்: பருவ காலத்தில் வளாகத்துக்குள் வாரத்துக்கு 20 மணி வரை, விடுமுறையில் முழுநேரம்; வளாகத்துக்கு வெளியே வேலைக்கு CPT அல்லது OPT தேவை. 16 வயதுக்குக் கீழ்: பள்ளி நாளில் 3 மணி, பள்ளி வாரத்தில் 18, காலை 7 – மாலை 7 (FLSA). பல மாநிலங்கள் கூடுதல் விதிகள் வைத்துள்ளன.',
   },
   hi: {
     recordBroken:
@@ -106,6 +108,8 @@ export const US_MORE: CountryLanguages = {
     ext_nydhr: 'न्यूयॉर्क राज्य मानवाधिकार प्रभाग',
     limit_usWeek: 'यह कार्य-सप्ताह (40 घं के बाद ओवरटाइम)',
     limit_caDay: 'आज (8 घं के बाद ओवरटाइम)',
+    studentRule:
+      'F-1 छात्र: सत्र के दौरान कैंपस पर हफ़्ते में 20 घंटे तक, छुट्टियों में पूरे समय; कैंपस के बाहर काम के लिए CPT या OPT चाहिए। 16 से कम: स्कूल के दिन 3 घंटे, स्कूल वाले हफ़्ते में 18, सुबह 7 से शाम 7 (FLSA)। कई राज्य अपने नियम जोड़ते हैं।',
   },
   es: {
     recordBroken:
@@ -159,6 +163,8 @@ export const US_MORE: CountryLanguages = {
     ext_nydhr: 'División de Derechos Humanos del Estado de Nueva York',
     limit_usWeek: 'Esta semana laboral (horas extra después de 40 h)',
     limit_caDay: 'Hoy (horas extra después de 8 h)',
+    studentRule:
+      'Estudiantes F-1: trabajo en el campus hasta 20 horas semanales durante el curso, jornada completa en vacaciones; fuera del campus hace falta CPT u OPT. Menores de 16: 3 horas en día lectivo, 18 en semana lectiva, de 7 a. m. a 7 p. m. (FLSA). Muchos estados añaden sus propias normas.',
   },
   fr: {
     recordBroken:
@@ -212,6 +218,8 @@ export const US_MORE: CountryLanguages = {
     ext_nydhr: 'Division des droits humains de l’État de New York',
     limit_usWeek: 'Cette semaine (heures sup. après 40 h)',
     limit_caDay: 'Aujourd’hui (heures sup. après 8 h)',
+    studentRule:
+      'Étudiants F-1 : travail sur le campus jusqu’à 20 heures par semaine pendant l’année, temps plein pendant les vacances ; hors campus, il faut le CPT ou l’OPT. Moins de 16 ans : 3 heures un jour d’école, 18 une semaine d’école, de 7 h à 19 h (FLSA). Beaucoup d’États ajoutent leurs règles.',
   },
   de: {
     recordBroken:
@@ -265,6 +273,8 @@ export const US_MORE: CountryLanguages = {
     ext_nydhr: 'Menschenrechtsabteilung des Staates New York',
     limit_usWeek: 'Diese Arbeitswoche (Überstunden nach 40 h)',
     limit_caDay: 'Heute (Überstunden nach 8 h)',
+    studentRule:
+      'F-1-Studierende: auf dem Campus bis zu 20 Stunden pro Woche im Semester, in den Ferien Vollzeit; außerhalb des Campus nur mit CPT oder OPT. Unter 16: 3 Stunden an Schultagen, 18 in Schulwochen, 7–19 Uhr (FLSA). Viele Bundesstaaten haben eigene Regeln.',
   },
   pt: {
     recordBroken:
@@ -318,6 +328,8 @@ export const US_MORE: CountryLanguages = {
     ext_nydhr: 'Divisão de Direitos Humanos do Estado de Nova Iorque',
     limit_usWeek: 'Esta semana de trabalho (horas extra após 40 h)',
     limit_caDay: 'Hoje (horas extra após 8 h)',
+    studentRule:
+      'Estudantes F-1: trabalho no campus até 20 horas por semana durante as aulas, tempo inteiro nas férias; fora do campus é preciso CPT ou OPT. Menores de 16: 3 horas em dia de escola, 18 em semana de escola, das 7h às 19h (FLSA). Muitos estados juntam regras próprias.',
   },
   ja: {
     recordBroken:
@@ -370,6 +382,8 @@ export const US_MORE: CountryLanguages = {
     ext_nydhr: 'ニューヨーク州人権局',
     limit_usWeek: '今週(40時間を超えると残業)',
     limit_caDay: '今日(8時間を超えると残業)',
+    studentRule:
+      'F-1学生:授業期間中は学内で週20時間まで、休暇中はフルタイム。学外での就労にはCPTかOPTが必要です。16歳未満:登校日は3時間、登校週は18時間、午前7時〜午後7時(公正労働基準法)。州ごとの規則もあります。',
   },
   zh: {
     recordBroken: '此记录不一致。请把这个页面给劳工部工资工时司、你所在州的劳工部门或你的工会看。',
@@ -419,6 +433,8 @@ export const US_MORE: CountryLanguages = {
     ext_nydhr: '纽约州人权司',
     limit_usWeek: '本工作周(超过40小时为加班)',
     limit_caDay: '今天(超过8小时为加班)',
+    studentRule:
+      'F-1学生:学期内校内工作每周最多20小时,假期可全职;校外工作须有CPT或OPT。未满16岁:上学日最多3小时、上学周最多18小时,早7点至晚7点(《公平劳动标准法》)。许多州另有规定。',
   },
   ko: {
     recordBroken:
@@ -470,5 +486,7 @@ export const US_MORE: CountryLanguages = {
     ext_nydhr: '뉴욕주 인권국',
     limit_usWeek: '이번 근로 주(40시간 초과 시 초과근무)',
     limit_caDay: '오늘(8시간 초과 시 초과근무)',
+    studentRule:
+      'F-1 학생: 학기 중 교내 근무 주 20시간까지, 방학에는 전일 근무 가능. 교외 근무는 CPT나 OPT가 필요합니다. 16세 미만: 등교일 3시간, 등교 주간 18시간, 오전 7시~오후 7시(공정근로기준법). 많은 주가 별도 규칙을 둡니다.',
   },
 };

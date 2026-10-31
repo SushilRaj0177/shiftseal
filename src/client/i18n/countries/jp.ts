@@ -52,6 +52,8 @@ export const JP_TEXT: CountryStrings = {
     limit_jpMonth: '今月の残業(36協定の上限 45時間)',
     limit_jpYear: '今年の残業(上限 360時間)',
     limit_jpAbsolute: '残業+休日労働(月100時間未満)',
+    studentRule:
+      '留学生は、すべての勤務先の合計で週28時間まで、学則で定める長期休業中は1日8時間まで(入管法第19条)。18歳未満は時間外・休日労働と22時〜5時の深夜業が禁止です(労働基準法第60・61条)。',
   },
   en: {
     recordBroken:
@@ -103,5 +105,7 @@ export const JP_TEXT: CountryStrings = {
     limit_jpMonth: 'Overtime this month (36 agreement cap: 45 h)',
     limit_jpYear: 'Overtime this year (cap: 360 h)',
     limit_jpAbsolute: 'Overtime + rest-day work (under 100 h a month)',
+    studentRule:
+      'International students: 28 hours a week across all jobs, 8 hours a day in official long breaks (Immigration Control Act, Art. 19). Under 18: no overtime, no rest-day work, no work 22:00–5:00 (Labour Standards Act, Arts. 60–61).',
   },
 };

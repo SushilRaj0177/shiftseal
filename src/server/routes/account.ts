@@ -84,7 +84,13 @@ accountRouter.patch('/me', async (req, res, next) => {
   try {
     const body = updateProfileSchema.parse(req.body);
     const user = await ensureUser(req.identity!);
-    const updated = { ...user, ...body };
+    // null clears a field (a student who has finished their studies).
+    const fields = { ...(user as unknown as Record<string, unknown>) };
+    for (const [k, v] of Object.entries(body)) {
+      if (v === null) delete fields[k];
+      else if (v !== undefined) fields[k] = v;
+    }
+    const updated = fields as unknown as typeof user;
     await getRepo().saveUser(updated);
     res.json({ user: updated });
   } catch (err) {

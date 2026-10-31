@@ -23,6 +23,7 @@ import type { PayPeriod } from '../../shared/time.js';
 import type { Language } from '../../shared/languages.js';
 import type { CountryId } from '../../shared/countries/types.js';
 import type { LimitReading } from '../../shared/rules/limits.js';
+import type { StudentRules } from '../../shared/countries/types.js';
 
 /** Response shapes of the Shiftseal API, as the app uses them. */
 
@@ -92,6 +93,8 @@ export interface WorkerOverview {
   currency: string;
   /** Where the worker stands against the country's legal working-time limits. */
   limits: LimitReading[];
+  student: { student?: 'student' | 'international'; breakUntil?: string; birthDate?: string };
+  studentRules: StudentRules | null;
   /** Yearly payments the country's law requires (aguinaldo, 13º salário, ...). */
   annualPayments: { code: string; due: string | null; estimate: number | null; rule: string }[];
   leave: {
@@ -148,6 +151,8 @@ export interface PersonSummary {
   role: MemberRole;
   status: 'on_site' | 'checked_out' | 'absent' | 'on_leave' | 'wfh';
   icMember: boolean;
+  student: 'student' | 'international' | null;
+  minor: boolean;
   checkIn: string | null;
   checkOut: string | null;
   rateSet: boolean;

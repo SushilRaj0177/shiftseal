@@ -50,6 +50,8 @@ export const PT_MORE: CountryLanguages = {
     ext_cite: 'CITE – பணி மற்றும் வேலைவாய்ப்பில் சமத்துவ ஆணையம்',
     limit_ptYear: 'இந்த ஆண்டுக் கூடுதல் நேரம் (150 ம)',
     limit_ptDay: 'இன்றைய கூடுதல் நேரம் (அதிகபட்சம் 2 ம)',
+    studentRule:
+      'வெளிநாட்டு மாணவர்கள் படிப்போடு வேலை செய்யலாம்; பருவ காலத்தில் வாரத்துக்கு 20 மணி, விடுமுறையில் முழுநேரம் என்பதே அதிகம் சொல்லப்படும் வரம்பு, AIMA இடம் உறுதிப்படுத்துங்கள். 18 வயதுக்குட்பட்டோர்: நாளுக்கு 8 மணி, வாரத்துக்கு 40, இரவு வேலை இல்லை (தொழிலாளர் சட்டத் தொகுப்பு, பிரிவுகள் 73, 76).',
   },
   hi: {
     recordBroken:
@@ -99,6 +101,8 @@ export const PT_MORE: CountryLanguages = {
     ext_cite: 'CITE – श्रम और रोज़गार में समानता आयोग',
     limit_ptYear: 'इस साल ओवरटाइम (150 घं)',
     limit_ptDay: 'आज ओवरटाइम (अधिकतम 2 घं)',
+    studentRule:
+      'अंतरराष्ट्रीय छात्र पढ़ाई के साथ काम कर सकते हैं; सबसे अधिक बताई जाने वाली सीमा सत्र में हफ़्ते में 20 घंटे और छुट्टियों में पूरे समय की है, पर AIMA से पुष्टि करें। 18 से कम: दिन में 8, हफ़्ते में 40 घंटे, रात में काम नहीं (श्रम संहिता, अनुच्छेद 73 और 76)।',
   },
   es: {
     recordBroken:
@@ -148,6 +152,8 @@ export const PT_MORE: CountryLanguages = {
     ext_cite: 'CITE – Comisión para la Igualdad en el Trabajo y el Empleo',
     limit_ptYear: 'Horas extra este año (150 h)',
     limit_ptDay: 'Horas extra hoy (máximo 2 h)',
+    studentRule:
+      'Los estudiantes internacionales pueden trabajar mientras estudian; el límite más citado es de 20 horas semanales en periodo lectivo y jornada completa en vacaciones, pero confírmelo con la AIMA. Menores de 18: 8 horas al día, 40 a la semana, sin trabajo nocturno (Código del Trabajo, arts. 73 y 76).',
   },
   fr: {
     recordBroken:
@@ -198,6 +204,8 @@ export const PT_MORE: CountryLanguages = {
     ext_cite: 'CITE – Commission pour l’égalité au travail et dans l’emploi',
     limit_ptYear: 'Heures sup. cette année (150 h)',
     limit_ptDay: 'Heures sup. aujourd’hui (2 h maximum)',
+    studentRule:
+      'Les étudiants internationaux peuvent travailler pendant leurs études ; la limite la plus citée est de 20 heures par semaine pendant l’année et le temps plein pendant les vacances, mais vérifiez auprès de l’AIMA. Moins de 18 ans : 8 heures par jour, 40 par semaine, pas de travail de nuit (Code du travail, arts. 73 et 76).',
   },
   de: {
     recordBroken:
@@ -247,6 +255,8 @@ export const PT_MORE: CountryLanguages = {
     ext_cite: 'CITE – Kommission für Gleichstellung in Arbeit und Beschäftigung',
     limit_ptYear: 'Überstunden dieses Jahr (150 h)',
     limit_ptDay: 'Überstunden heute (höchstens 2 h)',
+    studentRule:
+      'Internationale Studierende dürfen neben dem Studium arbeiten; meist genannt werden 20 Stunden pro Woche im Semester und Vollzeit in den Ferien, bitte bei der AIMA bestätigen. Unter 18: 8 Stunden am Tag, 40 pro Woche, keine Nachtarbeit (Arbeitsgesetzbuch, Art. 73 und 76).',
   },
   ja: {
     recordBroken:
@@ -295,6 +305,8 @@ export const PT_MORE: CountryLanguages = {
     ext_cite: 'CITE – 労働・雇用平等委員会',
     limit_ptYear: '今年の時間外労働(150時間)',
     limit_ptDay: '今日の時間外労働(上限2時間)',
+    studentRule:
+      '留学生は学業と並行して働けます。よく挙げられる上限は授業期間中週20時間、休暇中はフルタイムですが、AIMAで確認してください。18歳未満:1日8時間・週40時間、深夜労働は禁止(労働法典73条・76条)。',
   },
   zh: {
     recordBroken: '此记录不一致。请把这个页面给ACT(劳动条件管理局)或你的工会看。',
@@ -339,6 +351,8 @@ export const PT_MORE: CountryLanguages = {
     ext_cite: 'CITE – 劳动与就业平等委员会',
     limit_ptYear: '今年加班(150小时)',
     limit_ptDay: '今天加班(最多2小时)',
+    studentRule:
+      '国际学生可以边学习边工作;最常见的说法是学期内每周20小时、假期可全职,但请向AIMA核实。未满18岁:每天8小时、每周40小时,禁止夜间工作(《劳动法典》第73、76条)。',
   },
   ko: {
     recordBroken:
@@ -386,5 +400,7 @@ export const PT_MORE: CountryLanguages = {
     ext_cite: 'CITE – 노동·고용평등위원회',
     limit_ptYear: '올해 초과근무(150시간)',
     limit_ptDay: '오늘 초과근무(최대 2시간)',
+    studentRule:
+      '유학생은 학업과 함께 일할 수 있습니다. 흔히 학기 중 주 20시간, 방학 중 전일 근무가 한도로 알려져 있지만 AIMA에 확인하세요. 18세 미만: 하루 8시간·주 40시간, 야간근로 금지(노동법전 제73·76조).',
   },
 };

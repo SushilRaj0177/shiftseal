@@ -1,0 +1,54 @@
+{
+  "sector": "retail",
+  "name": "Shops, cafés and convenience stores (part-time and student staff)",
+  "rules": {
+    "pay.deductionReasonRequired": {
+      "id": "pay.deductionReasonRequired",
+      "value": 1,
+      "unit": "boolean",
+      "kind": "policy",
+      "source": "Workplace policy: any wage deduction must specify an explicit written reason",
+      "note": "Unexplained wage deductions are flagged for review."
+    },
+    "rest.minGapHours": {
+      "id": "rest.minGapHours",
+      "value": 10,
+      "unit": "hours",
+      "kind": "policy",
+      "source": "Workplace policy: minimum turnaround rest between consecutive shifts",
+      "note": "Flags closing-then-opening shifts with less than the minimum rest between them."
+    },
+    "fatigue.maxConsecutiveDays": {
+      "id": "fatigue.maxConsecutiveDays",
+      "value": 6,
+      "unit": "days",
+      "kind": "policy",
+      "source": "Workplace policy: maximum consecutive days worked without rest day",
+      "note": "Alert triggered when staff work more than 6 days or nights in a row."
+    },
+    "fatigue.maxRolling7dHours": {
+      "id": "fatigue.maxRolling7dHours",
+      "value": 55,
+      "unit": "hours/7d",
+      "kind": "policy",
+      "source": "Workplace policy: rolling 7-day cumulative hour ceiling",
+      "note": "Alert triggered when rolling 7-day hours exceed 55h."
+    },
+    "hazard.floorHigh": {
+      "id": "hazard.floorHigh",
+      "value": 3,
+      "unit": "severity_rank",
+      "kind": "policy",
+      "source": "Workplace safety policy: mandatory high-severity floor for office life-safety hazards",
+      "note": "Electrical, fire, gas leak, chemical, fall from height, and violence/weapon cannot be graded below High."
+    },
+    "hazard.hotspotThreshold": {
+      "id": "hazard.hotspotThreshold",
+      "value": 3,
+      "unit": "reports/14d",
+      "kind": "policy",
+      "source": "Workplace safety policy: near-miss zone hotspot threshold",
+      "note": "Zones with 3 or more reports within 14 days are flagged as active hotspots."
+    }
+  }
+}

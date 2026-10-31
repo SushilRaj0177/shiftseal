@@ -49,6 +49,8 @@ export const IN_MORE: CountryLanguages = {
     ded_lwf: 'Fondo de bienestar laboral',
     ext_localCommittee: 'Comité Local del distrito (SHe-Box)',
     limit_week: 'Horas normales esta semana',
+    studentRule:
+      'La ley india no fija un límite de horas para estudiantes. Quienes tienen entre 14 y 18 años no pueden hacer trabajos peligrosos (Ley de Trabajo Infantil y Adolescente, art. 3A).',
   },
   fr: {
     recordBroken:
@@ -98,6 +100,8 @@ export const IN_MORE: CountryLanguages = {
     ded_lwf: 'Fonds de protection sociale des travailleurs',
     ext_localCommittee: 'Comité local du district (SHe-Box)',
     limit_week: 'Heures normales cette semaine',
+    studentRule:
+      'Le droit indien ne fixe aucun plafond d’heures pour les étudiants. Les 14–18 ans ne peuvent pas occuper d’emplois dangereux (loi sur le travail des enfants et des adolescents, art. 3A).',
   },
   de: {
     recordBroken:
@@ -146,6 +150,8 @@ export const IN_MORE: CountryLanguages = {
     ded_lwf: 'Arbeiterwohlfahrtsfonds',
     ext_localCommittee: 'Örtlicher Ausschuss des Distrikts (SHe-Box)',
     limit_week: 'Normale Stunden diese Woche',
+    studentRule:
+      'Das indische Recht setzt für Studierende keine Stundengrenze. 14- bis 18-Jährige dürfen keine gefährlichen Arbeiten verrichten (Kinder- und Jugendarbeitsgesetz, § 3A).',
   },
   pt: {
     recordBroken:
@@ -193,6 +199,8 @@ export const IN_MORE: CountryLanguages = {
     ded_lwf: 'Fundo de bem-estar laboral',
     ext_localCommittee: 'Comité Local do distrito (SHe-Box)',
     limit_week: 'Horas normais esta semana',
+    studentRule:
+      'A lei indiana não fixa limite de horas para estudantes. Quem tem 14 a 18 anos não pode fazer trabalhos perigosos (Lei do Trabalho Infantil e Adolescente, art. 3A).',
   },
   ja: {
     recordBroken: 'この記録は一致しません。この画面を労働組合または労働監督官に見せてください。',
@@ -237,6 +245,8 @@ export const IN_MORE: CountryLanguages = {
     ded_lwf: '労働福祉基金',
     ext_localCommittee: '地区の地方委員会(SHe-Box)',
     limit_week: '今週の通常労働時間',
+    studentRule:
+      'インドの法律には学生の労働時間の上限はありません。14〜18歳は危険な業務に就けません(児童・青少年労働法第3A条)。',
   },
   zh: {
     recordBroken: '此记录不一致。请把这个页面给你的工会或劳动监察员看。',
@@ -280,6 +290,8 @@ export const IN_MORE: CountryLanguages = {
     ded_lwf: '劳工福利基金',
     ext_localCommittee: '县区地方委员会(SHe-Box)',
     limit_week: '本周正常工时',
+    studentRule:
+      '印度法律未对学生规定工时上限。14至18岁的员工不得从事危险工作(《童工及青少年劳动法》第3A条)。',
   },
   ko: {
     recordBroken: '이 기록은 일치하지 않습니다. 이 화면을 노동조합이나 근로감독관에게 보여 주세요.',
@@ -324,5 +336,7 @@ export const IN_MORE: CountryLanguages = {
     ded_lwf: '노동복지기금',
     ext_localCommittee: '지역 지방위원회(SHe-Box)',
     limit_week: '이번 주 정상 근로시간',
+    studentRule:
+      '인도 법에는 학생의 근로시간 한도가 없습니다. 14~18세는 위험한 업무에 종사할 수 없습니다(아동·청소년노동법 제3A조).',
   },
 };

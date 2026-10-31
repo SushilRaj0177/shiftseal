@@ -53,6 +53,8 @@ export const FR_MORE: CountryLanguages = {
     limit_frDay: 'இன்று (அதிகபட்சம் 10 ம)',
     limit_frAvg: '12 வாரச் சராசரி (அதிகபட்சம் 44 ம)',
     limit_frYear: 'இந்த ஆண்டுக் கூடுதல் நேரம் (220 ம ஒதுக்கீடு)',
+    studentRule:
+      'வெளிநாட்டு மாணவர்கள்: ஆண்டுக்கு மொத்தம் 964 மணி (தொழிலாளர் சட்டத் தொகுப்பு, பிரிவு R5221-26). 18 வயதுக்குட்பட்டோர்: நாளுக்கு 8 மணி, வாரத்துக்கு 35, இரவு வேலை இல்லை (22:00–6:00; 16 வயதுக்குக் கீழ் 20:00–6:00).',
   },
   hi: {
     recordBroken:
@@ -104,6 +106,8 @@ export const FR_MORE: CountryLanguages = {
     limit_frDay: 'आज (अधिकतम 10 घं)',
     limit_frAvg: '12 हफ़्तों का औसत (अधिकतम 44 घं)',
     limit_frYear: 'इस साल ओवरटाइम (220 घं का कोटा)',
+    studentRule:
+      'अंतरराष्ट्रीय छात्र: साल में कुल 964 घंटे (श्रम संहिता, अनुच्छेद R5221-26)। 18 से कम: दिन में 8, हफ़्ते में 35 घंटे, रात में काम नहीं (22:00–6:00; 16 से कम उम्र में 20:00–6:00)।',
   },
   es: {
     recordBroken:
@@ -156,6 +160,8 @@ export const FR_MORE: CountryLanguages = {
     limit_frDay: 'Hoy (máximo 10 h)',
     limit_frAvg: 'Media de 12 semanas (máximo 44 h)',
     limit_frYear: 'Horas extra este año (cupo de 220 h)',
+    studentRule:
+      'Estudiantes internacionales: 964 horas al año en total (Código del Trabajo, art. R5221-26). Menores de 18: 8 horas al día, 35 a la semana, sin trabajo nocturno (22:00–6:00; 20:00–6:00 antes de los 16).',
   },
   de: {
     recordBroken:
@@ -208,6 +214,8 @@ export const FR_MORE: CountryLanguages = {
     limit_frDay: 'Heute (höchstens 10 h)',
     limit_frAvg: 'Schnitt über 12 Wochen (höchstens 44 h)',
     limit_frYear: 'Überstunden dieses Jahr (Kontingent 220 h)',
+    studentRule:
+      'Internationale Studierende: insgesamt 964 Stunden im Jahr (Arbeitsgesetzbuch, Art. R5221-26). Unter 18: 8 Stunden am Tag, 35 pro Woche, keine Nachtarbeit (22–6 Uhr; unter 16: 20–6 Uhr).',
   },
   pt: {
     recordBroken:
@@ -260,6 +268,8 @@ export const FR_MORE: CountryLanguages = {
     limit_frDay: 'Hoje (máximo 10 h)',
     limit_frAvg: 'Média de 12 semanas (máximo 44 h)',
     limit_frYear: 'Horas extra este ano (contingente de 220 h)',
+    studentRule:
+      'Estudantes internacionais: 964 horas por ano no total (Código do Trabalho, art. R5221-26). Menores de 18: 8 horas por dia, 35 por semana, sem trabalho noturno (22:00–6:00; 20:00–6:00 abaixo dos 16).',
   },
   ja: {
     recordBroken:
@@ -310,6 +320,8 @@ export const FR_MORE: CountryLanguages = {
     limit_frDay: '今日(上限10時間)',
     limit_frAvg: '12週間の平均(上限44時間)',
     limit_frYear: '今年の時間外労働(枠220時間)',
+    studentRule:
+      '留学生:年間合計964時間まで(労働法典R5221-26条)。18歳未満:1日8時間・週35時間、深夜労働は禁止(22時〜6時、16歳未満は20時〜6時)。',
   },
   zh: {
     recordBroken: '此记录不一致。请把这个页面给劳动监察机构、CSE(社会经济委员会)代表或你的工会看。',
@@ -356,6 +368,8 @@ export const FR_MORE: CountryLanguages = {
     limit_frDay: '今天(最多10小时)',
     limit_frAvg: '12周平均(最多44小时)',
     limit_frYear: '今年加班(额度220小时)',
+    studentRule:
+      '国际学生:每年合计最多964小时(《劳动法典》第R5221-26条)。未满18岁:每天8小时、每周35小时,禁止夜间工作(22:00–6:00;未满16岁为20:00–6:00)。',
   },
   ko: {
     recordBroken:
@@ -406,5 +420,7 @@ export const FR_MORE: CountryLanguages = {
     limit_frDay: '오늘(최대 10시간)',
     limit_frAvg: '12주 평균(최대 44시간)',
     limit_frYear: '올해 초과근무(한도 220시간)',
+    studentRule:
+      '유학생: 연간 합계 964시간까지(노동법전 R5221-26조). 18세 미만: 하루 8시간·주 35시간, 야간근로 금지(22시~6시, 16세 미만은 20시~6시).',
   },
 };

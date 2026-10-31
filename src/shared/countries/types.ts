@@ -124,6 +124,46 @@ export interface CountryRegion {
   limits?: LimitMeter[];
 }
 
+/** A nightly window such as 22:00–05:00. */
+export interface NightWindow {
+  from: string;
+  to: string;
+}
+
+/**
+ * Rules that protect students and young workers. Visa caps count every job a
+ * student holds, not one employer's hours.
+ */
+export interface StudentRules {
+  /** Work allowed on a student visa or residence permit. */
+  visa?: {
+    /** Hours in any 7 days during term. */
+    weekly?: number;
+    /** Only weekday hours count (Korea: weekends are not capped). */
+    weekdaysOnly?: boolean;
+    /** During official school breaks: a weekly cap, or null for none. Term rules apply if unset. */
+    breakWeekly?: number | null;
+    /** During official school breaks: hours per day. */
+    breakDaily?: number;
+    /** Hours in a calendar year (France: 964). */
+    yearlyHours?: number;
+    /** Days in a calendar year, a half day being at most `halfMaxHours` (Germany: 140 full or 280 half). */
+    yearDays?: { full: number; halfMaxHours: number };
+    rule: string;
+  };
+  /** Workers under `age`. */
+  minors?: {
+    age: number;
+    daily?: number;
+    weekly?: number;
+    night?: NightWindow;
+    noOvertime?: boolean;
+    /** Tighter rules below 16. */
+    under16?: { daily?: number; weekly?: number; weeklyBreak?: number; night?: NightWindow };
+    rule: string;
+  };
+}
+
 export interface CountryPack {
   id: CountryId;
   /** Currency code for pay, ISO 4217. */
@@ -147,6 +187,8 @@ export interface CountryPack {
   complaints: ComplaintConfig;
   /** Legal limits shown to workers and employers, most important first. */
   limits: LimitMeter[];
+  /** Student visa caps and under-18 protections. */
+  students?: StudentRules;
   rules: Record<string, RuleDefinition>;
   regions?: CountryRegion[];
 }

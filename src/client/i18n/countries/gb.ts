@@ -49,5 +49,7 @@ export const GB_TEXT: CountryStrings = {
     ext_acas: 'ACAS',
     ext_eass: 'Equality Advisory and Support Service',
     limit_gbAvg: 'Average week over 17 weeks (48 h limit)',
+    studentRule:
+      'Student visa: up to 20 hours a week in term for degree-level study (10 below degree level), full-time in official vacations. Under 18: 8 hours a day, 40 a week, no work 22:00–6:00 (Working Time Regulations).',
   },
 };

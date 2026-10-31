@@ -10,7 +10,12 @@ export const ES: CountryPack = {
   weeklyOff: [0, 6],
   pay: {
     cycles: ['monthly'],
-    defaultCycle: { construction: 'monthly', campus: 'monthly', office: 'monthly' },
+    defaultCycle: {
+      construction: 'monthly',
+      campus: 'monthly',
+      retail: 'monthly',
+      office: 'monthly',
+    },
     deadline: { kind: 'payDay' },
     deductions: ['contingencias_comunes', 'desempleo', 'formacion_profesional', 'mei', 'irpf'],
     annual: [
@@ -44,7 +49,29 @@ export const ES: CountryPack = {
     { id: 'esYear', metric: 'overtime', window: 'year', cap: 80, rule: 'limit.esYear' },
     { id: 'esDay', metric: 'total', window: 'day', cap: 9, rule: 'limit.esDay' },
   ],
+  students: {
+    visa: { weekly: 30, rule: 'student.visa' },
+    minors: {
+      age: 18,
+      daily: 8,
+      night: { from: '22:00', to: '06:00' },
+      noOvertime: true,
+      rule: 'minor.hours',
+    },
+  },
   rules: byId(
+    law(
+      'student.visa',
+      30,
+      'hours/week',
+      'Real Decreto 1155/2024 (Reglamento de Extranjería): la autorización de estancia por estudios permite trabajar hasta 30 horas semanales'
+    ),
+    law(
+      'minor.hours',
+      8,
+      'hours/day',
+      'Estatuto de los Trabajadores, arts. 6 y 34.3: máximo 8 horas diarias, sin horas extraordinarias ni trabajo nocturno'
+    ),
     law(
       'ot.weekly',
       40,

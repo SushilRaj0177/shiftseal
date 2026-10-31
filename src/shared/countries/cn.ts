@@ -18,7 +18,12 @@ export const CN: CountryPack = {
   weeklyOff: [0, 6],
   pay: {
     cycles: ['monthly'],
-    defaultCycle: { construction: 'monthly', campus: 'monthly', office: 'monthly' },
+    defaultCycle: {
+      construction: 'monthly',
+      campus: 'monthly',
+      retail: 'monthly',
+      office: 'monthly',
+    },
     deadline: { kind: 'payDay' },
     deductions: ['pension', 'medical', 'unemployment', 'housing_fund', 'iit'],
     annual: [],
@@ -54,7 +59,14 @@ export const CN: CountryPack = {
     { id: 'cnMonth', metric: 'overtime', window: 'month', cap: 36, rule: 'limit.cnMonth' },
     { id: 'cnDay', metric: 'overtime', window: 'day', cap: 3, rule: 'limit.cnDay' },
   ],
+  students: { minors: { age: 18, rule: 'minor.hours' } },
   rules: byId(
+    law(
+      'minor.hours',
+      18,
+      'years',
+      '《劳动法》第58、64、65条:未成年工(16–18岁)不得从事有毒有害和四级体力劳动强度的劳动,用人单位应定期为其体检'
+    ),
     law('hours.daily', 8, 'hours/day', '《劳动法》第36条、《国务院关于职工工作时间的规定》第3条'),
     law('ot.weekly', 40, 'hours/week', '《国务院关于职工工作时间的规定》第3条: 每周40小时'),
     law('ot.multiplier', 1.5, 'x wage', '《劳动法》第44条(一): 延长工作时间 不低于150%'),

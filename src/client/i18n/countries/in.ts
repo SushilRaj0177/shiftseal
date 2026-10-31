@@ -47,6 +47,8 @@ export const IN_TEXT: CountryStrings = {
     ded_lwf: 'Labour Welfare Fund',
     ext_localCommittee: 'District Local Committee (SHe-Box)',
     limit_week: 'Normal hours this week',
+    studentRule:
+      'Indian law sets no hour cap for students. Workers aged 14–18 may not work in hazardous jobs (Child and Adolescent Labour Act, s.3A).',
   },
   ta: {
     recordBroken:
@@ -94,6 +96,8 @@ export const IN_TEXT: CountryStrings = {
     ded_lwf: 'தொழிலாளர் நல நிதி',
     ext_localCommittee: 'மாவட்ட உள்ளூர் குழு (SHe-Box)',
     limit_week: 'இந்த வாரச் சாதாரண நேரம்',
+    studentRule:
+      'இந்தியச் சட்டம் மாணவர்களுக்கு நேர வரம்பு விதிக்கவில்லை. 14–18 வயதினர் ஆபத்தான வேலைகளில் ஈடுபடக் கூடாது (குழந்தை மற்றும் இளம்பருவத் தொழிலாளர் சட்டம், பிரிவு 3A).',
   },
   hi: {
     recordBroken: 'यह रिकॉर्ड मेल नहीं खाता। यह स्क्रीन अपनी यूनियन या श्रम अधिकारी को दिखाएँ।',
@@ -139,5 +143,7 @@ export const IN_TEXT: CountryStrings = {
     ded_lwf: 'श्रम कल्याण निधि',
     ext_localCommittee: 'ज़िला स्थानीय समिति (SHe-Box)',
     limit_week: 'इस हफ़्ते के सामान्य घंटे',
+    studentRule:
+      'भारतीय क़ानून छात्रों के लिए घंटों की कोई सीमा तय नहीं करता। 14–18 साल के कर्मचारी ख़तरनाक कामों में नहीं लगाए जा सकते (बाल और किशोर श्रम अधिनियम, धारा 3A)।',
   },
 };

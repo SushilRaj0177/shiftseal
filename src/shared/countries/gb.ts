@@ -9,7 +9,12 @@ export const GB: CountryPack = {
   weeklyOff: [0, 6],
   pay: {
     cycles: ['monthly', 'weekly', 'biweekly'],
-    defaultCycle: { construction: 'weekly', campus: 'monthly', office: 'monthly' },
+    defaultCycle: {
+      construction: 'weekly',
+      campus: 'monthly',
+      retail: 'monthly',
+      office: 'monthly',
+    },
     deadline: { kind: 'payDay' },
     deductions: ['paye', 'national_insurance', 'pension', 'student_loan'],
     annual: [],
@@ -43,7 +48,29 @@ export const GB: CountryPack = {
   limits: [
     { id: 'gbAvg', metric: 'total', window: 'avgWeeks', weeks: 17, cap: 48, rule: 'limit.gbAvg' },
   ],
+  students: {
+    visa: { weekly: 20, breakWeekly: null, rule: 'student.visa' },
+    minors: {
+      age: 18,
+      daily: 8,
+      weekly: 40,
+      night: { from: '22:00', to: '06:00' },
+      rule: 'minor.hours',
+    },
+  },
   rules: byId(
+    law(
+      'student.visa',
+      20,
+      'hours/week',
+      'Immigration Rules, Appendix Student: up to 20 hours a week in term time for degree-level study; full-time in official vacations'
+    ),
+    law(
+      'minor.hours',
+      8,
+      'hours/day',
+      'Working Time Regulations 1998, regs. 5A and 6A: young workers 8 hours a day, 40 a week, no work 22:00–06:00'
+    ),
     policy('ot.weekly', 40, 'hours/week', 'Contract of employment: contracted weekly hours'),
     policy(
       'ot.multiplier',

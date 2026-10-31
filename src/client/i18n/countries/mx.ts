@@ -52,6 +52,8 @@ export const MX_TEXT: CountryStrings = {
     ext_cfcrl: 'Centro Federal de Conciliación y Registro Laboral',
     limit_mxWeek: 'Horas extra esta semana (máximo 9)',
     limit_mxDay: 'Horas extra hoy (máximo 3)',
+    studentRule:
+      'Los estudiantes internacionales necesitan un permiso de trabajo del INM. Menores de 18: sin horas extra; menores de 16: como máximo 6 horas al día (Ley Federal del Trabajo, arts. 175–178).',
   },
   en: {
     recordBroken:
@@ -103,5 +105,7 @@ export const MX_TEXT: CountryStrings = {
     ext_cfcrl: 'Federal Centre for Labour Conciliation and Registration',
     limit_mxWeek: 'Overtime this week (9 h maximum)',
     limit_mxDay: 'Overtime today (3 h maximum)',
+    studentRule:
+      'International students need a work permit from the National Migration Institute (INM). Under 18: no overtime; under 16: at most 6 hours a day (Federal Labour Law, arts. 175–178).',
   },
 };

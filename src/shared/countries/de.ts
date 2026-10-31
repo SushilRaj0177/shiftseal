@@ -9,7 +9,12 @@ export const DE: CountryPack = {
   weeklyOff: [0, 6],
   pay: {
     cycles: ['monthly'],
-    defaultCycle: { construction: 'monthly', campus: 'monthly', office: 'monthly' },
+    defaultCycle: {
+      construction: 'monthly',
+      campus: 'monthly',
+      retail: 'monthly',
+      office: 'monthly',
+    },
     deadline: { kind: 'payDay' },
     deductions: [
       'lohnsteuer',
@@ -50,7 +55,29 @@ export const DE: CountryPack = {
     { id: 'deDay', metric: 'total', window: 'day', cap: 10, rule: 'limit.deDay' },
     { id: 'deAvg', metric: 'total', window: 'avgWeeks', weeks: 24, cap: 48, rule: 'limit.deAvg' },
   ],
+  students: {
+    visa: { yearDays: { full: 140, halfMaxHours: 4 }, rule: 'student.visa' },
+    minors: {
+      age: 18,
+      daily: 8,
+      weekly: 40,
+      night: { from: '20:00', to: '06:00' },
+      rule: 'minor.hours',
+    },
+  },
   rules: byId(
+    law(
+      'student.visa',
+      140,
+      'days/year',
+      '§ 16b Abs. 3 AufenthG: 140 ganze oder 280 halbe Tage (bis 4 Stunden) im Kalenderjahr'
+    ),
+    law(
+      'minor.hours',
+      8,
+      'hours/day',
+      '§§ 8, 14 JArbSchG: höchstens 8 Stunden täglich und 40 wöchentlich, keine Arbeit zwischen 20 und 6 Uhr (ab 16 in Gaststätten bis 22 Uhr)'
+    ),
     policy(
       'ot.weekly',
       40,

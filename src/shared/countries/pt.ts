@@ -19,7 +19,12 @@ export const PT: CountryPack = {
   weeklyOff: [0, 6],
   pay: {
     cycles: ['monthly'],
-    defaultCycle: { construction: 'monthly', campus: 'monthly', office: 'monthly' },
+    defaultCycle: {
+      construction: 'monthly',
+      campus: 'monthly',
+      retail: 'monthly',
+      office: 'monthly',
+    },
     deadline: { kind: 'daysAfterEnd', days: 0 },
     deductions: ['seguranca_social', 'irs', 'sindicato'],
     annual: [
@@ -75,7 +80,23 @@ export const PT: CountryPack = {
     { id: 'ptYear', metric: 'overtime', window: 'year', cap: 150, rule: 'limit.ptYear' },
     { id: 'ptDay', metric: 'overtime', window: 'day', cap: 2, rule: 'limit.ptDay' },
   ],
+  students: {
+    minors: {
+      age: 18,
+      daily: 8,
+      weekly: 40,
+      night: { from: '22:00', to: '07:00' },
+      under16: { night: { from: '20:00', to: '07:00' } },
+      rule: 'minor.hours',
+    },
+  },
   rules: byId(
+    law(
+      'minor.hours',
+      8,
+      'hours/day',
+      'Código do Trabalho, arts. 73 e 76: menores até 8 h por dia e 40 h por semana; sem trabalho noturno (22h–7h; 20h–7h abaixo de 16 anos)'
+    ),
     law('hours.daily', 8, 'hours/day', 'Código do Trabalho, art. 203.º, n.º 1: 8 horas por dia'),
     law(
       'ot.weekly',

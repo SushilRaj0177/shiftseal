@@ -1,3 +1,5 @@
+import { minorRules, studentReadings } from '../../shared/rules/students.js';
+import { shiftsEverywhere, studentProfileOf } from '../services/students.js';
 import { Router } from 'express';
 import { createHash } from 'node:crypto';
 import { z } from 'zod/v3';
@@ -125,6 +127,7 @@ reportsRouter.get('/me', async (req, res, next) => {
       date
     );
     const shifts = latestView(chain);
+    const user = await repo.getUser(member.uid);
     const [notifications, hazards, feedback, flags, payments, receipts] = await Promise.all([
       repo.list<WorkerNotification>(workplace.id, 'notifications'),
       repo.list<HazardReport>(workplace.id, 'hazards'),
@@ -148,7 +151,17 @@ reportsRouter.get('/me', async (req, res, next) => {
       overtime: member.overtime ?? 'paid',
       country: workplace.country ?? 'IN',
       currency: countryPack(workplace).currency,
-      limits: limitReadings(shifts, workplace, date),
+      limits: [
+        ...studentReadings(
+          studentProfileOf(user),
+          await shiftsEverywhere(user, member.uid, workplace.id),
+          workplace,
+          date
+        ),
+        ...limitReadings(shifts, workplace, date),
+      ],
+      student: studentProfileOf(user),
+      studentRules: countryPack(workplace).students ?? null,
       annualPayments: annualPaymentsFor(workplace, member, date),
       leave: {
         types: leaveKinds,
@@ -218,6 +231,13 @@ reportsRouter.get('/dashboard', requireRole('supervisor'), async (req, res, next
       const chain = await repo.getChain(workplace.id, m.uid);
       const shifts = latestView(chain);
       const todays = shifts.find((s) => s.date === date);
+      // The employer sees that someone is a student or under 18, never their birth date.
+      const account = await repo.getUser(m.uid);
+      const youngRules = minorRules(
+        countryPack(workplace).students,
+        studentProfileOf(account),
+        date
+      );
       const open = openShift(chain);
       if (open) onSite += 1;
       const mine = claims.filter((c) => c.workerId === m.uid);
@@ -285,6 +305,8 @@ reportsRouter.get('/dashboard', requireRole('supervisor'), async (req, res, next
             : m.hourlyRate > 0 || m.dailyWage > 0,
         icMember: Boolean(m.icMember),
         pendingDevice: Boolean(m.pendingDevice),
+        student: account?.student ?? null,
+        minor: Boolean(youngRules),
         hasDevice: Boolean(m.device),
         chainOk: verify(chain).ok,
         netPay: slip?.netPay ?? null,

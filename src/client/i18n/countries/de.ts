@@ -52,6 +52,8 @@ export const DE_TEXT: CountryStrings = {
     ext_ads: 'Antidiskriminierungsstelle des Bundes',
     limit_deDay: 'Heute (höchstens 10 Stunden)',
     limit_deAvg: 'Durchschnitt über 6 Monate (höchstens 48 Stunden/Woche)',
+    studentRule:
+      'Internationale Studierende: 140 ganze oder 280 halbe Tage im Jahr (§ 16b Abs. 3 AufenthG); wer in der Vorlesungszeit bei 20 Stunden pro Woche bleibt, behält die günstige Sozialversicherung für Studierende. Unter 18: 8 Stunden am Tag, 40 pro Woche, keine Arbeit zwischen 20 und 6 Uhr (JArbSchG).',
   },
   en: {
     recordBroken:
@@ -100,5 +102,7 @@ export const DE_TEXT: CountryStrings = {
     ext_ads: 'Federal Anti-Discrimination Agency',
     limit_deDay: 'Today (10 h maximum)',
     limit_deAvg: 'Average over 6 months (48 h/week maximum)',
+    studentRule:
+      'International students: 140 full or 280 half days a year (Residence Act, s.16b(3)); staying at 20 hours a week during lectures keeps student social insurance rates. Under 18: 8 hours a day, 40 a week, no work 20:00–6:00 (Youth Employment Protection Act).',
   },
 };

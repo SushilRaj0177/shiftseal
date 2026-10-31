@@ -54,6 +54,8 @@ export const JP_MORE: CountryLanguages = {
     limit_jpMonth: 'இந்த மாதக் கூடுதல் நேரம் (36 ஒப்பந்த வரம்பு: 45 ம)',
     limit_jpYear: 'இந்த ஆண்டுக் கூடுதல் நேரம் (வரம்பு: 360 ம)',
     limit_jpAbsolute: 'கூடுதல் நேரம் + ஓய்வு நாள் வேலை (மாதம் 100 மணிக்குக் கீழ்)',
+    studentRule:
+      'வெளிநாட்டு மாணவர்கள்: எல்லா வேலைகளும் சேர்த்து வாரத்துக்கு 28 மணி, அதிகாரப்பூர்வ நீண்ட விடுமுறையில் நாளுக்கு 8 மணி (குடியேற்றக் கட்டுப்பாட்டுச் சட்டம், பிரிவு 19). 18 வயதுக்குட்பட்டோர்: கூடுதல் நேரம், ஓய்வு நாள் வேலை, 22:00–5:00 வேலை கூடாது (தொழிலாளர் தரச் சட்டம், பிரிவுகள் 60–61).',
   },
   hi: {
     recordBroken:
@@ -106,6 +108,8 @@ export const JP_MORE: CountryLanguages = {
     limit_jpMonth: 'इस महीने ओवरटाइम (36 समझौते की सीमा: 45 घं)',
     limit_jpYear: 'इस साल ओवरटाइम (सीमा: 360 घं)',
     limit_jpAbsolute: 'ओवरटाइम + अवकाश के दिन काम (महीने में 100 घं से कम)',
+    studentRule:
+      'अंतरराष्ट्रीय छात्र: सभी नौकरियाँ मिलाकर हफ़्ते में 28 घंटे, आधिकारिक लंबी छुट्टियों में दिन में 8 घंटे (आप्रवासन नियंत्रण अधिनियम, अनुच्छेद 19)। 18 से कम: ओवरटाइम, छुट्टी के दिन काम और 22:00–5:00 काम मना (श्रम मानक अधिनियम, अनुच्छेद 60–61)।',
   },
   es: {
     recordBroken:
@@ -158,6 +162,8 @@ export const JP_MORE: CountryLanguages = {
     limit_jpMonth: 'Horas extra este mes (límite del acuerdo 36: 45 h)',
     limit_jpYear: 'Horas extra este año (límite: 360 h)',
     limit_jpAbsolute: 'Horas extra + días de descanso (menos de 100 h al mes)',
+    studentRule:
+      'Estudiantes internacionales: 28 horas a la semana sumando todos los trabajos, 8 horas al día en las vacaciones largas oficiales (Ley de Control de Inmigración, art. 19). Menores de 18: sin horas extra, sin trabajo en días de descanso ni de 22:00 a 5:00 (Ley de Normas Laborales, arts. 60–61).',
   },
   fr: {
     recordBroken:
@@ -211,6 +217,8 @@ export const JP_MORE: CountryLanguages = {
     limit_jpMonth: 'Heures sup. ce mois-ci (plafond de l’accord 36 : 45 h)',
     limit_jpYear: 'Heures sup. cette année (plafond : 360 h)',
     limit_jpAbsolute: 'Heures sup. + jours de repos (moins de 100 h par mois)',
+    studentRule:
+      'Étudiants internationaux : 28 heures par semaine tous emplois confondus, 8 heures par jour pendant les longues vacances officielles (loi sur le contrôle de l’immigration, art. 19). Moins de 18 ans : ni heures sup., ni travail les jours de repos, ni de 22 h à 5 h (loi sur les normes du travail, arts. 60–61).',
   },
   de: {
     recordBroken:
@@ -264,6 +272,8 @@ export const JP_MORE: CountryLanguages = {
     limit_jpMonth: 'Überstunden diesen Monat (Grenze der 36-Vereinbarung: 45 h)',
     limit_jpYear: 'Überstunden dieses Jahr (Grenze: 360 h)',
     limit_jpAbsolute: 'Überstunden + Ruhetagsarbeit (unter 100 h im Monat)',
+    studentRule:
+      'Internationale Studierende: 28 Stunden pro Woche über alle Jobs, in offiziellen langen Ferien 8 Stunden am Tag (Einwanderungskontrollgesetz, Art. 19). Unter 18: keine Überstunden, keine Ruhetagsarbeit, keine Arbeit von 22 bis 5 Uhr (Arbeitsstandardgesetz, Art. 60–61).',
   },
   pt: {
     recordBroken:
@@ -316,6 +326,8 @@ export const JP_MORE: CountryLanguages = {
     limit_jpMonth: 'Horas extra este mês (limite do acordo 36: 45 h)',
     limit_jpYear: 'Horas extra este ano (limite: 360 h)',
     limit_jpAbsolute: 'Horas extra + dias de descanso (menos de 100 h por mês)',
+    studentRule:
+      'Estudantes internacionais: 28 horas por semana somando todos os empregos, 8 horas por dia nas férias longas oficiais (Lei de Controlo da Imigração, art. 19). Menores de 18: sem horas extra, sem trabalho em dias de descanso nem das 22:00 às 5:00 (Lei das Normas Laborais, arts. 60–61).',
   },
   zh: {
     recordBroken: '此记录不一致。请把这个页面给劳动基准监督署或你的工会看。',
@@ -365,6 +377,8 @@ export const JP_MORE: CountryLanguages = {
     limit_jpMonth: '本月加班(36协定上限:45小时)',
     limit_jpYear: '今年加班(上限:360小时)',
     limit_jpAbsolute: '加班+休息日工作(每月少于100小时)',
+    studentRule:
+      '国际学生:所有工作合计每周最多28小时,学校规定的长假期间每天最多8小时(《出入国管理法》第19条)。未满18岁:禁止加班、休息日工作和22:00–5:00的深夜工作(《劳动基准法》第60、61条)。',
   },
   ko: {
     recordBroken: '이 기록은 일치하지 않습니다. 이 화면을 노동기준감독서나 노동조합에 보여 주세요.',
@@ -415,5 +429,7 @@ export const JP_MORE: CountryLanguages = {
     limit_jpMonth: '이번 달 시간외근로(36협정 한도: 45시간)',
     limit_jpYear: '올해 시간외근로(한도: 360시간)',
     limit_jpAbsolute: '시간외근로+휴일근로(월 100시간 미만)',
+    studentRule:
+      '유학생: 모든 일자리를 합쳐 주 28시간, 학교가 정한 장기 방학에는 하루 8시간(출입국관리법 제19조). 18세 미만: 시간외·휴일근로와 22시~5시 심야근로 금지(노동기준법 제60·61조).',
   },
 };

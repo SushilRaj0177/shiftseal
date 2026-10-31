@@ -26,7 +26,12 @@ export const BR: CountryPack = {
   weeklyOff: [0],
   pay: {
     cycles: ['monthly'],
-    defaultCycle: { construction: 'monthly', campus: 'monthly', office: 'monthly' },
+    defaultCycle: {
+      construction: 'monthly',
+      campus: 'monthly',
+      retail: 'monthly',
+      office: 'monthly',
+    },
     deadline: { kind: 'businessDaysAfterEnd', days: 5 },
     deductions: ['inss', 'irrf', 'vale_transporte', 'plano_saude', 'contribuicao_sindical'],
     annual: [
@@ -83,7 +88,21 @@ export const BR: CountryPack = {
     { id: 'brDay', metric: 'overtime', window: 'day', cap: 2, rule: 'limit.brDay' },
     { id: 'brWeek', metric: 'total', window: 'week', cap: 44, rule: 'ot.weekly' },
   ],
+  students: {
+    minors: {
+      age: 18,
+      night: { from: '22:00', to: '05:00' },
+      noOvertime: true,
+      rule: 'minor.hours',
+    },
+  },
   rules: byId(
+    law(
+      'minor.hours',
+      18,
+      'years',
+      'CLT, arts. 404 e 413: menores de 18 anos não trabalham entre 22h e 5h nem fazem horas extras (salvo compensação)'
+    ),
     law('hours.daily', 8, 'hours/day', 'Constituição Federal, art. 7º, XIII; CLT, art. 58'),
     law('ot.weekly', 44, 'hours/week', 'Constituição Federal, art. 7º, XIII: 44 horas semanais'),
     law(

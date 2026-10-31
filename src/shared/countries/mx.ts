@@ -27,7 +27,12 @@ export const MX: CountryPack = {
   weeklyOff: [0],
   pay: {
     cycles: ['weekly', 'semimonthly'],
-    defaultCycle: { construction: 'weekly', campus: 'semimonthly', office: 'semimonthly' },
+    defaultCycle: {
+      construction: 'weekly',
+      campus: 'semimonthly',
+      retail: 'semimonthly',
+      office: 'semimonthly',
+    },
     deadline: { kind: 'daysAfterEnd', days: 0 },
     deductions: ['isr', 'imss', 'infonavit', 'fonacot'],
     annual: [
@@ -76,7 +81,14 @@ export const MX: CountryPack = {
     { id: 'mxWeek', metric: 'overtime', window: 'week', cap: 9, rule: 'limit.mxWeek' },
     { id: 'mxDay', metric: 'overtime', window: 'day', cap: 3, rule: 'limit.mxDay' },
   ],
+  students: { minors: { age: 18, noOvertime: true, under16: { daily: 6 }, rule: 'minor.hours' } },
   rules: byId(
+    law(
+      'minor.hours',
+      6,
+      'hours/day under 16',
+      'Ley Federal del Trabajo, arts. 175, 177 y 178: menores de 18 años sin horas extraordinarias; menores de 16 años, máximo 6 horas diarias'
+    ),
     law(
       'hours.daily',
       8,

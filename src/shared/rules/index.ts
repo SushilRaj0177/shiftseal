@@ -2,12 +2,14 @@ import type { Ruleset, SectorId, RuleDefinition } from '../types.js';
 import { countryPack, type Jurisdiction } from '../countries/index.js';
 import constructionRaw from './rulesets/construction.json' with { type: 'json' };
 import campusRaw from './rulesets/campus.json' with { type: 'json' };
+import retailRaw from './rulesets/retail.json' with { type: 'json' };
 import officeRaw from './rulesets/office.json' with { type: 'json' };
 import commonRaw from './rulesets/common.json' with { type: 'json' };
 
 const rulesets: Record<SectorId, Ruleset> = {
   construction: constructionRaw as Ruleset,
   campus: campusRaw as Ruleset,
+  retail: retailRaw as Ruleset,
   office: officeRaw as Ruleset,
 };
 

@@ -52,6 +52,8 @@ export const BR_TEXT: CountryStrings = {
     ext_mte: 'Ministério do Trabalho e Emprego',
     limit_brDay: 'Horas extras hoje (máximo 2)',
     limit_brWeek: 'Horas nesta semana (jornada de 44 h)',
+    studentRule:
+      'Estagiários: no máximo 6 horas por dia e 30 por semana (Lei 11.788/2008, art. 10). Menores de 18 anos: sem trabalho entre 22h e 5h e sem horas extras (CLT, arts. 404 e 413). Estudantes estrangeiros precisam de autorização para trabalhar.',
   },
   en: {
     recordBroken:
@@ -103,5 +105,7 @@ export const BR_TEXT: CountryStrings = {
     ext_mte: 'Ministry of Labour and Employment',
     limit_brDay: 'Overtime today (2 h maximum)',
     limit_brWeek: 'Hours this week (44-hour week)',
+    studentRule:
+      'Student interns (estágio): at most 6 hours a day and 30 a week (Law 11.788/2008, art. 10). Under 18: no work 22:00–5:00 and no overtime (CLT, arts. 404 and 413). Foreign students need authorisation to work.',
   },
 };

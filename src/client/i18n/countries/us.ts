@@ -54,5 +54,7 @@ export const US_TEXT: CountryStrings = {
     ext_nydhr: 'New York State Division of Human Rights',
     limit_usWeek: 'This workweek (overtime after 40 h)',
     limit_caDay: 'Today (overtime after 8 h)',
+    studentRule:
+      'F-1 students: on-campus work up to 20 hours a week during term, full-time in breaks; off-campus work needs CPT or OPT. Under 16: 3 hours on a school day, 18 in a school week, 7 a.m.–7 p.m. (FLSA). Many states add their own rules.',
   },
 };

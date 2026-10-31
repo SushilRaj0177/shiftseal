@@ -50,6 +50,8 @@ export const GB_MORE: CountryLanguages = {
     ext_acas: 'ACAS',
     ext_eass: 'சமத்துவ ஆலோசனை மற்றும் ஆதரவு சேவை',
     limit_gbAvg: '17 வாரச் சராசரி வாரம் (48 ம வரம்பு)',
+    studentRule:
+      'மாணவர் விசா: பட்டப்படிப்புக்கு பருவ காலத்தில் வாரத்துக்கு 20 மணி வரை (பட்டப்படிப்புக்குக் கீழ் 10), அதிகாரப்பூர்வ விடுமுறையில் முழுநேரம். 18 வயதுக்குட்பட்டோர்: நாளுக்கு 8 மணி, வாரத்துக்கு 40, 22:00–6:00 வேலை இல்லை (வேலை நேர விதிமுறைகள்).',
   },
   hi: {
     recordBroken:
@@ -97,6 +99,8 @@ export const GB_MORE: CountryLanguages = {
     ext_acas: 'ACAS',
     ext_eass: 'समानता सलाह और सहायता सेवा',
     limit_gbAvg: '17 हफ़्तों का औसत हफ़्ता (48 घं की सीमा)',
+    studentRule:
+      'स्टूडेंट वीज़ा: डिग्री स्तर की पढ़ाई में सत्र के दौरान हफ़्ते में 20 घंटे तक (डिग्री से नीचे 10), आधिकारिक छुट्टियों में पूरे समय। 18 से कम: दिन में 8, हफ़्ते में 40 घंटे, 22:00–6:00 काम नहीं (कार्य-समय विनियम)।',
   },
   es: {
     recordBroken:
@@ -145,6 +149,8 @@ export const GB_MORE: CountryLanguages = {
     ext_acas: 'ACAS',
     ext_eass: 'Servicio de Asesoramiento y Apoyo en Igualdad',
     limit_gbAvg: 'Semana media en 17 semanas (límite de 48 h)',
+    studentRule:
+      'Visado de estudiante: hasta 20 horas a la semana durante el curso en estudios de grado (10 por debajo), jornada completa en las vacaciones oficiales. Menores de 18: 8 horas al día, 40 a la semana, sin trabajo de 22:00 a 6:00 (Working Time Regulations).',
   },
   fr: {
     recordBroken:
@@ -194,6 +200,8 @@ export const GB_MORE: CountryLanguages = {
     ext_acas: 'ACAS',
     ext_eass: 'Service de conseil et de soutien en matière d’égalité',
     limit_gbAvg: 'Semaine moyenne sur 17 semaines (limite de 48 h)',
+    studentRule:
+      'Visa étudiant : jusqu’à 20 heures par semaine pendant l’année pour un diplôme universitaire (10 en dessous), temps plein pendant les vacances officielles. Moins de 18 ans : 8 heures par jour, 40 par semaine, pas de travail de 22 h à 6 h (Working Time Regulations).',
   },
   de: {
     recordBroken:
@@ -243,6 +251,8 @@ export const GB_MORE: CountryLanguages = {
     ext_acas: 'ACAS',
     ext_eass: 'Beratungs- und Unterstützungsdienst für Gleichstellung',
     limit_gbAvg: 'Durchschnittswoche über 17 Wochen (Grenze 48 h)',
+    studentRule:
+      'Studentenvisum: im Semester bis zu 20 Stunden pro Woche im Studium (unterhalb des Bachelorniveaus 10), in den offiziellen Ferien Vollzeit. Unter 18: 8 Stunden am Tag, 40 pro Woche, keine Arbeit von 22 bis 6 Uhr (Working Time Regulations).',
   },
   pt: {
     recordBroken:
@@ -291,6 +301,8 @@ export const GB_MORE: CountryLanguages = {
     ext_acas: 'ACAS',
     ext_eass: 'Serviço de Aconselhamento e Apoio à Igualdade',
     limit_gbAvg: 'Semana média em 17 semanas (limite de 48 h)',
+    studentRule:
+      'Visto de estudante: até 20 horas por semana em período letivo para licenciatura (10 abaixo desse nível), tempo inteiro nas férias oficiais. Menores de 18: 8 horas por dia, 40 por semana, sem trabalho das 22:00 às 6:00 (Working Time Regulations).',
   },
   ja: {
     recordBroken:
@@ -338,6 +350,8 @@ export const GB_MORE: CountryLanguages = {
     ext_acas: 'ACAS',
     ext_eass: '平等相談・支援サービス',
     limit_gbAvg: '17週間の平均(週48時間まで)',
+    studentRule:
+      '学生ビザ:学位課程は学期中週20時間まで(学位未満は10時間)、公式休暇中はフルタイム。18歳未満:1日8時間・週40時間、22時〜6時の労働は禁止(労働時間規則)。',
   },
   zh: {
     recordBroken:
@@ -384,6 +398,8 @@ export const GB_MORE: CountryLanguages = {
     ext_acas: 'ACAS',
     ext_eass: '平等咨询与支持服务',
     limit_gbAvg: '17周平均每周(上限48小时)',
+    studentRule:
+      '学生签证:学位课程学期内每周最多20小时(学位以下课程10小时),正式假期可全职。未满18岁:每天8小时、每周40小时,禁止22:00–6:00工作(《工作时间条例》)。',
   },
   ko: {
     recordBroken:
@@ -430,5 +446,7 @@ export const GB_MORE: CountryLanguages = {
     ext_acas: 'ACAS',
     ext_eass: '평등 상담·지원 서비스',
     limit_gbAvg: '17주 평균 주당 근로(48시간 한도)',
+    studentRule:
+      '학생 비자: 학위 과정은 학기 중 주 20시간까지(학위 미만 과정은 10시간), 공식 방학에는 전일 근무 가능. 18세 미만: 하루 8시간·주 40시간, 22시~6시 근로 금지(근로시간규정).',
   },
 };

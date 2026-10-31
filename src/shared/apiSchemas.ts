@@ -43,9 +43,15 @@ export const locationFixSchema = z.object({
   mocked: z.boolean().optional(),
 });
 
+const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+
 export const updateProfileSchema = z.object({
   name: name.optional(),
   language: languageSchema.optional(),
+  /** null clears it. */
+  student: z.enum(['student', 'international']).nullable().optional(),
+  breakUntil: isoDate.nullable().optional(),
+  birthDate: isoDate.nullable().optional(),
 });
 
 export const createWorkplaceSchema = z.object({

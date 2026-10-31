@@ -17,7 +17,7 @@ import { Icon } from '../components/Icon.js';
 import { AppBar, Card, Field, Notice, Spinner } from '../ui/index.js';
 import { rememberWorkplace } from '../App.js';
 
-type Sector = 'construction' | 'campus' | 'office';
+type Sector = 'construction' | 'campus' | 'office' | 'retail';
 
 const PRESETS: Record<Sector, { code: string; key: StringKey; kind: string }[]> = {
   construction: [
@@ -31,6 +31,12 @@ const PRESETS: Record<Sector, { code: string; key: StringKey; kind: string }[]> 
     { code: 'FLOOR-1', key: 'eZoneFloor', kind: 'building' },
     { code: 'PANTRY', key: 'eZonePantry', kind: 'cafeteria' },
     { code: 'PARKING', key: 'eZoneParking', kind: 'pin' },
+  ],
+  retail: [
+    { code: 'COUNTER', key: 'eZoneCounter', kind: 'gate' },
+    { code: 'KITCHEN', key: 'eZoneKitchen', kind: 'cafeteria' },
+    { code: 'STOCK', key: 'eZoneStockroom', kind: 'basement' },
+    { code: 'FLOOR', key: 'eZoneShopFloor', kind: 'building' },
   ],
   campus: [
     { code: 'GATE', key: 'eZoneGate', kind: 'gate' },
@@ -233,6 +239,7 @@ export default function CreateWorkplace() {
               ['construction', 'eSectorConstruction', 'eSectorConstructionSub', 'scaffold'],
               ['campus', 'eSectorCampus', 'eSectorCampusSub', 'building'],
               ['office', 'eSectorOffice', 'eSectorOfficeSub', 'doc'],
+              ['retail', 'eSectorRetail', 'eSectorRetailSub', 'cup'],
             ] as const
           ).map(([key, title, sub, icon]) => (
             <button

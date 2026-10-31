@@ -16,7 +16,12 @@ export const KR: CountryPack = {
   weeklyOff: [0, 6],
   pay: {
     cycles: ['monthly', 'weekly'],
-    defaultCycle: { construction: 'monthly', campus: 'monthly', office: 'monthly' },
+    defaultCycle: {
+      construction: 'monthly',
+      campus: 'monthly',
+      retail: 'monthly',
+      office: 'monthly',
+    },
     deadline: { kind: 'payDay' },
     deductions: [
       'national_pension',
@@ -65,7 +70,29 @@ export const KR: CountryPack = {
     external: [{ key: 'moel', url: 'https://minwon.moel.go.kr' }],
   },
   limits: [{ id: 'krWeek', metric: 'total', window: 'week', cap: 52, rule: 'limit.krWeek' }],
+  students: {
+    visa: { weekly: 25, weekdaysOnly: true, breakWeekly: null, rule: 'student.visa' },
+    minors: {
+      age: 18,
+      daily: 7,
+      weekly: 35,
+      night: { from: '22:00', to: '06:00' },
+      rule: 'minor.hours',
+    },
+  },
   rules: byId(
+    law(
+      'student.visa',
+      25,
+      'weekday hours/week',
+      '출입국관리법 제20조 및 시간제취업 허가 기준: 학부생 TOPIK 3급(3·4학년 4급) 이상 주중 25시간(미달 시 10시간, 대학원생 30시간), 주말·방학 제한 없음'
+    ),
+    law(
+      'minor.hours',
+      7,
+      'hours/day',
+      '근로기준법 제69조·제70조: 18세 미만 1일 7시간·주 35시간, 야간(22시~6시)·휴일근로는 본인 동의와 고용노동부 인가 필요'
+    ),
     law('hours.daily', 8, 'hours/day', '근로기준법 제50조제2항 (Labor Standards Act, Art. 50(2))'),
     law('ot.weekly', 40, 'hours/week', '근로기준법 제50조제1항 (Art. 50(1))'),
     law(

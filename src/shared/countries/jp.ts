@@ -25,7 +25,12 @@ export const JP: CountryPack = {
   weeklyOff: [0, 6],
   pay: {
     cycles: ['monthly', 'weekly'],
-    defaultCycle: { construction: 'monthly', campus: 'monthly', office: 'monthly' },
+    defaultCycle: {
+      construction: 'monthly',
+      campus: 'monthly',
+      retail: 'monthly',
+      office: 'monthly',
+    },
     deadline: { kind: 'payDay' },
     deductions: [
       'health_insurance',
@@ -86,7 +91,30 @@ export const JP: CountryPack = {
       rule: 'limit.jpAbsolute',
     },
   ],
+  students: {
+    visa: { weekly: 28, breakWeekly: 40, breakDaily: 8, rule: 'student.visa' },
+    minors: {
+      age: 18,
+      daily: 8,
+      weekly: 40,
+      night: { from: '22:00', to: '05:00' },
+      noOvertime: true,
+      rule: 'minor.hours',
+    },
+  },
   rules: byId(
+    law(
+      'student.visa',
+      28,
+      'hours/week, all jobs combined',
+      '出入国管理及び難民認定法 第19条第2項 (資格外活動許可): 週28時間以内、学則で定める長期休業中は1日8時間以内。すべての勤務先の合計'
+    ),
+    law(
+      'minor.hours',
+      8,
+      'hours/day',
+      '労働基準法 第60条・第61条: 18歳未満は1日8時間・週40時間、時間外・休日労働と深夜業 (22時〜5時) の禁止'
+    ),
     law('hours.daily', 8, 'hours/day', '労働基準法 第32条第2項 (Labour Standards Act, Art. 32(2))'),
     law('ot.weekly', 40, 'hours/week', '労働基準法 第32条第1項 (Labour Standards Act, Art. 32(1))'),
     law(

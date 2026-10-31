@@ -50,7 +50,15 @@ export const People: React.FC = () => {
                       className="stack-sm"
                       style={{ textDecoration: 'none', color: 'inherit' }}
                     >
-                      <span className="t-strong">{p.name}</span>
+                      <span className="row-flex" style={{ gap: 6, flexWrap: 'wrap' }}>
+                        <span className="t-strong">{p.name}</span>
+                        {p.student && (
+                          <Pill tone="neutral">
+                            {t(p.student === 'international' ? 'eBadgeVisa' : 'eBadgeStudent')}
+                          </Pill>
+                        )}
+                        {p.minor && <Pill tone="warn">{t('eBadgeMinor')}</Pill>}
+                      </span>
                       <span className="t-caption muted">
                         {p.title}
                         {p.role === 'supervisor' ? ` · ${t('eSupervisor')}` : ''}

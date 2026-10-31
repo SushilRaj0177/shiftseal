@@ -18,7 +18,12 @@ export const US: CountryPack = {
   weeklyOff: [0, 6],
   pay: {
     cycles: ['weekly', 'biweekly', 'semimonthly', 'monthly'],
-    defaultCycle: { construction: 'weekly', campus: 'biweekly', office: 'biweekly' },
+    defaultCycle: {
+      construction: 'weekly',
+      campus: 'biweekly',
+      retail: 'biweekly',
+      office: 'biweekly',
+    },
     deadline: { kind: 'payDay' },
     deductions: [
       'federal_income_tax',
@@ -53,7 +58,27 @@ export const US: CountryPack = {
     external: [{ key: 'eeoc', url: 'https://www.eeoc.gov/filing-charge-discrimination' }],
   },
   limits: [{ id: 'usWeek', metric: 'total', window: 'week', cap: 40, rule: 'ot.weekly' }],
+  students: {
+    visa: { weekly: 20, breakWeekly: null, rule: 'student.visa' },
+    minors: {
+      age: 16,
+      under16: { daily: 8, weekly: 18, weeklyBreak: 40, night: { from: '19:00', to: '07:00' } },
+      rule: 'minor.hours',
+    },
+  },
   rules: byId(
+    law(
+      'student.visa',
+      20,
+      'hours/week',
+      '8 CFR 214.2(f)(9)(i): F-1 students may work on campus up to 20 hours a week while school is in session, full-time during breaks; off-campus work needs CPT or OPT'
+    ),
+    law(
+      'minor.hours',
+      18,
+      'hours/school week',
+      '29 CFR 570.35 (FLSA): under 16, at most 3 hours on a school day and 18 in a school week (8 and 40 when school is out), between 7 a.m. and 7 p.m. (9 p.m. from 1 June to Labor Day)'
+    ),
     law(
       'ot.weekly',
       40,

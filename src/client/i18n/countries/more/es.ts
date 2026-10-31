@@ -53,6 +53,8 @@ export const ES_MORE: CountryLanguages = {
     ext_itss: 'தொழிலாளர் மற்றும் சமூகப் பாதுகாப்பு ஆய்வகம்',
     limit_esYear: 'இந்த ஆண்டுக் கூடுதல் நேரம் (அதிகபட்சம் 80 ம)',
     limit_esDay: 'இன்று (அதிகபட்சம் 9 சாதாரண மணி)',
+    studentRule:
+      'வெளிநாட்டு மாணவர்கள்: வாரத்துக்கு 30 மணி வரை (அரச ஆணை 1155/2024). 18 வயதுக்குட்பட்டோர்: நாளுக்கு அதிகபட்சம் 8 மணி, கூடுதல் நேரமோ இரவு வேலையோ இல்லை (தொழிலாளர் சாசனம், பிரிவுகள் 6, 34.3).',
   },
   hi: {
     recordBroken:
@@ -103,6 +105,8 @@ export const ES_MORE: CountryLanguages = {
     ext_itss: 'श्रम और सामाजिक सुरक्षा निरीक्षणालय',
     limit_esYear: 'इस साल ओवरटाइम (अधिकतम 80 घं)',
     limit_esDay: 'आज (अधिकतम 9 सामान्य घंटे)',
+    studentRule:
+      'अंतरराष्ट्रीय छात्र: हफ़्ते में 30 घंटे तक (शाही आदेश 1155/2024)। 18 से कम: दिन में अधिकतम 8 घंटे, न ओवरटाइम न रात का काम (श्रमिक विधान, अनुच्छेद 6 और 34.3)।',
   },
   fr: {
     recordBroken:
@@ -155,6 +159,8 @@ export const ES_MORE: CountryLanguages = {
     ext_itss: 'Inspection du travail et de la sécurité sociale',
     limit_esYear: 'Heures sup. cette année (80 h maximum)',
     limit_esDay: 'Aujourd’hui (9 heures ordinaires maximum)',
+    studentRule:
+      'Étudiants internationaux : jusqu’à 30 heures par semaine (décret royal 1155/2024). Moins de 18 ans : 8 heures par jour au plus, ni heures sup. ni travail de nuit (Statut des travailleurs, arts. 6 et 34.3).',
   },
   de: {
     recordBroken:
@@ -207,6 +213,8 @@ export const ES_MORE: CountryLanguages = {
     ext_itss: 'Arbeits- und Sozialversicherungsinspektion',
     limit_esYear: 'Überstunden dieses Jahr (höchstens 80 h)',
     limit_esDay: 'Heute (höchstens 9 reguläre Stunden)',
+    studentRule:
+      'Internationale Studierende: bis zu 30 Stunden pro Woche (Königliches Dekret 1155/2024). Unter 18: höchstens 8 Stunden am Tag, keine Überstunden, keine Nachtarbeit (Arbeitnehmerstatut, Art. 6 und 34.3).',
   },
   pt: {
     recordBroken:
@@ -259,6 +267,8 @@ export const ES_MORE: CountryLanguages = {
     ext_itss: 'Inspeção do Trabalho e da Segurança Social',
     limit_esYear: 'Horas extra este ano (máximo 80 h)',
     limit_esDay: 'Hoje (máximo 9 horas normais)',
+    studentRule:
+      'Estudantes internacionais: até 30 horas por semana (Real Decreto 1155/2024). Menores de 18: no máximo 8 horas por dia, sem horas extra nem trabalho noturno (Estatuto dos Trabalhadores, arts. 6 e 34.3).',
   },
   ja: {
     recordBroken:
@@ -310,6 +320,8 @@ export const ES_MORE: CountryLanguages = {
     ext_itss: '労働・社会保障監督局',
     limit_esYear: '今年の時間外労働(上限80時間)',
     limit_esDay: '今日(通常労働 上限9時間)',
+    studentRule:
+      '留学生:週30時間まで(勅令1155/2024)。18歳未満:1日8時間まで、時間外労働と深夜労働は禁止(労働者憲章6条・34.3条)。',
   },
   zh: {
     recordBroken: '此记录不一致。请把这个页面给劳动监察局、企业委员会或你的工会看。',
@@ -356,6 +368,8 @@ export const ES_MORE: CountryLanguages = {
     ext_itss: '劳动与社会保障监察局',
     limit_esYear: '今年加班(最多80小时)',
     limit_esDay: '今天(正常工时最多9小时)',
+    studentRule:
+      '国际学生:每周最多30小时(第1155/2024号王室法令)。未满18岁:每天最多8小时,禁止加班和夜间工作(《劳动者法》第6条和第34.3条)。',
   },
   ko: {
     recordBroken:
@@ -406,5 +420,7 @@ export const ES_MORE: CountryLanguages = {
     ext_itss: '노동·사회보장 감독청',
     limit_esYear: '올해 초과근무(최대 80시간)',
     limit_esDay: '오늘(정규 근로 최대 9시간)',
+    studentRule:
+      '유학생: 주 30시간까지(왕령 1155/2024). 18세 미만: 하루 최대 8시간, 초과근무와 야간근로 금지(노동자헌장 제6조·제34.3조).',
   },
 };

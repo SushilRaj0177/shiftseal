@@ -126,6 +126,10 @@ Workers see every flag about their own records. Nobody can close a flag about th
 - Anonymous feedback is cleaned of names, places, times and IDs before saving; the original is never stored; it is linked only to a team, never a person; themes appear only once five people have responded.
 - Photos are compressed on the phone and visible only to the uploader and supervisors.
 
+## Students and young workers
+
+A person's studies and age live on their account, not a workplace, because a student visa caps all their jobs together. `src/shared/rules/students.ts` reads the country pack's `students` rules (visa caps for term and breaks, yearly hours or days, under-18 day, week and night limits) and adds every shift the person worked at any of their workplaces (`src/server/services/students.ts`). The results join the worker's legal limit meters; on check-out, going over a cap (`STUDENT_LIMIT`, `MINOR_HOURS`) or an under-18 working inside the night window (`MINOR_NIGHT`) raises a flag for the employer. The employer sees "student", "student visa" or "under 18", never the birth date.
+
 ## Android app
 
 `android/` is a small native shell around the same web app, so there is one UI to keep correct. It adds the two things a browser cannot prove:

@@ -53,6 +53,8 @@ export const BR_MORE: CountryLanguages = {
     ext_mte: 'தொழிலாளர் மற்றும் வேலைவாய்ப்பு அமைச்சகம்',
     limit_brDay: 'இன்றைய கூடுதல் நேரம் (அதிகபட்சம் 2 ம)',
     limit_brWeek: 'இந்த வார நேரம் (44 மணி வாரம்)',
+    studentRule:
+      'மாணவப் பயிற்சியாளர்கள் (estágio): நாளுக்கு அதிகபட்சம் 6 மணி, வாரத்துக்கு 30 (சட்டம் 11.788/2008, பிரிவு 10). 18 வயதுக்குட்பட்டோர்: 22:00–5:00 வேலையோ கூடுதல் நேரமோ இல்லை (CLT, பிரிவுகள் 404, 413). வெளிநாட்டு மாணவர்கள் வேலை செய்ய அனுமதி தேவை.',
   },
   hi: {
     recordBroken:
@@ -104,6 +106,8 @@ export const BR_MORE: CountryLanguages = {
     ext_mte: 'श्रम और रोज़गार मंत्रालय',
     limit_brDay: 'आज ओवरटाइम (अधिकतम 2 घं)',
     limit_brWeek: 'इस हफ़्ते के घंटे (44 घंटे का हफ़्ता)',
+    studentRule:
+      'छात्र इंटर्न (estágio): दिन में अधिकतम 6 और हफ़्ते में 30 घंटे (क़ानून 11.788/2008, अनुच्छेद 10)। 18 से कम: 22:00–5:00 काम नहीं और ओवरटाइम नहीं (CLT, अनुच्छेद 404 और 413)। विदेशी छात्रों को काम के लिए अनुमति चाहिए।',
   },
   es: {
     recordBroken:
@@ -155,6 +159,8 @@ export const BR_MORE: CountryLanguages = {
     ext_mte: 'Ministerio de Trabajo y Empleo',
     limit_brDay: 'Horas extra hoy (máximo 2 h)',
     limit_brWeek: 'Horas esta semana (semana de 44 h)',
+    studentRule:
+      'Becarios (estágio): como máximo 6 horas al día y 30 a la semana (Ley 11.788/2008, art. 10). Menores de 18: sin trabajo de 22:00 a 5:00 ni horas extra (CLT, arts. 404 y 413). Los estudiantes extranjeros necesitan autorización para trabajar.',
   },
   fr: {
     recordBroken:
@@ -208,6 +214,8 @@ export const BR_MORE: CountryLanguages = {
     ext_mte: 'Ministère du Travail et de l’Emploi',
     limit_brDay: 'Heures sup. aujourd’hui (2 h maximum)',
     limit_brWeek: 'Heures cette semaine (semaine de 44 h)',
+    studentRule:
+      'Stagiaires (estágio) : 6 heures par jour et 30 par semaine au plus (loi 11.788/2008, art. 10). Moins de 18 ans : pas de travail de 22 h à 5 h ni d’heures sup. (CLT, arts. 404 et 413). Les étudiants étrangers ont besoin d’une autorisation de travail.',
   },
   de: {
     recordBroken:
@@ -260,6 +268,8 @@ export const BR_MORE: CountryLanguages = {
     ext_mte: 'Ministerium für Arbeit und Beschäftigung',
     limit_brDay: 'Überstunden heute (höchstens 2 h)',
     limit_brWeek: 'Stunden diese Woche (44-Stunden-Woche)',
+    studentRule:
+      'Praktikanten (estágio): höchstens 6 Stunden am Tag und 30 pro Woche (Gesetz 11.788/2008, Art. 10). Unter 18: keine Arbeit von 22 bis 5 Uhr, keine Überstunden (CLT, Art. 404 und 413). Ausländische Studierende brauchen eine Arbeitserlaubnis.',
   },
   ja: {
     recordBroken:
@@ -309,6 +319,8 @@ export const BR_MORE: CountryLanguages = {
     ext_mte: '労働雇用省',
     limit_brDay: '今日の時間外労働(上限2時間)',
     limit_brWeek: '今週の労働時間(週44時間)',
+    studentRule:
+      '学生インターン(estágio):1日6時間・週30時間まで(法律11.788/2008、10条)。18歳未満:22時〜5時の労働と時間外労働は禁止(CLT404条・413条)。外国人学生は就労の許可が必要です。',
   },
   zh: {
     recordBroken: '此记录不一致。请把这个页面给你的工会、劳动部或劳动检察院看。',
@@ -356,6 +368,8 @@ export const BR_MORE: CountryLanguages = {
     ext_mte: '劳动和就业部',
     limit_brDay: '今天加班(最多2小时)',
     limit_brWeek: '本周工时(每周44小时)',
+    studentRule:
+      '学生实习(estágio):每天最多6小时、每周30小时(第11.788/2008号法律第10条)。未满18岁:禁止22:00–5:00工作和加班(CLT第404、413条)。外国学生工作须获得许可。',
   },
   ko: {
     recordBroken:
@@ -406,5 +420,7 @@ export const BR_MORE: CountryLanguages = {
     ext_mte: '노동고용부',
     limit_brDay: '오늘 초과근무(최대 2시간)',
     limit_brWeek: '이번 주 근로시간(주 44시간)',
+    studentRule:
+      '학생 인턴(estágio): 하루 최대 6시간, 주 30시간(법률 11.788/2008 제10조). 18세 미만: 22시~5시 근로와 초과근무 금지(CLT 제404·413조). 외국인 학생은 취업 허가가 필요합니다.',
   },
 };

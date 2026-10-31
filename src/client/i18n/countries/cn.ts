@@ -47,6 +47,8 @@ export const CN_TEXT: CountryStrings = {
     ext_hotline12338: '12338 妇女维权公益服务热线',
     limit_cnMonth: '本月加班（上限 36 小时）',
     limit_cnDay: '今天加班（上限 3 小时）',
+    studentRule:
+      '国际学生须经学校同意并在居留许可上注明后才能兼职。非全日制用工平均每天不超过4小时、每周不超过24小时(《劳动合同法》第68条)。16至18岁的未成年工不得从事有毒有害等禁忌劳动。',
   },
   en: {
     recordBroken:
@@ -96,5 +98,7 @@ export const CN_TEXT: CountryStrings = {
     ext_hotline12338: '12338 women’s rights hotline',
     limit_cnMonth: 'Overtime this month (cap: 36 h)',
     limit_cnDay: 'Overtime today (cap: 3 h)',
+    studentRule:
+      'International students need their university’s approval, noted on their residence permit, before working. Part-time employment is at most 4 hours a day on average and 24 a week (Labour Contract Law, Art. 68). Workers aged 16–18 are kept from hazardous work.',
   },
 };

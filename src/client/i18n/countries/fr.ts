@@ -54,6 +54,8 @@ export const FR_TEXT: CountryStrings = {
     limit_frDay: 'Aujourd’hui (10 h au maximum)',
     limit_frAvg: 'Moyenne sur 12 semaines (44 h au maximum)',
     limit_frYear: 'Heures supplémentaires cette année (contingent de 220 h)',
+    studentRule:
+      'Étudiants internationaux : 964 heures par an au total (Code du travail, art. R5221-26). Moins de 18 ans : 8 heures par jour, 35 par semaine, pas de travail de nuit (22 h–6 h ; 20 h–6 h avant 16 ans).',
   },
   en: {
     recordBroken:
@@ -105,5 +107,7 @@ export const FR_TEXT: CountryStrings = {
     limit_frDay: 'Today (10 h maximum)',
     limit_frAvg: 'Average over 12 weeks (44 h maximum)',
     limit_frYear: 'Overtime this year (220 h allowance)',
+    studentRule:
+      'International students: 964 hours a year in total (Labour Code, art. R5221-26). Under 18: 8 hours a day, 35 a week, no night work (22:00–6:00; 20:00–6:00 under 16).',
   },
 };

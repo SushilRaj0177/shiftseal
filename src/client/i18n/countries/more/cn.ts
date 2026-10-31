@@ -51,6 +51,8 @@ export const CN_MORE: CountryLanguages = {
     ext_hotline12338: '12338 பெண்கள் உரிமை உதவி எண்',
     limit_cnMonth: 'இந்த மாதக் கூடுதல் நேரம் (வரம்பு: 36 ம)',
     limit_cnDay: 'இன்றைய கூடுதல் நேரம் (வரம்பு: 3 ம)',
+    studentRule:
+      'வெளிநாட்டு மாணவர்கள் வேலை செய்யும் முன் பல்கலைக்கழக ஒப்புதல் பெற்று அது குடியிருப்பு அனுமதியில் குறிக்கப்பட வேண்டும். பகுதிநேர வேலை சராசரியாக நாளுக்கு 4 மணி, வாரத்துக்கு 24 மணிக்கு மேல் கூடாது (தொழிலாளர் ஒப்பந்தச் சட்டம், பிரிவு 68). 16–18 வயதினர் ஆபத்தான வேலைகளில் ஈடுபடக் கூடாது.',
   },
   hi: {
     recordBroken:
@@ -101,6 +103,8 @@ export const CN_MORE: CountryLanguages = {
     ext_hotline12338: '12338 महिला अधिकार हेल्पलाइन',
     limit_cnMonth: 'इस महीने ओवरटाइम (सीमा: 36 घं)',
     limit_cnDay: 'आज ओवरटाइम (सीमा: 3 घं)',
+    studentRule:
+      'अंतरराष्ट्रीय छात्रों को काम से पहले विश्वविद्यालय की मंज़ूरी चाहिए, जो निवास परमिट पर दर्ज हो। पार्ट-टाइम काम औसतन दिन में 4 और हफ़्ते में 24 घंटे से ज़्यादा नहीं (श्रम अनुबंध क़ानून, अनुच्छेद 68)। 16–18 साल के कर्मचारी ख़तरनाक कामों से दूर रखे जाते हैं।',
   },
   es: {
     recordBroken:
@@ -151,6 +155,8 @@ export const CN_MORE: CountryLanguages = {
     ext_hotline12338: 'Línea 12338 de derechos de la mujer',
     limit_cnMonth: 'Horas extra este mes (límite: 36 h)',
     limit_cnDay: 'Horas extra hoy (límite: 3 h)',
+    studentRule:
+      'Los estudiantes internacionales necesitan la aprobación de su universidad, anotada en el permiso de residencia, antes de trabajar. El empleo a tiempo parcial es de 4 horas diarias de media y 24 semanales como máximo (Ley de Contratos de Trabajo, art. 68). Los trabajadores de 16 a 18 años quedan apartados de trabajos peligrosos.',
   },
   fr: {
     recordBroken:
@@ -201,6 +207,8 @@ export const CN_MORE: CountryLanguages = {
     ext_hotline12338: 'Ligne 12338 des droits des femmes',
     limit_cnMonth: 'Heures sup. ce mois-ci (plafond : 36 h)',
     limit_cnDay: 'Heures sup. aujourd’hui (plafond : 3 h)',
+    studentRule:
+      'Les étudiants internationaux doivent obtenir l’accord de leur université, inscrit sur leur titre de séjour, avant de travailler. L’emploi à temps partiel est limité à 4 heures par jour en moyenne et 24 par semaine (loi sur les contrats de travail, art. 68). Les 16–18 ans sont tenus à l’écart des travaux dangereux.',
   },
   de: {
     recordBroken:
@@ -251,6 +259,8 @@ export const CN_MORE: CountryLanguages = {
     ext_hotline12338: 'Frauenrechts-Hotline 12338',
     limit_cnMonth: 'Überstunden diesen Monat (Grenze: 36 h)',
     limit_cnDay: 'Überstunden heute (Grenze: 3 h)',
+    studentRule:
+      'Internationale Studierende brauchen vor einem Job die Zustimmung ihrer Hochschule, eingetragen im Aufenthaltstitel. Teilzeitbeschäftigung: im Schnitt höchstens 4 Stunden am Tag und 24 pro Woche (Arbeitsvertragsgesetz, Art. 68). 16- bis 18-Jährige dürfen keine gefährlichen Arbeiten verrichten.',
   },
   pt: {
     recordBroken:
@@ -301,6 +311,8 @@ export const CN_MORE: CountryLanguages = {
     ext_hotline12338: 'Linha 12338 dos direitos das mulheres',
     limit_cnMonth: 'Horas extra este mês (limite: 36 h)',
     limit_cnDay: 'Horas extra hoje (limite: 3 h)',
+    studentRule:
+      'Os estudantes internacionais precisam da aprovação da universidade, anotada na autorização de residência, antes de trabalhar. O emprego a tempo parcial é de no máximo 4 horas por dia em média e 24 por semana (Lei do Contrato de Trabalho, art. 68). Os trabalhadores de 16 a 18 anos ficam afastados de trabalhos perigosos.',
   },
   ja: {
     recordBroken:
@@ -350,6 +362,8 @@ export const CN_MORE: CountryLanguages = {
     ext_hotline12338: '12338 女性の権利ホットライン',
     limit_cnMonth: '今月の時間外労働(上限36時間)',
     limit_cnDay: '今日の時間外労働(上限3時間)',
+    studentRule:
+      '留学生は、働く前に大学の同意を得て居留許可に記載される必要があります。非全日制の雇用は1日平均4時間・週24時間まで(労働契約法第68条)。16〜18歳の未成年労働者は有害な業務に就けません。',
   },
   ko: {
     recordBroken:
@@ -399,5 +413,7 @@ export const CN_MORE: CountryLanguages = {
     ext_hotline12338: '12338 여성권익 핫라인',
     limit_cnMonth: '이번 달 연장근로(한도 36시간)',
     limit_cnDay: '오늘 연장근로(한도 3시간)',
+    studentRule:
+      '유학생은 일하기 전에 학교의 동의를 받아 거류허가에 기재해야 합니다. 시간제 고용은 하루 평균 4시간, 주 24시간을 넘을 수 없습니다(노동계약법 제68조). 16~18세 미성년 근로자는 유해한 업무에 종사할 수 없습니다.',
   },
 };

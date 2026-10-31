@@ -53,6 +53,8 @@ export const MX_MORE: CountryLanguages = {
     ext_cfcrl: 'கூட்டாட்சித் தொழிலாளர் சமரச மற்றும் பதிவு மையம்',
     limit_mxWeek: 'இந்த வாரக் கூடுதல் நேரம் (அதிகபட்சம் 9 ம)',
     limit_mxDay: 'இன்றைய கூடுதல் நேரம் (அதிகபட்சம் 3 ம)',
+    studentRule:
+      'வெளிநாட்டு மாணவர்களுக்கு தேசிய குடியேற்ற நிறுவனத்தின் (INM) வேலை அனுமதி தேவை. 18 வயதுக்குட்பட்டோர்: கூடுதல் நேரம் இல்லை; 16 வயதுக்குக் கீழ்: நாளுக்கு அதிகபட்சம் 6 மணி (கூட்டாட்சித் தொழிலாளர் சட்டம், பிரிவுகள் 175–178).',
   },
   hi: {
     recordBroken:
@@ -104,6 +106,8 @@ export const MX_MORE: CountryLanguages = {
     ext_cfcrl: 'संघीय श्रम सुलह और पंजीकरण केंद्र',
     limit_mxWeek: 'इस हफ़्ते ओवरटाइम (अधिकतम 9 घं)',
     limit_mxDay: 'आज ओवरटाइम (अधिकतम 3 घं)',
+    studentRule:
+      'अंतरराष्ट्रीय छात्रों को राष्ट्रीय प्रवासन संस्थान (INM) से काम की अनुमति चाहिए। 18 से कम: ओवरटाइम नहीं; 16 से कम: दिन में अधिकतम 6 घंटे (संघीय श्रम क़ानून, अनुच्छेद 175–178)।',
   },
   fr: {
     recordBroken:
@@ -156,6 +160,8 @@ export const MX_MORE: CountryLanguages = {
     ext_cfcrl: 'Centre fédéral de conciliation et d’enregistrement du travail',
     limit_mxWeek: 'Heures sup. cette semaine (9 h maximum)',
     limit_mxDay: 'Heures sup. aujourd’hui (3 h maximum)',
+    studentRule:
+      'Les étudiants internationaux ont besoin d’un permis de travail de l’Institut national des migrations (INM). Moins de 18 ans : pas d’heures sup. ; moins de 16 ans : 6 heures par jour au plus (Loi fédérale du travail, arts. 175–178).',
   },
   de: {
     recordBroken:
@@ -208,6 +214,8 @@ export const MX_MORE: CountryLanguages = {
     ext_cfcrl: 'Bundeszentrum für Arbeitsschlichtung und -registrierung',
     limit_mxWeek: 'Überstunden diese Woche (höchstens 9 h)',
     limit_mxDay: 'Überstunden heute (höchstens 3 h)',
+    studentRule:
+      'Internationale Studierende brauchen eine Arbeitserlaubnis des Nationalen Migrationsinstituts (INM). Unter 18: keine Überstunden; unter 16: höchstens 6 Stunden am Tag (Bundesarbeitsgesetz, Art. 175–178).',
   },
   pt: {
     recordBroken:
@@ -259,6 +267,8 @@ export const MX_MORE: CountryLanguages = {
     ext_cfcrl: 'Centro Federal de Conciliação e Registo Laboral',
     limit_mxWeek: 'Horas extra esta semana (máximo 9 h)',
     limit_mxDay: 'Horas extra hoje (máximo 3 h)',
+    studentRule:
+      'Os estudantes internacionais precisam de uma autorização de trabalho do Instituto Nacional de Migração (INM). Menores de 18: sem horas extra; menores de 16: no máximo 6 horas por dia (Lei Federal do Trabalho, arts. 175–178).',
   },
   ja: {
     recordBroken:
@@ -309,6 +319,8 @@ export const MX_MORE: CountryLanguages = {
     ext_cfcrl: '連邦労働調停・登録センター',
     limit_mxWeek: '今週の時間外労働(上限9時間)',
     limit_mxDay: '今日の時間外労働(上限3時間)',
+    studentRule:
+      '留学生は国家移民庁(INM)の就労許可が必要です。18歳未満:時間外労働は禁止。16歳未満:1日6時間まで(連邦労働法175〜178条)。',
   },
   zh: {
     recordBroken:
@@ -358,6 +370,8 @@ export const MX_MORE: CountryLanguages = {
     ext_cfcrl: '联邦劳动调解与登记中心',
     limit_mxWeek: '本周加班(最多9小时)',
     limit_mxDay: '今天加班(最多3小时)',
+    studentRule:
+      '国际学生须取得国家移民局(INM)的工作许可。未满18岁:禁止加班;未满16岁:每天最多6小时(《联邦劳动法》第175–178条)。',
   },
   ko: {
     recordBroken:
@@ -407,5 +421,7 @@ export const MX_MORE: CountryLanguages = {
     ext_cfcrl: '연방노동조정·등록센터',
     limit_mxWeek: '이번 주 초과근무(최대 9시간)',
     limit_mxDay: '오늘 초과근무(최대 3시간)',
+    studentRule:
+      '유학생은 국가이민청(INM)의 취업 허가가 필요합니다. 18세 미만: 초과근무 금지, 16세 미만: 하루 최대 6시간(연방노동법 제175~178조).',
   },
 };

@@ -50,6 +50,8 @@ export const PT_TEXT: CountryStrings = {
     ext_cite: 'CITE – Comissão para a Igualdade no Trabalho e no Emprego',
     limit_ptYear: 'Trabalho suplementar este ano (150 h)',
     limit_ptDay: 'Trabalho suplementar hoje (máximo 2 h)',
+    studentRule:
+      'Os estudantes internacionais podem trabalhar durante os estudos; o limite mais citado é de 20 horas por semana em período letivo e tempo inteiro nas férias, mas confirme com a AIMA. Menores de 18: 8 horas por dia, 40 por semana, sem trabalho noturno (Código do Trabalho, arts. 73 e 76).',
   },
   en: {
     recordBroken:
@@ -99,5 +101,7 @@ export const PT_TEXT: CountryStrings = {
     ext_cite: 'CITE – Commission for Equality in Labour and Employment',
     limit_ptYear: 'Overtime this year (150 h)',
     limit_ptDay: 'Overtime today (2 h maximum)',
+    studentRule:
+      'International students may work alongside their studies; the most cited limit is 20 hours a week in term and full-time in holidays, but confirm with AIMA. Under 18: 8 hours a day, 40 a week, no night work (Labour Code, arts. 73 and 76).',
   },
 };

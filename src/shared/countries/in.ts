@@ -9,7 +9,7 @@ export const IN: CountryPack = {
   weeklyOff: [0],
   pay: {
     cycles: ['weekly', 'monthly'],
-    defaultCycle: { construction: 'weekly', campus: 'weekly', office: 'monthly' },
+    defaultCycle: { construction: 'weekly', campus: 'weekly', retail: 'weekly', office: 'monthly' },
     deadline: { kind: 'daysAfterEnd', days: 7 },
     deductions: ['pf', 'esi', 'pt', 'tds', 'lwf'],
     annual: [{ code: 'bonus', due: '11-30', rule: 'annual.bonus' }],
@@ -39,7 +39,14 @@ export const IN: CountryPack = {
     external: [{ key: 'localCommittee', url: 'https://shebox.wcd.gov.in' }],
   },
   limits: [{ id: 'week', metric: 'total', window: 'week', cap: 48, rule: 'ot.weekly' }],
+  students: { minors: { age: 18, rule: 'minor.hours' } },
   rules: byId(
+    law(
+      'minor.hours',
+      18,
+      'years',
+      'Child and Adolescent Labour (Prohibition and Regulation) Act, 1986, s.3A: adolescents (14–18) may not work in hazardous occupations or processes'
+    ),
     law(
       'hours.daily',
       8,

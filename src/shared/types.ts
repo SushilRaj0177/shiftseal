@@ -2,7 +2,7 @@ import type { Language } from './languages.js';
 import type { CountryId } from './countries/types.js';
 export type { Language };
 
-export type SectorId = 'construction' | 'campus' | 'office';
+export type SectorId = 'construction' | 'campus' | 'office' | 'retail';
 
 export type RuleKind = 'law' | 'policy';
 
