@@ -336,3 +336,13 @@ body::before {
   min-height: 44px;
   color: var(--ink-2);
 }
+
+/* KPI numbers shrink to their tile instead of breaking mid-number (₹7,682). */
+.stat-card {
+  container-type: inline-size;
+}
+.stat-card-value {
+  font-size: min(34px, 24cqi);
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
