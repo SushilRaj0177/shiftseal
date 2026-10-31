@@ -100,6 +100,9 @@ html[lang='ko'] .welcome-copy .t-display {
 .welcome .sheet {
   color: var(--ink);
 }
+.welcome-copy .t-accent {
+  color: #f1d29d;
+}
 .welcome-copy p {
   color: var(--on-navy-2);
   font-size: 16px;

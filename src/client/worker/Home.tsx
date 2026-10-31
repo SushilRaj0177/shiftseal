@@ -79,7 +79,7 @@ export const Home: React.FC = () => {
           </span>
           <div className="grow stack-sm" style={{ gap: 0 }}>
             <span className="t-caption muted">{greeting}</span>
-            <span className="t-headline">{firstName(me.name, lang)}</span>
+            <span className="t-greeting">{firstName(me.name, lang)}</span>
           </div>
           <Link
             to={`${base}/notifications`}
@@ -257,7 +257,7 @@ export const Home: React.FC = () => {
                 ))}
               </div>
             )}
-            <p className="t-caption muted">{t('overtimeRule')}</p>
+            <p className="t-note muted">{t('overtimeRule')}</p>
           </Card>
         )}
 

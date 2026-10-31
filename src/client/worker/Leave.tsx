@@ -120,7 +120,7 @@ export const Leave: React.FC = () => {
               ))}
           </div>
         )}
-        <p className="t-caption muted">{t('leaveLawNote')}</p>
+        <p className="t-note muted">{t('leaveLawNote')}</p>
         {overview?.leave.minTaken && (
           <Card tone="subtle">
             <span className="t-caption">

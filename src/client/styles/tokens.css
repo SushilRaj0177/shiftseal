@@ -39,8 +39,19 @@
   --danger: #a3241b;
   --danger-soft: #fae6e3;
 
-  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  /*
+   * Type voices. Each kind of text has its own face:
+   *   --font     Figtree: everything you read and tap; warm and round.
+   *   --display  Fraunces, soft and slightly wonky: screen titles and headlines.
+   *   --numeric  Bricolage Grotesque: hours, money and section headings.
+   *   --label    JetBrains Mono: small labels, stamped like a printed record.
+   *   --mono     JetBrains Mono: clock times, codes and fingerprints.
+   * Other scripts fall through to their Noto pair (sans for text, serif for titles).
+   */
+  --font: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --display: 'Fraunces', Georgia, serif;
+  --numeric: 'Bricolage Grotesque', 'Figtree', sans-serif;
+  --label: 'JetBrains Mono', ui-monospace, monospace;
   --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   --r-sm: 10px;
@@ -88,33 +99,28 @@
   }
 }
 
-html[lang='ta'] body {
-  font-family: 'Noto Sans Tamil', var(--font);
-}
 html[lang='ta'] {
-  --display: 'Noto Sans Tamil', var(--font);
-}
-html[lang='hi'] body {
-  font-family: 'Noto Sans Devanagari', var(--font);
+  --font: 'Figtree', 'Noto Sans Tamil', sans-serif;
+  --display: 'Fraunces', 'Noto Serif Tamil', serif;
+  --label: 'JetBrains Mono', 'Noto Sans Tamil', monospace;
 }
 html[lang='hi'] {
-  --display: 'Noto Sans Devanagari', var(--font);
-}
-html[lang='ja'] body {
-  font-family: 'Inter', 'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic', 'Meiryo', sans-serif;
+  --font: 'Figtree', 'Noto Sans Devanagari', sans-serif;
+  --display: 'Fraunces', 'Noto Serif Devanagari', serif;
+  --label: 'JetBrains Mono', 'Noto Sans Devanagari', monospace;
 }
 html[lang='ja'] {
-  --display: 'Inter', 'Hiragino Sans', 'Noto Sans JP', 'Yu Gothic', 'Meiryo', sans-serif;
-}
-html[lang='zh'] body {
-  font-family: 'Inter', 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+  --font: 'Figtree', 'Noto Sans JP', 'Hiragino Sans', 'Yu Gothic', sans-serif;
+  --display: 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', serif;
+  --label: 'JetBrains Mono', 'Noto Sans JP', monospace;
 }
 html[lang='zh'] {
-  --display: 'Inter', 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
-}
-html[lang='ko'] body {
-  font-family: 'Inter', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  --font: 'Figtree', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --display: 'Noto Serif SC', 'Songti SC', serif;
+  --label: 'JetBrains Mono', 'Noto Sans SC', monospace;
 }
 html[lang='ko'] {
-  --display: 'Inter', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  --font: 'Figtree', 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --display: 'Noto Serif KR', 'AppleMyungjo', serif;
+  --label: 'JetBrains Mono', 'Noto Sans KR', monospace;
 }

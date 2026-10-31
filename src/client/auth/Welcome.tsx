@@ -39,8 +39,14 @@ export const Welcome: React.FC = () => {
           <Icon name="lock" size={14} />
           {t('sealed')}
         </span>
-        <h1 className="t-display" style={{ whiteSpace: 'pre-line' }}>
-          {t('welcomeTitle')}
+        <h1 className="t-display">
+          {t('welcomeTitle')
+            .split('\n')
+            .map((line, i) => (
+              <span key={i} className={i ? 't-accent' : undefined} style={{ display: 'block' }}>
+                {line}
+              </span>
+            ))}
         </h1>
         <p>{t('welcomeBody')}</p>
       </section>
