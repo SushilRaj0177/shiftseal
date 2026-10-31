@@ -111,7 +111,7 @@ Shiftseal never tracks your location in the background. Location is read only at
 | Feature graphic, 1024 × 500 | `feature-graphic.png` |
 | Phone screenshots, 1080 × 1920 | `play-light-0.png` … `play-light-5.png` |
 
-**Category:** Business. **Tags:** time tracking, attendance, payroll. **Website:** the live site URL. **Privacy policy:** `https://shiftseal-872210045960.asia-south1.run.app/privacy.html`
+**Category:** Business. **Tags:** time tracking, attendance, payroll. **Website:** the live site URL. **Privacy policy:** `https://sushilraj.dev/shiftseal/privacy/`
 
 ## 6. App content (Policy → App content)
 
@@ -140,7 +140,7 @@ Location can be anywhere; checks outside the site are recorded and flagged, not 
 | --- | --- |
 | Does your app collect or share user data? | Yes |
 | Is all data encrypted in transit? | Yes |
-| Do you provide a way to request deletion? | Yes, in the app (Settings → Delete my account) and at `…/privacy.html#delete` |
+| Do you provide a way to request deletion? | Yes, in the app (Settings → Delete my account) and at `https://sushilraj.dev/shiftseal/privacy/#delete` |
 
 Data collected (none of it is *shared*: Google Cloud, Firebase and Vertex AI are service providers, which Play does not count as sharing):
 
@@ -158,7 +158,7 @@ Data collected (none of it is *shared*: Google Cloud, Firebase and Vertex AI are
 | App activity → Other user-generated content | Yes | Optional | App functionality |
 | Device or other IDs | Yes | Required | Fraud prevention, Security |
 
-**Account deletion URL:** `https://shiftseal-872210045960.asia-south1.run.app/privacy.html#delete`
+**Account deletion URL:** `https://sushilraj.dev/shiftseal/privacy/#delete`
 
 ## 7. Closed testing, then production
 
