@@ -1,23 +1,22 @@
 # Publishing Shiftseal on Google Play
 
-This is the full path from nothing to a public listing, with every answer the Play Console asks for. The code side is done: release signing, a signed bundle job in GitHub Actions, in-app account deletion, a privacy policy and the store images.
+This is the full path to a Play listing, with every answer the Play Console asks for. The code side is done: release signing, a signed bundle job in GitHub Actions, in-app account deletion, a privacy policy and the store images.
+
+Shiftseal is published from the team's existing Play Console developer account (the one that publishes Sumi). One account can hold any number of apps, so there is no new fee or identity check; Shiftseal is simply a second app in it, and the listing shows that account's developer name and contact email.
 
 ## What Google requires, and how long it takes
 
 | Step | Time |
 | --- | --- |
-| Play Console developer account (one-time US$25, identity check) | a few hours to a few days |
 | Internal testing (up to 100 testers you invite by email) | available as soon as the app is set up; usually live within minutes |
 | Closed testing | a review of a few hours to a few days |
-| Production (public listing) | for **new personal accounts**: only after a closed test with at least 12 testers who stay opted in for 14 days in a row, then a production review |
+| Production (public listing) | a review of a few days. Personal accounts created after November 2023 must first run a closed test with at least 12 testers opted in for 14 days in a row; the app's **Dashboard** says whether this applies to Shiftseal and how far along the test is |
 
-So the fastest public proof is an **internal or closed testing link**, which anyone you add can install from the Play Store. Start the closed test early so the 14 days run while you wait.
+The fastest proof is an **internal testing link**, which anyone you add can install from the Play Store. If the Dashboard asks for the 14-day closed test, start it straight away so the days run while you wait (the Sumi testers can join this one too).
 
-## 1. Create the developer account
+## 1. Open the existing account
 
-1. Go to https://play.google.com/console/signup and sign in with the Google account that should own the app.
-2. Choose **Yourself** (personal account) unless you have a registered organisation with a D-U-N-S number.
-3. Pay the US$25 fee and complete identity verification. Keep the email you give as the **developer contact email**: Play shows it publicly on the listing.
+Go to https://play.google.com/console and sign in with the Google account that owns Sumi. Shiftseal is added next to it.
 
 ## 2. Create the app
 
