@@ -190,6 +190,12 @@ export const ja: WorkerDict = {
   phoneApproved: '打刻用に承認済み',
   phonePending: '上司の承認待ち',
   signOut: 'ログアウト',
+  deleteAccount: 'アカウントを削除',
+  deleteAccountBody:
+    '氏名、電話番号、プロフィールが消去され、すべての職場から外れます。すでに封印された勤務記録は、賃金台帳の保存が法律で義務づけられているため、「元メンバー」として雇用主のもとに残ります。',
+  deleteAccountConfirm: 'アカウントを完全に削除',
+  accountDeleted: 'アカウントを削除しました。',
+  privacyPolicy: 'プライバシーポリシー',
   workplace: '職場',
   flag_OUTSIDE_SITE: '端末が現場の外にありました。',
   flag_LOW_ACCURACY: '位置情報の精度が低く、現場にいたことを確認できませんでした。',

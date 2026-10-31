@@ -188,6 +188,12 @@ export const ko: WorkerDict = {
   phoneApproved: '출퇴근 기록용으로 승인됨',
   phonePending: '관리자 승인 대기 중',
   signOut: '로그아웃',
+  deleteAccount: '내 계정 삭제',
+  deleteAccountBody:
+    "이름, 전화번호, 프로필이 지워지고 모든 일터에서 나가게 됩니다. 이미 봉인된 근무 기록은 임금 기록 보존이 법으로 정해져 있어 '전 구성원'으로 고용주에게 남습니다.",
+  deleteAccountConfirm: '계정 영구 삭제',
+  accountDeleted: '계정이 삭제되었습니다.',
+  privacyPolicy: '개인정보 처리방침',
   workplace: '사업장',
   flag_OUTSIDE_SITE: '휴대폰이 현장 밖에 있었습니다.',
   flag_LOW_ACCURACY: '위치가 정확하지 않아 현장에 있었는지 확인할 수 없습니다.',

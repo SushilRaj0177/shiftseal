@@ -325,3 +325,14 @@ body::before {
 .choice[aria-pressed='true'] .faint {
   color: var(--ink-2);
 }
+
+.btn.danger-text {
+  color: var(--danger);
+}
+.privacy-link {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--ink-2);
+}

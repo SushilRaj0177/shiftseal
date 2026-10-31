@@ -27,6 +27,9 @@ export class MemoryRepo implements Repo {
   async saveUser(user: UserAccount) {
     this.users.set(user.uid, clone(user));
   }
+  async deleteUser(uid: string) {
+    this.users.delete(uid);
+  }
 
   async getWorkplace(id: string) {
     const w = this.workplaces.get(id);

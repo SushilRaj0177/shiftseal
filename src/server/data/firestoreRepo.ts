@@ -29,6 +29,9 @@ export class FirestoreRepo implements Repo {
   async saveUser(user: UserAccount) {
     await this.db.collection('users').doc(user.uid).set(user);
   }
+  async deleteUser(uid: string) {
+    await this.db.collection('users').doc(uid).delete();
+  }
 
   async getWorkplace(id: string) {
     const s = await this.wp(id).get();

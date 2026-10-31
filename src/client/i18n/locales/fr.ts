@@ -194,6 +194,12 @@ export const fr: WorkerDict = {
   phoneApproved: 'Approuvé pour les pointages',
   phonePending: 'En attente d’approbation par votre responsable',
   signOut: 'Se déconnecter',
+  deleteAccount: 'Supprimer mon compte',
+  deleteAccountBody:
+    "Votre nom, votre numéro de téléphone et votre profil sont effacés, et vous quittez tous vos lieux de travail. Les relevés de service déjà scellés restent chez l'employeur sous « Ancien membre », car la loi impose de conserver les registres de paie.",
+  deleteAccountConfirm: 'Supprimer définitivement mon compte',
+  accountDeleted: 'Votre compte a été supprimé.',
+  privacyPolicy: 'Politique de confidentialité',
   workplace: 'Lieu de travail',
   flag_OUTSIDE_SITE: 'Votre téléphone était hors du site.',
   flag_LOW_ACCURACY: 'Votre position n’était pas assez précise pour confirmer votre présence.',

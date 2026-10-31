@@ -8,6 +8,20 @@ def shiftsealUrl = project.findProperty('shiftsealUrl') ?: 'https://shiftseal-87
 def cloudProjectNumber = project.findProperty('cloudProjectNumber') ?: '872210045960'
 // OAuth "Web client" ID of the Firebase project, for native Google sign-in.
 def googleWebClientId = project.findProperty('googleWebClientId') ?: ''
+// Each Play upload needs a higher number: -PversionCode=2, 3, ...
+def appVersionCode = (project.findProperty('versionCode') ?: '1') as int
+def appVersionName = project.findProperty('versionName') ?: '1.0'
+
+// Release signing uses an upload key that never enters the repository. It is read
+// from android/keystore.properties (git-ignored) or from SHIFTSEAL_UPLOAD_*
+// environment variables in CI. Without it, release builds are left unsigned.
+def upload = new Properties()
+def uploadFile = rootProject.file('keystore.properties')
+if (uploadFile.exists()) uploadFile.withInputStream { upload.load(it) }
+def uploadValue = { String key ->
+    upload.getProperty(key) ?: System.getenv('SHIFTSEAL_UPLOAD_' + key.replaceAll(/([A-Z])/, '_$1').toUpperCase())
+}
+def hasUploadKey = uploadValue('storeFile') != null
 
 android {
     namespace 'dev.sushilraj.shiftseal'
@@ -17,8 +31,8 @@ android {
         applicationId 'dev.sushilraj.shiftseal'
         minSdk 24
         targetSdk 36
-        versionCode 1
-        versionName '1.0'
+        versionCode appVersionCode
+        versionName appVersionName
         manifestPlaceholders = [appHost: new URI(shiftsealUrl).host]
         buildConfigField 'String', 'APP_URL', "\"${shiftsealUrl}\""
         buildConfigField 'long', 'CLOUD_PROJECT_NUMBER', "${cloudProjectNumber}L"
@@ -34,6 +48,14 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        if (hasUploadKey) {
+            release {
+                storeFile rootProject.file(uploadValue('storeFile'))
+                storePassword uploadValue('storePassword')
+                keyAlias uploadValue('keyAlias')
+                keyPassword uploadValue('keyPassword')
+            }
+        }
     }
 
     buildFeatures {
@@ -42,7 +64,9 @@ android {
 
     buildTypes {
         release {
+            if (hasUploadKey) signingConfig signingConfigs.release
             minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }

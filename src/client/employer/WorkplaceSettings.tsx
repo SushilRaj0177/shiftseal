@@ -8,6 +8,7 @@ import { getFix } from '../lib/location.js';
 import { useAuth } from '../auth/AuthProvider.js';
 import { useLang } from '../i18n/LangProvider.js';
 import { Card, Field, Kv, LanguagePicker, Notice } from '../ui/index.js';
+import { DeleteAccount } from '../components/DeleteAccount.js';
 import { PageHead, useEmployer } from './EmployerApp.js';
 import { countryName, CYCLE_KEY, weekdayNames } from './CreateWorkplace.js';
 
@@ -322,6 +323,7 @@ export const WorkplaceSettings: React.FC = () => {
             >
               {t('signOut')}
             </button>
+            <DeleteAccount small />
           </Card>
           <Card>
             <span className="t-label">{t('language')}</span>

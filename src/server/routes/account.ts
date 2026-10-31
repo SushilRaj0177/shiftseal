@@ -98,6 +98,53 @@ accountRouter.patch('/me', async (req, res, next) => {
   }
 });
 
+/**
+ * Deletes the signed-in person's account. Their profile (name, phone, email,
+ * birth date, student status) is erased and they leave every workplace. Sealed
+ * shift records stay with the employer under "Former member", because wage
+ * records must be kept by law and the hash chain cannot be edited. An owner
+ * whose workplace still has people in it cannot delete from the app: those
+ * people's records depend on the workplace, so it is closed with them by
+ * request instead (see /privacy.html).
+ */
+accountRouter.delete('/me', async (req, res, next) => {
+  try {
+    const repo = getRepo();
+    const uid = req.identity!.uid;
+    const user = await repo.getUser(uid);
+    if (user) {
+      for (const m of user.memberships) {
+        if (m.role !== 'owner') continue;
+        const others = (await repo.listMembers(m.workplaceId)).filter(
+          (x) => x.uid !== uid && x.status === 'active'
+        );
+        if (others.length > 0) {
+          throw new AppError(
+            409,
+            'OWNER_HAS_PEOPLE',
+            'A workplace you own still has people in it, and their records depend on it. Request deletion from the privacy page and we will close the workplace with you.'
+          );
+        }
+      }
+      for (const m of user.memberships) {
+        const member = await repo.getMember(m.workplaceId, uid);
+        if (!member) continue;
+        const kept = { ...member, name: 'Former member', status: 'removed' as const };
+        delete kept.phone;
+        delete kept.device;
+        delete kept.pendingDevice;
+        delete kept.icMember;
+        delete kept.icPresiding;
+        await repo.saveMember(kept);
+      }
+      await repo.deleteUser(uid);
+    }
+    res.json({ deleted: true });
+  } catch (err) {
+    next(err);
+  }
+});
+
 /** Settings must fit the country: its pay cycles, its regions, a real time zone. */
 export function checkCountrySettings(body: {
   country?: CountryId;

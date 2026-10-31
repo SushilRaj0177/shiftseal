@@ -125,7 +125,7 @@ The app in `android/` wraps the website and adds a mock-location check, Play Int
 cd android && ./gradlew assembleDebug   # app/build/outputs/apk/debug/app-debug.apk
 ```
 
-It opens the deployed site (`-PshiftsealUrl=https://...` for another). `android/app/debug.keystore` is the standard public Android debug key (password `android`), kept so debug builds have a stable fingerprint; release keys are never in the repository.
+It opens the deployed site (`-PshiftsealUrl=https://...` for another). Publishing on Google Play, step by step: [`docs/PLAY_STORE.md`](docs/PLAY_STORE.md). `android/app/debug.keystore` is the standard public Android debug key (password `android`), kept so debug builds have a stable fingerprint; release keys are never in the repository.
 
 ## Project structure
 
@@ -139,6 +139,8 @@ tests/         client, server and shared tests (Vitest)
 android/       Android app (Java, WebView shell)
 docs/          architecture decisions and screenshots
 ```
+
+**Privacy:** [`privacy.html`](public/privacy.html) (served at `/privacy.html`). Anyone can delete their account in Settings.
 
 **Validation and errors:** every API request body is checked against a zod schema (`src/shared/apiSchemas.ts`) and rejected with a clear message when invalid. Errors come back in one shape (`{ error, message }`) without stack traces or secrets. The app shows them in place and keeps check-ins in an offline queue until they reach the server.
 

@@ -183,6 +183,12 @@ export const zh: WorkerDict = {
   phoneApproved: '已批准用于打卡',
   phonePending: '等待主管批准',
   signOut: '退出登录',
+  deleteAccount: '删除我的账户',
+  deleteAccountBody:
+    '您的姓名、电话号码和个人资料将被清除，并退出所有工作场所。已封存的班次记录将以“前成员”的名义保留在雇主处，因为法律要求保存工资记录。',
+  deleteAccountConfirm: '永久删除我的账户',
+  accountDeleted: '您的账户已删除。',
+  privacyPolicy: '隐私政策',
   workplace: '工作场所',
   flag_OUTSIDE_SITE: '你的手机不在现场范围内。',
   flag_LOW_ACCURACY: '位置精度不够,无法确认你在现场。',

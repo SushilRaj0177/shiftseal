@@ -194,6 +194,12 @@ export const pt: WorkerDict = {
   phoneApproved: 'Aprovado para bater ponto',
   phonePending: 'Aguardando aprovação do seu supervisor',
   signOut: 'Sair',
+  deleteAccount: 'Excluir minha conta',
+  deleteAccountBody:
+    'Seu nome, telefone e perfil são apagados, e você sai de todos os locais de trabalho. Os registros de turno já selados ficam com o empregador como "Ex-membro", porque a lei exige guardar os registros salariais.',
+  deleteAccountConfirm: 'Excluir minha conta para sempre',
+  accountDeleted: 'Sua conta foi excluída.',
+  privacyPolicy: 'Política de privacidade',
   workplace: 'Local de trabalho',
   flag_OUTSIDE_SITE: 'Seu celular estava fora do local.',
   flag_LOW_ACCURACY:

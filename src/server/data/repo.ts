@@ -39,6 +39,7 @@ export interface Identified {
 export interface Repo {
   getUser(uid: string): Promise<UserAccount | undefined>;
   saveUser(user: UserAccount): Promise<void>;
+  deleteUser(uid: string): Promise<void>;
 
   getWorkplace(id: string): Promise<WorkplaceRecord | undefined>;
   saveWorkplace(wp: WorkplaceRecord): Promise<void>;

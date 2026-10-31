@@ -195,6 +195,12 @@ export const de: WorkerDict = {
   phoneApproved: 'Für Stempelungen freigegeben',
   phonePending: 'Wartet auf Freigabe durch Ihre Vorgesetzten',
   signOut: 'Abmelden',
+  deleteAccount: 'Mein Konto löschen',
+  deleteAccountBody:
+    'Ihr Name, Ihre Telefonnummer und Ihr Profil werden gelöscht, und Sie verlassen alle Arbeitsplätze. Bereits versiegelte Schichtnachweise bleiben als „Ehemaliges Mitglied“ beim Arbeitgeber, weil Lohnunterlagen gesetzlich aufbewahrt werden müssen.',
+  deleteAccountConfirm: 'Konto endgültig löschen',
+  accountDeleted: 'Ihr Konto wurde gelöscht.',
+  privacyPolicy: 'Datenschutzerklärung',
   workplace: 'Arbeitsplatz',
   flag_OUTSIDE_SITE: 'Ihr Telefon war nicht vor Ort.',
   flag_LOW_ACCURACY: 'Ihr Standort war zu ungenau, um Ihre Anwesenheit zu bestätigen.',

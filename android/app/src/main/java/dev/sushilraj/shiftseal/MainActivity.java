@@ -1,10 +1,14 @@
 package dev.sushilraj.shiftseal;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.webkit.ValueCallback;
 import android.webkit.PermissionRequest;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
@@ -21,9 +25,14 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Shiftseal on Android: the web app in a WebView, plus a bridge for what a
@@ -35,15 +44,32 @@ public class MainActivity extends AppCompatActivity {
     private WebView web;
     private View offline;
     private Bridge bridge;
-    private PermissionRequest pendingCamera;
+    /** A page request for the camera or microphone, waiting on the system prompt. */
+    private PermissionRequest pendingMedia;
+    /** The page's file input, waiting for a photo. */
+    private ValueCallback<Uri[]> pendingFiles;
+    private Uri pendingPhoto;
 
-    private final ActivityResultLauncher<String> cameraPermission =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
-                if (pendingCamera == null) return;
-                if (granted) pendingCamera.grant(new String[] {PermissionRequest.RESOURCE_VIDEO_CAPTURE});
-                else pendingCamera.deny();
-                pendingCamera = null;
+    private final ActivityResultLauncher<String[]> mediaPermissions =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+                if (pendingMedia == null) return;
+                grantAllowed(pendingMedia);
+                pendingMedia = null;
             });
+
+    private final ActivityResultLauncher<String> photoCameraPermission =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
+                if (granted) launchCamera();
+                else deliverFiles(null);
+            });
+
+    private final ActivityResultLauncher<Uri> takePicture =
+            registerForActivityResult(new ActivityResultContracts.TakePicture(), saved ->
+                    deliverFiles(Boolean.TRUE.equals(saved) && pendingPhoto != null ? new Uri[] {pendingPhoto} : null));
+
+    private final ActivityResultLauncher<Intent> pickFile =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result ->
+                    deliverFiles(WebChromeClient.FileChooserParams.parseResult(result.getResultCode(), result.getData())));
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -89,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        clearOldPhotos();
         if (savedInstanceState != null) web.restoreState(savedInstanceState);
         else web.loadUrl(startUrl(getIntent()));
     }
@@ -169,27 +196,97 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private static String androidPermissionFor(String resource) {
+        if (PermissionRequest.RESOURCE_VIDEO_CAPTURE.equals(resource)) return Manifest.permission.CAMERA;
+        if (PermissionRequest.RESOURCE_AUDIO_CAPTURE.equals(resource)) return Manifest.permission.RECORD_AUDIO;
+        return null;
+    }
+
+    private boolean has(String permission) {
+        return ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    /** Grants the camera and microphone the person allowed; refuses anything else. */
+    private void grantAllowed(PermissionRequest request) {
+        List<String> ok = new ArrayList<>();
+        for (String r : request.getResources()) {
+            String p = androidPermissionFor(r);
+            if (p != null && has(p)) ok.add(r);
+        }
+        if (ok.isEmpty()) request.deny();
+        else request.grant(ok.toArray(new String[0]));
+    }
+
+    /** Takes a full-size photo into the app's cache, shared with the camera app through a FileProvider. */
+    private void launchCamera() {
+        try {
+            File dir = new File(getCacheDir(), "photos");
+            if (!dir.isDirectory() && !dir.mkdirs()) throw new IllegalStateException("no photo dir");
+            File file = File.createTempFile("hazard-", ".jpg", dir);
+            pendingPhoto = FileProvider.getUriForFile(this, getPackageName() + ".files", file);
+            takePicture.launch(pendingPhoto);
+        } catch (Exception e) {
+            deliverFiles(null);
+        }
+    }
+
+    private void deliverFiles(Uri[] uris) {
+        if (pendingFiles != null) pendingFiles.onReceiveValue(uris);
+        pendingFiles = null;
+        pendingPhoto = null;
+    }
+
+    /** Photos are read by the page straight away; nothing needs to stay in the cache. */
+    private void clearOldPhotos() {
+        File[] old = new File(getCacheDir(), "photos").listFiles();
+        if (old == null) return;
+        for (File f : old) {
+            //noinspection ResultOfMethodCallIgnored
+            f.delete();
+        }
+    }
+
     private class Chrome extends WebChromeClient {
-        /** The page's QR scanner asks for the camera; the OS asks the person once. */
+        /**
+         * The page asks for the camera (gate QR scanner) or the microphone (hold to talk).
+         * Only Shiftseal's own pages may ask; the OS asks the person once.
+         */
         @Override
         public void onPermissionRequest(PermissionRequest request) {
             if (!isOwnOrigin(request.getOrigin())) {
                 request.deny();
                 return;
             }
+            List<String> needed = new ArrayList<>();
             for (String r : request.getResources()) {
-                if (PermissionRequest.RESOURCE_VIDEO_CAPTURE.equals(r)) {
-                    if (ContextCompat.checkSelfPermission(MainActivity.this, android.Manifest.permission.CAMERA)
-                            == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                        request.grant(new String[] {r});
-                    } else {
-                        pendingCamera = request;
-                        cameraPermission.launch(android.Manifest.permission.CAMERA);
-                    }
-                    return;
+                String p = androidPermissionFor(r);
+                if (p != null && !has(p)) needed.add(p);
+            }
+            if (needed.isEmpty()) {
+                grantAllowed(request);
+                return;
+            }
+            if (pendingMedia != null) pendingMedia.deny();
+            pendingMedia = request;
+            mediaPermissions.launch(needed.toArray(new String[0]));
+        }
+
+        /** "Take a photo" on a hazard report opens the camera; other file inputs open the picker. */
+        @Override
+        public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback, FileChooserParams params) {
+            if (pendingFiles != null) pendingFiles.onReceiveValue(null);
+            pendingFiles = callback;
+            if (params.isCaptureEnabled()) {
+                if (has(Manifest.permission.CAMERA)) launchCamera();
+                else photoCameraPermission.launch(Manifest.permission.CAMERA);
+            } else {
+                try {
+                    pickFile.launch(params.createIntent());
+                } catch (ActivityNotFoundException e) {
+                    deliverFiles(null);
                 }
             }
-            request.deny();
+            return true;
         }
     }
 }

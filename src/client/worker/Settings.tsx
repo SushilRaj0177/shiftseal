@@ -5,6 +5,7 @@ import type { Language } from '../../shared/types.js';
 import { api, errorMessage } from '../lib/api.js';
 import { useLang } from '../i18n/LangProvider.js';
 import { useAuth } from '../auth/AuthProvider.js';
+import { DeleteAccount } from '../components/DeleteAccount.js';
 import { AppBar, Card, Field, Kv, LanguagePicker, Notice, Sheet } from '../ui/index.js';
 import { Icon } from '../components/Icon.js';
 import { LANGUAGES } from '../../shared/languages.js';
@@ -78,6 +79,7 @@ export const Settings: React.FC = () => {
         >
           {t('signOut')}
         </button>
+        <DeleteAccount />
       </div>
     </main>
   );

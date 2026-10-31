@@ -38,6 +38,8 @@ interface AuthContextValue {
   signInWithGoogle(): Promise<void>;
   devSignIn(uid: string, phone?: string): void;
   signOut(): Promise<void>;
+  /** Erases the account on the server and in Firebase, then signs out. */
+  deleteAccount(): Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -157,6 +159,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   }, []);
 
+  const deleteAccount = useCallback(async () => {
+    await api('/me', { method: 'DELETE' });
+    const auth = authRef.current;
+    if (auth?.currentUser) {
+      const fa = await import('@firebase/auth');
+      // Firebase may ask for a recent sign-in first; the Shiftseal account is
+      // already gone by then, so signing out is enough.
+      await fa.deleteUser(auth.currentUser).catch(() => undefined);
+    }
+    await signOut();
+  }, [signOut]);
+
   const value = useMemo(
     () => ({
       ready,
@@ -168,8 +182,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       signInWithGoogle,
       devSignIn,
       signOut,
+      deleteAccount,
     }),
-    [ready, config, user, configError, sendCode, confirmCode, signInWithGoogle, devSignIn, signOut]
+    [
+      ready,
+      config,
+      user,
+      configError,
+      sendCode,
+      confirmCode,
+      signInWithGoogle,
+      devSignIn,
+      signOut,
+      deleteAccount,
+    ]
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

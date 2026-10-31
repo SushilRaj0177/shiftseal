@@ -194,6 +194,12 @@ export const es: WorkerDict = {
   phoneApproved: 'Aprobado para fichar',
   phonePending: 'Esperando la aprobación de tu supervisor',
   signOut: 'Cerrar sesión',
+  deleteAccount: 'Eliminar mi cuenta',
+  deleteAccountBody:
+    'Se borran tu nombre, tu teléfono y tu perfil, y sales de todos los lugares de trabajo. Los registros de turnos ya sellados se quedan con el empleador como "Antiguo miembro", porque la ley obliga a conservar los registros salariales.',
+  deleteAccountConfirm: 'Eliminar mi cuenta para siempre',
+  accountDeleted: 'Tu cuenta se ha eliminado.',
+  privacyPolicy: 'Política de privacidad',
   workplace: 'Lugar de trabajo',
   flag_OUTSIDE_SITE: 'Tu teléfono estaba fuera del sitio.',
   flag_LOW_ACCURACY:
