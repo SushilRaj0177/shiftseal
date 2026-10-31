@@ -10,7 +10,7 @@ import { localeOf } from '../../shared/languages.js';
 import { queuedCount } from '../lib/queue.js';
 import { useLang } from '../i18n/LangProvider.js';
 import { Icon } from '../components/Icon.js';
-import { Card, Notice, Pill, SectionHead, Skeleton, Tile } from '../ui/index.js';
+import { Card, Empty, Notice, Pill, SectionHead, Skeleton, Tile } from '../ui/index.js';
 import { DayBars, Grain, Ring } from '../ui/visuals.js';
 import { TabBar, useWorker } from './WorkerApp.js';
 import type { LimitReading } from '../../shared/rules/limits.js';
@@ -79,7 +79,7 @@ export const Home: React.FC = () => {
           </span>
           <div className="grow stack-sm" style={{ gap: 0 }}>
             <span className="t-caption muted">{greeting}</span>
-            <span className="t-greeting">{firstName(me.name, lang)}</span>
+            <h1 className="t-greeting">{firstName(me.name, lang)}</h1>
           </div>
           <Link
             to={`${base}/notifications`}
@@ -263,8 +263,8 @@ export const Home: React.FC = () => {
 
         <SectionHead title={t('shiftReceipts')} />
         {overview && overview.shifts.length === 0 && (
-          <Card tone="subtle">
-            <p className="muted">{t('noShifts')}</p>
+          <Card>
+            <Empty icon="lock">{t('noShifts')}</Empty>
           </Card>
         )}
         {overview && overview.shifts.length > 0 && (

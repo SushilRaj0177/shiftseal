@@ -1,3 +1,4 @@
+import { toast } from '../ui/toast.js';
 import React, { useState } from 'react';
 import type { LeaveRequest, LeaveType } from '../../shared/model.js';
 import { api, errorMessage } from '../lib/api.js';
@@ -6,7 +7,7 @@ import { useApi } from '../lib/useApi.js';
 import type { LeaveResponse } from '../lib/types.js';
 import { useLang } from '../i18n/LangProvider.js';
 import type { StringKey } from '../i18n/strings.js';
-import { Card, Field, Notice, Pill, Sheet, Skeleton, type Tone } from '../ui/index.js';
+import { Card, Empty, Field, Notice, Pill, Sheet, Skeleton, type Tone } from '../ui/index.js';
 import { TabBar, useWorker } from './WorkerApp.js';
 import { Ring } from '../ui/visuals.js';
 
@@ -64,7 +65,7 @@ export const Leave: React.FC = () => {
       });
       setOpen(false);
       setReason('');
-      setMsg({ kind: 'info', text: t('requestSent') });
+      toast(t('requestSent'));
       await Promise.all([data.reload(), reloadOverview()]);
     } catch (err) {
       setMsg({ kind: 'error', text: errorMessage(err) });
@@ -142,8 +143,8 @@ export const Leave: React.FC = () => {
 
         <h2 className="t-headline">{t('myRequests')}</h2>
         {data.data && data.data.requests.length === 0 && (
-          <Card tone="subtle">
-            <p className="muted">{t('noRequests')}</p>
+          <Card>
+            <Empty icon="clock">{t('noRequests')}</Empty>
           </Card>
         )}
         {data.data && data.data.requests.length > 0 && (

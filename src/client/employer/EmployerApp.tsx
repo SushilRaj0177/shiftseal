@@ -62,6 +62,10 @@ export default function EmployerApp() {
   }, [country, setWorkplaceCountry]);
 
   useEffect(() => rememberWorkplace(wp), [wp]);
+  const wpName = base.data?.workplace.name;
+  useEffect(() => {
+    if (wpName) document.title = `${wpName} · Shiftseal`;
+  }, [wpName]);
 
   if (base.error && !base.data)
     return (

@@ -1,3 +1,4 @@
+import { toast } from '../ui/toast.js';
 import React, { useState } from 'react';
 import type { LeaveRequest } from '../../shared/model.js';
 import { api, errorMessage } from '../lib/api.js';
@@ -38,10 +39,8 @@ export const Leave: React.FC = () => {
       const res = await api<{ flags?: { code: string }[] }>(`/workplaces/${wp}/leave/${path}`, {
         body,
       });
-      setMsg({
-        kind: res.flags?.length ? 'error' : 'info',
-        text: res.flags?.length ? `${ok} ${t('eFlaggedForOwner')}` : ok,
-      });
+      if (res.flags?.length) setMsg({ kind: 'error', text: `${ok} ${t('eFlaggedForOwner')}` });
+      else toast(ok);
       setSelected(null);
       setReason('');
       await Promise.all([data.reload(), reloadDash()]);

@@ -1,14 +1,15 @@
+import { toast } from '../ui/toast.js';
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { HazardReport, OvertimeClaim } from '../../shared/types.js';
 import type { FlagRecord } from '../../shared/model.js';
 import { api, errorMessage } from '../lib/api.js';
 import { compressPhoto } from '../lib/photo.js';
-import { dayLabel, timeAgo } from '../lib/format.js';
+import { dayLabel, initials, timeAgo } from '../lib/format.js';
 import { baseOf, localeOf } from '../../shared/languages.js';
 import { useLang } from '../i18n/LangProvider.js';
 import type { StringKey } from '../i18n/strings.js';
-import { AuthImage, Card, Empty, Field, Notice, Pill, Sheet, Skeleton } from '../ui/index.js';
+import { AuthImage, Card, Empty, Field, Notice, Pill, Sheet, Skeleton, Tile } from '../ui/index.js';
 import { flagTitle, flagTone, SEV_KEY } from './Overview.js';
 
 const HAZARD_STATUS: Record<string, StringKey> = {
@@ -49,7 +50,8 @@ export const Review: React.FC = () => {
     setBusy(true);
     try {
       await fn();
-      setMsg({ kind: 'info', text: ok });
+      setMsg(null);
+      toast(ok);
       setClaim(null);
       setHazard(null);
       setFlag(null);
@@ -101,6 +103,9 @@ export const Review: React.FC = () => {
               onClick={() => setClaim(c)}
               disabled={c.resolutionStatus !== 'pending'}
             >
+              <span className="avatar sm" aria-hidden="true">
+                {initials(c.workerName)}
+              </span>
               <span className="grow stack-sm" style={{ gap: 0 }}>
                 <span className="t-strong">
                   {c.kind === 'edit_disagree'
@@ -142,6 +147,18 @@ export const Review: React.FC = () => {
           {dash.hazards.length === 0 && <Empty icon="alert">{t('eNoHazards')}</Empty>}
           {dash.hazards.map((h) => (
             <button key={h.id} type="button" className="list-row" onClick={() => setHazard(h)}>
+              <Tile
+                icon="alert"
+                tone={
+                  h.status === 'resolved'
+                    ? 'good'
+                    : h.finalSeverity === 'low'
+                      ? 'neutral'
+                      : h.finalSeverity === 'medium'
+                        ? 'warn'
+                        : 'danger'
+                }
+              />
               <span className="grow stack-sm" style={{ gap: 0 }}>
                 <span className="t-strong">
                   {h.zoneName} · {tx(`hz_${h.hazardType}`) || h.hazardType}
@@ -183,6 +200,12 @@ export const Review: React.FC = () => {
                 onClick={() => setFlag(f)}
                 disabled={f.status !== 'open'}
               >
+                <Tile
+                  icon="flag"
+                  tone={
+                    f.status !== 'open' ? 'neutral' : f.severity === 'serious' ? 'danger' : 'warn'
+                  }
+                />
                 <span className="grow stack-sm" style={{ gap: 0 }}>
                   <span className="t-strong">
                     {flagTitle(f.code, tx)} ·{' '}

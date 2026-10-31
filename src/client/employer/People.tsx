@@ -4,6 +4,7 @@ import { useLang } from '../i18n/LangProvider.js';
 import type { StringKey } from '../i18n/strings.js';
 import { Card, Empty, Pill, Skeleton, type Tone } from '../ui/index.js';
 import { useEmployer } from './EmployerApp.js';
+import { initials } from '../lib/format.js';
 
 const STATUS: Record<string, [Tone | undefined, StringKey]> = {
   on_site: ['good', 'eOnSiteShort'],
@@ -47,22 +48,27 @@ export const People: React.FC = () => {
                   <td>
                     <Link
                       to={p.uid}
-                      className="stack-sm"
+                      className="person-cell"
                       style={{ textDecoration: 'none', color: 'inherit' }}
                     >
-                      <span className="row-flex" style={{ gap: 6, flexWrap: 'wrap' }}>
-                        <span className="t-strong">{p.name}</span>
-                        {p.student && (
-                          <Pill tone="neutral">
-                            {t(p.student === 'international' ? 'eBadgeVisa' : 'eBadgeStudent')}
-                          </Pill>
-                        )}
-                        {p.minor && <Pill tone="warn">{t('eBadgeMinor')}</Pill>}
+                      <span className={`avatar sm status-${p.status}`} aria-hidden="true">
+                        {initials(p.name)}
                       </span>
-                      <span className="t-caption muted">
-                        {p.title}
-                        {p.role === 'supervisor' ? ` · ${t('eSupervisor')}` : ''}
-                        {p.icMember ? ` · ${t('handlerMember')}` : ''}
+                      <span className="stack-sm">
+                        <span className="row-flex" style={{ gap: 6, flexWrap: 'wrap' }}>
+                          <span className="t-strong">{p.name}</span>
+                          {p.student && (
+                            <Pill tone="neutral">
+                              {t(p.student === 'international' ? 'eBadgeVisa' : 'eBadgeStudent')}
+                            </Pill>
+                          )}
+                          {p.minor && <Pill tone="warn">{t('eBadgeMinor')}</Pill>}
+                        </span>
+                        <span className="t-caption muted">
+                          {p.title}
+                          {p.role === 'supervisor' ? ` · ${t('eSupervisor')}` : ''}
+                          {p.icMember ? ` · ${t('handlerMember')}` : ''}
+                        </span>
                       </span>
                     </Link>
                   </td>

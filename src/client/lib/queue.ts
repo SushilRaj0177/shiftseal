@@ -1,4 +1,4 @@
-import { api, ApiError } from './api.js';
+import { api, ApiError, errorMessage } from './api.js';
 
 /**
  * Checks made without a signal wait here, already signed, and are sent in
@@ -40,11 +40,22 @@ export function queuedCount(workplaceId: string): number {
 
 let flushing = false;
 
-/** Sends queued checks in order. Stops at the first network failure; drops ones the server refuses. */
-export async function flush(): Promise<number> {
-  if (flushing) return 0;
+/** A queued check the server refused, with its reason, for the worker to see. */
+export interface Refused {
+  queuedAt: string;
+  message: string;
+}
+
+/**
+ * Sends queued checks in order. Keeps them when the phone is offline, the
+ * server is down or busy (5xx, 429); only a definite refusal (4xx) removes
+ * one, and that refusal is reported back so it is never lost silently.
+ */
+export async function flush(): Promise<{ sent: number; refused: Refused[] }> {
+  if (flushing) return { sent: 0, refused: [] };
   flushing = true;
   let sent = 0;
+  const refused: Refused[] = [];
   try {
     for (;;) {
       const [next, ...rest] = read();
@@ -53,12 +64,17 @@ export async function flush(): Promise<number> {
         await api(`/workplaces/${next.workplaceId}/checks`, { body: next.body });
         sent += 1;
       } catch (err) {
-        if (err instanceof ApiError && err.status === 0) break; // still offline
+        const status = err instanceof ApiError ? err.status : 0;
+        if (status === 0 || status === 429 || status >= 500) break; // try again later
+        // Already recorded earlier (a retry after a lost answer): nothing was lost.
+        if (!(err instanceof ApiError && err.code === 'REPLAYED')) {
+          refused.push({ queuedAt: next.queuedAt, message: errorMessage(err) });
+        }
       }
       write(rest);
     }
   } finally {
     flushing = false;
   }
-  return sent;
+  return { sent, refused };
 }

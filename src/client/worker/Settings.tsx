@@ -1,10 +1,13 @@
+import { toast } from '../ui/toast.js';
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { Language } from '../../shared/types.js';
 import { api, errorMessage } from '../lib/api.js';
 import { useLang } from '../i18n/LangProvider.js';
 import { useAuth } from '../auth/AuthProvider.js';
-import { AppBar, Card, Field, Kv, LanguagePicker, Notice } from '../ui/index.js';
+import { AppBar, Card, Field, Kv, LanguagePicker, Notice, Sheet } from '../ui/index.js';
+import { Icon } from '../components/Icon.js';
+import { LANGUAGES } from '../../shared/languages.js';
 import { useWorker } from './WorkerApp.js';
 
 export const Settings: React.FC = () => {
@@ -12,6 +15,8 @@ export const Settings: React.FC = () => {
   const { user, signOut } = useAuth();
   const { wp, me, deviceStatus } = useWorker();
   const navigate = useNavigate();
+  const [picking, setPicking] = useState(false);
+  const current = LANGUAGES.find((l) => l.code === lang) ?? LANGUAGES[0];
 
   const choose = (l: Language) => {
     setLang(l);
@@ -22,8 +27,27 @@ export const Settings: React.FC = () => {
     <main className="screen">
       <AppBar back={`/w/${wp.id}`} title={t('settings')} />
       <div className="screen-body">
-        <span className="t-label">{t('language')}</span>
-        <LanguagePicker value={lang} onChange={choose} label={t('language')} />
+        <button type="button" className="setting-row" onClick={() => setPicking(true)}>
+          <span className="stack-sm">
+            <span className="t-label">{t('language')}</span>
+            <span className="t-strong" lang={current.code}>
+              {current.native} <span className="muted">· {current.region}</span>
+            </span>
+          </span>
+          <Icon name="chev" size={18} />
+        </button>
+        {picking && (
+          <Sheet title={t('language')} onClose={() => setPicking(false)}>
+            <LanguagePicker
+              value={lang}
+              onChange={(l) => {
+                choose(l);
+                setPicking(false);
+              }}
+              label={t('language')}
+            />
+          </Sheet>
+        )}
         <Card>
           <Kv k={t('workplace')} v={wp.name} />
           <Kv k={t('yourName')} v={me.name} />
@@ -88,6 +112,7 @@ const StudentCard: React.FC = () => {
       });
       await reload();
       setStatus('saved');
+      toast(t('studentSaved'));
     } catch (err) {
       setError(errorMessage(err));
       setStatus('error');

@@ -1,3 +1,4 @@
+import { toast } from '../ui/toast.js';
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import type { CheckEvidence } from '../../shared/model.js';
@@ -80,7 +81,7 @@ export const PersonRecord: React.FC = () => {
     setMsg(null);
     try {
       await fn();
-      setMsg({ kind: 'info', text: ok });
+      toast(ok);
       await Promise.all([rec.reload(), reloadDash()]);
     } catch (err) {
       setMsg({ kind: 'error', text: errorMessage(err) });

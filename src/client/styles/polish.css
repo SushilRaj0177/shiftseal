@@ -1,0 +1,235 @@
+/* ---------- polish: forms, feedback, touch ---------- */
+
+/* Fields: a soft halo on focus, quiet placeholders, comfortable text. */
+.input,
+.select,
+.textarea {
+  font-size: 16px;
+  transition:
+    border-color 140ms var(--ease),
+    box-shadow 140ms var(--ease),
+    background 140ms var(--ease);
+}
+.input:hover,
+.select:hover,
+.textarea:hover {
+  border-color: color-mix(in srgb, var(--line-strong), var(--ink-3) 35%);
+}
+.input:focus,
+.select:focus,
+.textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.textarea {
+  line-height: 1.5;
+}
+::placeholder {
+  color: var(--ink-3);
+  opacity: 0.8;
+}
+.input:disabled,
+.select:disabled,
+.textarea:disabled {
+  background: var(--subtle);
+  color: var(--ink-3);
+}
+input[type='range'] {
+  width: 100%;
+  height: 44px;
+  accent-color: var(--accent);
+}
+input[type='checkbox'] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent);
+}
+label:has(> input[type='checkbox']) {
+  min-height: 44px;
+  align-items: center;
+}
+
+/* Buttons: pressed feels pressed; disabled looks intentionally resting, not broken. */
+.btn {
+  -webkit-user-select: none;
+  user-select: none;
+}
+.btn:active:not(:disabled),
+.choice:active,
+.scan-cta:active,
+.list-row:active {
+  transform: scale(0.985);
+}
+.btn:disabled {
+  opacity: 1;
+  cursor: not-allowed;
+  box-shadow: none;
+  background: var(--subtle);
+  color: var(--ink-3);
+  border-color: transparent;
+}
+.btn-paper:disabled,
+.btn-on-dark:disabled {
+  opacity: 0.5;
+}
+
+/* Thumb-sized targets everywhere on phones. */
+.segmented button {
+  min-height: 44px;
+}
+.link-btn {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.card a:not(.btn):not(.list-row):not(.nav-item),
+.notice a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.tabbar a {
+  color: var(--ink-2);
+}
+
+/* ---------- toasts ---------- */
+.toaster {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--tabbar-h) + 18px + env(safe-area-inset-bottom));
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: min(440px, calc(100vw - 32px));
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 100%;
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: #15161b;
+  color: #fff;
+  font-weight: 600;
+  font-size: 15px;
+  box-shadow: 0 14px 34px -12px rgba(0, 0, 0, 0.55);
+  animation: toast-in 260ms var(--ease) both;
+}
+.toast.good svg {
+  color: #6bcb95;
+}
+.toast.error svg {
+  color: #ff8a73;
+}
+@media (prefers-color-scheme: dark) {
+  .toast {
+    background: #f1efe9;
+    color: #15161b;
+  }
+  .toast.good svg {
+    color: #1f6b43;
+  }
+  .toast.error svg {
+    color: #a3241b;
+  }
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+}
+@media (min-width: 900px) {
+  .toaster {
+    bottom: 28px;
+  }
+}
+
+/* Visually hidden, still read aloud. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- people ---------- */
+.person-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+}
+.avatar.sm {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  font-size: 14px;
+  background: linear-gradient(180deg, #23365f, #13213f);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+/* A dot on the avatar says where they are right now. */
+.avatar.sm::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  background: var(--ink-3);
+}
+.avatar.status-on_site::after {
+  background: #2fa866;
+}
+.avatar.status-on_leave::after,
+.avatar.status-wfh::after {
+  background: var(--accent);
+}
+.avatar.status-checked_out::after {
+  background: var(--line-strong);
+}
+.table tbody tr {
+  transition: background 120ms var(--ease);
+}
+.table tbody tr:hover {
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
+}
+
+/* A settings row that opens a picker. */
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 64px;
+  padding: 12px 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: linear-gradient(180deg, var(--card-top), var(--card-bottom));
+  color: var(--ink);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 var(--card-edge);
+}
+.setting-row svg {
+  color: var(--ink-3);
+}
+
+/* Labels on tinted cards need the darker grey to stay readable. */
+.tone-subtle .t-label,
+.tone-warn .t-label,
+.tone-good .t-label,
+.notice .t-label {
+  color: var(--ink-2);
+}

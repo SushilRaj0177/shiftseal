@@ -1,3 +1,4 @@
+import { isAndroidApp } from '../lib/native.js';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, errorMessage } from '../lib/api.js';
@@ -46,9 +47,12 @@ export const Invite: React.FC = () => {
     <>
       <header className="between no-print">
         <h1 className="t-title">{t('eNavInvite')}</h1>
-        <button type="button" className="btn btn-secondary btn-sm" onClick={() => window.print()}>
-          {t('ePrintPoster')}
-        </button>
+        {/* The Android app's web view cannot print; the poster prints from the website. */}
+        {!isAndroidApp() && (
+          <button type="button" className="btn btn-secondary btn-sm" onClick={() => window.print()}>
+            {t('ePrintPoster')}
+          </button>
+        )}
       </header>
 
       <div className="cols">

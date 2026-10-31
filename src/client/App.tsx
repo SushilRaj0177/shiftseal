@@ -1,3 +1,4 @@
+import { Toaster } from './ui/toast.js';
 import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth/AuthProvider.js';
@@ -148,6 +149,7 @@ export default function App() {
               />
             </Routes>
           </Suspense>
+          <Toaster />
         </BrowserRouter>
       </AuthProvider>
     </LangProvider>

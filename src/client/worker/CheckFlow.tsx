@@ -1,3 +1,4 @@
+import { buzz } from '../ui/toast.js';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { LocationFix } from '../../shared/model.js';
@@ -66,11 +67,14 @@ export const CheckFlow: React.FC = () => {
       const res = await api<CheckResponse>(`/workplaces/${wp.id}/checks`, { body });
       setResult(res);
       setPhase('done');
+      // The seal lands: a short double tap on phones that can vibrate.
+      buzz([22, 60, 34]);
       void reload();
     } catch (err) {
       if (err instanceof ApiError && err.status === 0) {
         enqueue(wp.id, body);
         setPhase('queued');
+        buzz(18);
       } else {
         setError(errorMessage(err));
         setPhase('error');

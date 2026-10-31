@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { toast } from '../ui/toast.js';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { NavLink, Route, Routes, useParams } from 'react-router-dom';
 import type { WorkplaceRecord } from '../../shared/model.js';
 import { useApi } from '../lib/useApi.js';
@@ -84,6 +85,10 @@ export default function WorkerApp() {
     setWorkplaceCountry(country);
     return () => setWorkplaceCountry(null);
   }, [country, setWorkplaceCountry]);
+  const wpName = base.data?.workplace.name;
+  useEffect(() => {
+    if (wpName) document.title = `${wpName} · Shiftseal`;
+  }, [wpName]);
   const [deviceStatus, setDeviceStatus] = useState<'bound' | 'pending' | 'unknown'>('unknown');
   const [online, setOnline] = useState(navigator.onLine);
 
@@ -94,24 +99,29 @@ export default function WorkerApp() {
       .catch(() => setDeviceStatus('unknown'));
   }, [wp]);
 
+  // Offline checks that went through refresh the screen; ones the server refused are said out loud.
+  const afterFlush = useCallback(
+    ({ sent, refused }: { sent: number; refused: { message: string }[] }) => {
+      if (sent > 0 || refused.length > 0) void live.reload();
+      for (const r of refused) toast(r.message, 'error');
+    },
+    [live.reload]
+  );
+
   useEffect(() => {
     const up = () => {
       setOnline(true);
-      void flush().then((n) => {
-        if (n > 0) void live.reload();
-      });
+      void flush().then(afterFlush);
     };
     const down = () => setOnline(false);
     window.addEventListener('online', up);
     window.addEventListener('offline', down);
-    void flush().then((n) => {
-      if (n > 0) void live.reload();
-    });
+    void flush().then(afterFlush);
     return () => {
       window.removeEventListener('online', up);
       window.removeEventListener('offline', down);
     };
-  }, [live.reload]);
+  }, [afterFlush]);
 
   useEffect(() => {
     if (!live.data) return;

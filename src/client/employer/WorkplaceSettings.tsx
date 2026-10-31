@@ -1,3 +1,4 @@
+import { toast } from '../ui/toast.js';
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { countryPack } from '../../shared/countries/index.js';
@@ -61,7 +62,8 @@ export const WorkplaceSettings: React.FC = () => {
           leavePolicy: policy,
         },
       });
-      setMsg({ kind: 'info', text: t('eSaved') });
+      setMsg(null);
+      toast(t('eSaved'));
     } catch (err) {
       setMsg({ kind: 'error', text: errorMessage(err) });
     }
