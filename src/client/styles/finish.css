@@ -34,55 +34,8 @@ html[lang='ko'] {
   --head: 'Archivo', 'Noto Sans KR', sans-serif;
 }
 
-/* ---------- ink and paper: one accent, the seal ---------- */
-:root {
-  --bg: #f2f0eb;
-  --surface: #fbfaf7;
-  --surface-2: #f7f5f0;
-  --subtle: #e7e4dc;
-  --ink: #111214;
-  --ink-2: #4f4e55;
-  --ink-3: #6a6870;
-  --line: #dedad0;
-  --line-strong: #c6c1b4;
-  --accent: #111214;
-  --accent-pressed: #2a2b2f;
-  --accent-soft: #e7e4dc;
-  --accent-ink: #111214;
-  --on-accent: #ffffff;
-  --navy: #141518;
-  --navy-2: #26272c;
-  --on-navy: #f4f2ec;
-  --on-navy-2: #a3a19a;
-  --ring-track: rgba(255, 255, 255, 0.14);
-  --seal: #e2401b;
-  --seal-soft: #fbe3da;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0e0e10;
-    --surface: #161619;
-    --surface-2: #1b1b1f;
-    --subtle: #24242a;
-    --ink: #f2f0ea;
-    --ink-2: #bdbab2;
-    --ink-3: #9c9991;
-    --line: #2a2a30;
-    --line-strong: #3d3d45;
-    --accent: #f2f0ea;
-    --accent-pressed: #ffffff;
-    --accent-soft: #2a2a30;
-    --accent-ink: #f2f0ea;
-    --on-accent: #111214;
-    --navy: #1b1b1f;
-    --navy-2: #2a2a30;
-    --on-navy: #f2f0ea;
-    --on-navy-2: #a3a19a;
-    --seal: #ff6a3d;
-    --seal-soft: #3a1a10;
-  }
-}
-/* Night surfaces (welcome, join, the gate poster): flat ink, no glow. */
+/* ---------- navy and paper: the original palette, flat ---------- */
+/* Night surfaces (welcome, join, the gate poster): flat navy, no glow. */
 .welcome,
 .join-stage,
 .gate {
@@ -104,7 +57,7 @@ body:has(.welcome) {
   text-decoration-thickness: 1px;
 }
 
-/* Tab bar: the current tab is ink with a rule above it, not a tinted lozenge. */
+/* Tab bar: the current tab is navy with a rule above it, not a tinted lozenge. */
 .tabbar {
   box-shadow: none;
   background: var(--surface);
@@ -113,7 +66,7 @@ body:has(.welcome) {
   position: relative;
 }
 .tabbar a[aria-current='page'] {
-  color: var(--ink);
+  color: var(--accent-ink);
   font-weight: 600;
 }
 .tabbar a[aria-current='page'] svg {
@@ -126,7 +79,7 @@ body:has(.welcome) {
   left: 30%;
   right: 30%;
   height: 2px;
-  background: var(--ink);
+  background: var(--accent-ink);
 }
 
 /* Heroes: the number is the picture. */

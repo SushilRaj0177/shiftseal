@@ -41,7 +41,7 @@
 
   /*
    * Type voices. Headings, labels and numbers share one family (--head, set in
-   * finish.css, which also sets the final ink-and-paper palette); body text is
+   * finish.css); body text is
    * Figtree; clock times and codes use JetBrains Mono.
    */
   --font: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
