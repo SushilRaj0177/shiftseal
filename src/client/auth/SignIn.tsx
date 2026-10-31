@@ -187,6 +187,7 @@ export const SignIn: React.FC = () => {
                 autoComplete={i === 0 ? 'one-time-code' : 'off'}
                 maxLength={i === 0 ? 6 : 1}
                 value={d}
+                placeholder=" "
                 aria-label={`Digit ${i + 1}`}
                 onChange={(e) => setDigit(i, e.target.value)}
                 onKeyDown={(e) =>

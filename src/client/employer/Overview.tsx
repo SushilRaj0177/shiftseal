@@ -10,7 +10,7 @@ import { periodLabel } from '../lib/period.js';
 import { Icon, type IconName } from '../components/Icon.js';
 import { Card, Empty, Notice, Pill, SectionHead, Skeleton, Tile, type Tone } from '../ui/index.js';
 import { useEmployer } from './EmployerApp.js';
-import { Guilloche, Ring } from '../ui/visuals.js';
+import { Grain, Ring } from '../ui/visuals.js';
 
 /** A flag's title in the reader's language. The no-handler title names the country's own body. */
 export function flagTitle(code: string, tx: (k: string) => string): string {
@@ -188,7 +188,7 @@ export const Overview: React.FC = () => {
 
       <div className="kpis">
         <section className="hero" style={{ padding: 18 }}>
-          <Guilloche className="guilloche" />
+          <Grain />
           <div className="row-flex" style={{ gap: 16 }}>
             <Ring
               value={dash.kpis.workers ? dash.kpis.onSite / dash.kpis.workers : 0}

@@ -60,16 +60,18 @@ svg {
 
 /* ---------- type ---------- */
 .t-display {
-  font-size: 34px;
+  font-family: var(--display);
+  font-size: 36px;
   line-height: 40px;
-  font-weight: 650;
-  letter-spacing: -1px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 .t-title {
-  font-size: 24px;
-  line-height: 30px;
-  font-weight: 650;
-  letter-spacing: -0.5px;
+  font-family: var(--display);
+  font-size: 26px;
+  line-height: 31px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
 }
 .t-eyebrow {
   font-size: 12px;
@@ -981,16 +983,6 @@ button.list-row:hover {
   background: radial-gradient(120% 80% at 100% 0%, rgba(137, 168, 236, 0.18), transparent 60%);
   z-index: -1;
 }
-.hero .guilloche {
-  position: absolute;
-  width: 360px;
-  height: 360px;
-  right: -120px;
-  top: -130px;
-  color: var(--on-navy);
-  z-index: -1;
-  pointer-events: none;
-}
 .hero .muted,
 .hero .t-caption {
   color: var(--on-navy-2);
@@ -1165,15 +1157,6 @@ button.list-row:hover {
   padding: 20px 24px 36px;
   border-radius: 0 0 32px 32px;
   isolation: isolate;
-}
-.welcome-hero .guilloche {
-  position: absolute;
-  width: 520px;
-  height: 520px;
-  right: -200px;
-  top: -120px;
-  color: var(--brass);
-  z-index: -1;
 }
 .welcome-hero .brand {
   color: var(--on-navy);

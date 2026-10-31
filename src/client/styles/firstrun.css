@@ -1,0 +1,505 @@
+/* ---------- first run: welcome, sign-in, join ---------- */
+
+/* Fine paper grain over dark surfaces: depth without a pattern. */
+.grain {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.55;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* The night-shift surface: deep ink with a warm work-light from above. */
+.welcome,
+.join-stage {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  color: var(--on-navy);
+  background:
+    radial-gradient(75% 45% at 78% 20%, rgba(242, 68, 29, 0.14), transparent 65%),
+    radial-gradient(80% 50% at 12% 0%, rgba(211, 169, 93, 0.16), transparent 70%),
+    linear-gradient(180deg, #14223f 0%, #0b1428 100%);
+}
+html:has(.welcome),
+body:has(.welcome) {
+  background: #0b1428;
+}
+@media (max-height: 760px) {
+  .timecard-stack {
+    width: min(270px, 74vw);
+    margin-top: 22px;
+  }
+  .welcome-copy {
+    margin-top: 30px;
+  }
+  .welcome-copy .t-display {
+    font-size: 34px;
+  }
+  .welcome-actions {
+    padding-top: 22px;
+  }
+}
+
+/* ----- welcome ----- */
+.welcome {
+  min-height: 100dvh;
+  padding: calc(env(safe-area-inset-top) + 10px) 24px calc(env(safe-area-inset-bottom) + 20px);
+}
+.welcome-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.welcome .brand,
+.join-stage .brand {
+  color: var(--on-navy);
+}
+.lang-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--on-navy);
+  font: 500 14px var(--font);
+  cursor: pointer;
+}
+.lang-pill-region {
+  color: var(--on-navy-2);
+  font-size: 12px;
+}
+.welcome-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 44px;
+  animation: rise 500ms 250ms var(--ease) both;
+}
+.welcome-copy .t-display {
+  color: #fff;
+  font-size: clamp(36px, 10vw, 46px);
+  line-height: 1.04;
+}
+/* Japanese, Chinese and Korean: smaller, and break only between phrases. */
+html:is([lang='ja'], [lang='zh'], [lang='ko']) .welcome-copy .t-display {
+  font-size: clamp(28px, 8vw, 34px);
+  line-height: 1.3;
+  word-break: auto-phrase;
+}
+html[lang='ko'] .welcome-copy .t-display {
+  word-break: keep-all;
+}
+/* Sheets opened from the dark welcome screen keep their own light colours. */
+.welcome .sheet {
+  color: var(--ink);
+}
+.welcome-copy p {
+  color: var(--on-navy-2);
+  font-size: 16px;
+  line-height: 1.5;
+}
+.welcome-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 32px;
+  animation: rise 500ms 380ms var(--ease) both;
+}
+.btn-paper {
+  background: #fbf7ee;
+  color: #13213f;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    0 12px 28px -10px rgba(0, 0, 0, 0.7);
+}
+.btn-paper:active {
+  transform: translateY(1px);
+}
+.btn-on-dark {
+  background: transparent;
+  color: var(--on-navy);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* ----- the time card ----- */
+.timecard-stack {
+  position: relative;
+  width: min(300px, 80vw);
+  margin: 40px auto 0;
+  animation: card-in 800ms var(--ease) both;
+}
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(36px) rotate(-6deg);
+  }
+}
+.timecard {
+  --stamp-paper: #fbf7ee;
+  position: relative;
+  padding: 14px 16px 12px 30px;
+  border-radius: 6px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.6), transparent 30%), #f8f3e6;
+  color: #1c1d22;
+  transform: rotate(-3deg);
+  box-shadow:
+    inset 0 0 0 1px rgba(28, 29, 34, 0.06),
+    0 2px 3px rgba(0, 0, 0, 0.3),
+    0 28px 48px -14px rgba(0, 0, 0, 0.75);
+  animation: thump 240ms 1080ms ease-out both;
+}
+/* A ledger's red margin rule. */
+.timecard::before {
+  content: '';
+  position: absolute;
+  left: 18px;
+  top: 0;
+  bottom: 0;
+  width: 1.5px;
+  background: rgba(229, 64, 27, 0.45);
+}
+.timecard-back {
+  position: absolute;
+  inset: 0;
+  background: #ddd4bf;
+  transform: rotate(3.5deg) translate(8px, 10px);
+  box-shadow: 0 20px 40px -16px rgba(0, 0, 0, 0.7);
+  animation: none;
+}
+.timecard-back::before {
+  display: none;
+}
+@keyframes thump {
+  50% {
+    transform: rotate(-3deg) translateY(3px) scale(0.995);
+  }
+}
+.timecard-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #1c1d22;
+}
+.timecard-mark {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: #13213f;
+}
+.timecard-mark span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #f2441d;
+}
+.timecard-no {
+  font: 600 10.5px var(--mono);
+  letter-spacing: 0.14em;
+  color: #6b6a72;
+}
+.timecard-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 3.2em 1fr 1.35fr auto;
+  align-items: baseline;
+  gap: 6px;
+  padding: 7px 0;
+  border-bottom: 1px dashed rgba(28, 29, 34, 0.16);
+  font: 500 12.5px var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+.timecard-row .d {
+  font: 600 10.5px var(--font);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6b6a72;
+}
+.timecard-row .out s {
+  margin-right: 6px;
+  color: #c2361a;
+  text-decoration-thickness: 1.5px;
+}
+.timecard-row.edited::before {
+  content: '';
+  position: absolute;
+  left: -15px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  border-radius: 50%;
+  background: #f2441d;
+}
+.timecard-row .h,
+.timecard-foot .h {
+  text-align: right;
+  font-weight: 700;
+}
+.timecard-row.ot .h {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: #f6e3c0;
+  color: #7a4600;
+}
+.timecard-foot {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 8px;
+  font: 700 13px var(--mono);
+}
+.timecard-stamp {
+  position: absolute;
+  right: -22px;
+  bottom: -26px;
+  width: 112px;
+  height: 112px;
+  color: #e23d18;
+  mix-blend-mode: multiply;
+  opacity: 0.92;
+  transform: rotate(-14deg);
+  animation: stamp 620ms 640ms cubic-bezier(0.3, 0.9, 0.35, 1.15) both;
+}
+@keyframes stamp {
+  0% {
+    opacity: 0;
+    transform: rotate(-14deg) translateY(-36px) scale(1.8);
+  }
+  60% {
+    opacity: 0.95;
+    transform: rotate(-14deg) scale(0.94);
+  }
+  100% {
+    opacity: 0.92;
+    transform: rotate(-14deg) scale(1);
+  }
+}
+
+/* ----- join ----- */
+.join-stage {
+  padding: env(safe-area-inset-top) 20px 28px;
+  border-radius: 0 0 28px 28px;
+}
+.join-stage .appbar {
+  padding: 8px 0;
+}
+.join-stage .t-title {
+  margin-top: 22px;
+  color: #fff;
+  font-size: 30px;
+  line-height: 1.1;
+}
+.join-stage p {
+  margin-top: 8px;
+  color: var(--on-navy-2);
+  line-height: 1.5;
+}
+.link-btn.on-dark {
+  color: var(--on-navy-2);
+}
+.gate-scene {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 176px;
+  height: 176px;
+  margin: 0 auto;
+  animation: card-in 700ms var(--ease) both;
+}
+.gate-poster {
+  position: relative;
+  width: 124px;
+  height: 124px;
+  padding: 11px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #f8f3e6;
+  color: #13213f;
+  transform: rotate(-2deg);
+  box-shadow: 0 22px 40px -14px rgba(0, 0, 0, 0.8);
+}
+.gate-poster svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.gate-scanline {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 8%;
+  height: 2px;
+  border-radius: 2px;
+  background: #f2441d;
+  box-shadow: 0 0 14px 3px rgba(242, 68, 29, 0.55);
+  animation: scan 2.2s ease-in-out infinite alternate;
+}
+@keyframes scan {
+  to {
+    top: 90%;
+  }
+}
+.vf {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(255, 255, 255, 0.92);
+  animation: vf 2.2s ease-in-out infinite alternate;
+}
+.vf-tl {
+  top: 0;
+  left: 0;
+  border-right: 0;
+  border-bottom: 0;
+  border-top-left-radius: 12px;
+  --vx: 4px;
+  --vy: 4px;
+}
+.vf-tr {
+  top: 0;
+  right: 0;
+  border-left: 0;
+  border-bottom: 0;
+  border-top-right-radius: 12px;
+  --vx: -4px;
+  --vy: 4px;
+}
+.vf-bl {
+  bottom: 0;
+  left: 0;
+  border-right: 0;
+  border-top: 0;
+  border-bottom-left-radius: 12px;
+  --vx: 4px;
+  --vy: -4px;
+}
+.vf-br {
+  bottom: 0;
+  right: 0;
+  border-left: 0;
+  border-top: 0;
+  border-bottom-right-radius: 12px;
+  --vx: -4px;
+  --vy: -4px;
+}
+@keyframes vf {
+  to {
+    transform: translate(var(--vx), var(--vy));
+  }
+}
+.join .screen-body {
+  padding-top: 24px;
+}
+.scan-cta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 16px;
+  border: 0;
+  border-radius: 18px;
+  background: var(--navy);
+  color: var(--on-navy);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  box-shadow: var(--shadow-3);
+  transition: transform 120ms var(--ease);
+}
+.scan-cta:active {
+  transform: scale(0.99);
+}
+.scan-cta .t-caption {
+  color: var(--on-navy-2);
+}
+.scan-cta-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  background: var(--seal);
+  color: #fff;
+  box-shadow: 0 8px 18px -6px var(--seal-glow);
+}
+.ticket {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--line-strong);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow-2);
+  transition:
+    border-color 120ms,
+    box-shadow 120ms;
+}
+.ticket:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.ticket-field {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 12px 16px;
+}
+.ticket-field input {
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: 600 22px var(--mono);
+  letter-spacing: 0.12em;
+  outline: none;
+}
+.ticket-field input::placeholder {
+  color: var(--ink-3);
+  opacity: 0.45;
+}
+.ticket-go {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 64px;
+  border: 0;
+  border-left: 2px dashed var(--line-strong);
+  border-radius: 0 16px 16px 0;
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+}
+.ticket-go:disabled {
+  color: var(--ink-3);
+  cursor: default;
+}
+.ticket-go:not(:disabled):hover {
+  background: var(--accent-soft);
+}
+
+/* ----- sign-in code: each digit is stamped as it is entered ----- */
+.otp input:not(:placeholder-shown) {
+  border-color: var(--navy);
+  background: var(--navy);
+  color: #fff;
+  animation: digit-stamp 200ms var(--ease);
+}
+@keyframes digit-stamp {
+  from {
+    transform: scale(1.12);
+  }
+}

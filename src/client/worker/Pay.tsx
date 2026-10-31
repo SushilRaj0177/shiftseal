@@ -10,7 +10,7 @@ import { HoldToTalk } from '../components/HoldToTalk.js';
 import { ListenButton } from '../components/ListenButton.js';
 import { Icon } from '../components/Icon.js';
 import { Card, Field, Kv, Notice, Pill, Skeleton, Tile } from '../ui/index.js';
-import { Composition, Guilloche } from '../ui/visuals.js';
+import { Composition, Grain } from '../ui/visuals.js';
 import { TabBar, useWorker } from './WorkerApp.js';
 
 interface Explanation {
@@ -216,7 +216,7 @@ export const Pay: React.FC = () => {
         {slip && (
           <>
             <section className="hero stack">
-              <Guilloche className="guilloche" />
+              <Grain />
               <span className="t-label">{t('netPay')}</span>
               <span
                 className="t-number"

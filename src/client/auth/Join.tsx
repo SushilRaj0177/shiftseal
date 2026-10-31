@@ -5,6 +5,7 @@ import { api, errorMessage } from '../lib/api.js';
 import { QrScanner, inviteFromScan } from '../lib/QrScanner.js';
 import { AppBar, Card, Field, Notice, Sheet, Tile } from '../ui/index.js';
 import { Icon } from '../components/Icon.js';
+import { GateScene, Grain } from '../ui/visuals.js';
 import { useAuth } from './AuthProvider.js';
 import { rememberWorkplace } from '../App.js';
 
@@ -69,40 +70,32 @@ export const Join: React.FC = () => {
   }, []);
 
   return (
-    <main className="screen">
-      <AppBar
-        right={
-          <button type="button" className="link-btn" onClick={() => signOut()}>
-            {t('signOut')}
-          </button>
-        }
-      />
-      <div className="screen-body">
+    <main className="screen join">
+      <section className="join-stage">
+        <Grain />
+        <AppBar
+          right={
+            <button type="button" className="link-btn on-dark" onClick={() => signOut()}>
+              {t('signOut')}
+            </button>
+          }
+        />
+        <GateScene />
         <h1 className="t-title">{t('joinTitle')}</h1>
-        <p className="muted">{t('joinBody')}</p>
+        <p>{t('joinBody')}</p>
+      </section>
+      <div className="screen-body">
         {!preview && (
           <>
-            <button
-              type="button"
-              className="card"
-              style={{
-                background: 'var(--accent)',
-                color: 'var(--on-accent)',
-                flexDirection: 'row',
-                alignItems: 'center',
-                cursor: 'pointer',
-                border: 0,
-              }}
-              onClick={() => setScanning(true)}
-            >
-              <Icon name="qr" size={24} />
-              <span className="grow stack-sm" style={{ textAlign: 'left' }}>
-                <span className="t-strong">{t('scanSite')}</span>
-                <span className="t-caption" style={{ opacity: 0.8 }}>
-                  {t('opensCamera')}
-                </span>
+            <button type="button" className="scan-cta" onClick={() => setScanning(true)}>
+              <span className="scan-cta-icon">
+                <Icon name="camera" size={22} />
               </span>
-              <Icon name="chev" />
+              <span className="grow stack-sm">
+                <span className="t-strong">{t('scanSite')}</span>
+                <span className="t-caption">{t('opensCamera')}</span>
+              </span>
+              <Icon name="arrowRight" size={20} />
             </button>
             <div className="row-flex">
               <hr className="divider grow" />
@@ -110,28 +103,30 @@ export const Join: React.FC = () => {
               <hr className="divider grow" />
             </div>
             <form
-              className="stack"
+              className="ticket"
               onSubmit={(e) => {
                 e.preventDefault();
                 void find();
               }}
             >
-              <Field label={t('inviteCode')}>
+              <label className="ticket-field">
+                <span className="t-label">{t('inviteCode')}</span>
                 <input
-                  className="input"
                   value={code}
                   onChange={(e) => setCode(e.target.value.toUpperCase())}
                   autoCapitalize="characters"
                   autoComplete="off"
+                  spellCheck={false}
                   placeholder="TWR-4K9PM"
                 />
-              </Field>
+              </label>
               <button
                 type="submit"
-                className="btn btn-secondary"
+                className="ticket-go"
+                aria-label={t('findWorkplace')}
                 disabled={code.trim().length < 5 || busy}
               >
-                {t('findWorkplace')}
+                <Icon name="arrowRight" size={20} />
               </button>
             </form>
           </>

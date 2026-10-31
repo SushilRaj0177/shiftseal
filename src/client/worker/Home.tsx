@@ -11,7 +11,7 @@ import { queuedCount } from '../lib/queue.js';
 import { useLang } from '../i18n/LangProvider.js';
 import { Icon } from '../components/Icon.js';
 import { Card, Notice, Pill, SectionHead, Skeleton, Tile } from '../ui/index.js';
-import { DayBars, Guilloche, Ring } from '../ui/visuals.js';
+import { DayBars, Grain, Ring } from '../ui/visuals.js';
 import { TabBar, useWorker } from './WorkerApp.js';
 import type { LimitReading } from '../../shared/rules/limits.js';
 import { PaymentPrompt } from './Pay.js';
@@ -169,7 +169,7 @@ export const Home: React.FC = () => {
           <Skeleton height={200} />
         ) : (
           <section className="hero stack" aria-label={t('today')}>
-            <Guilloche className="guilloche" />
+            <Grain />
             <div className="between">
               <span className="t-label">
                 {t('today')} · {dayLabel(overview.today, lang)}
