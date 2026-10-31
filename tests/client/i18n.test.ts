@@ -60,7 +60,7 @@ describe('translations', () => {
 
   it('uses the workplace country first, then the locale, then the language', () => {
     expect(lookup('ja', 'JP', 'committeeLabel')).toBe('ハラスメント相談窓口');
-    expect(lookup('ta', 'JP', 'committeeLabel')).toBe('Harassment consultation desk');
+    expect(lookup('ta', 'JP', 'committeeLabel')).toBe('துன்புறுத்தல் ஆலோசனை மையம்');
     expect(lookup('es-ES', 'MX', 'typeWfh')).toBe('Home office');
     expect(lookup('es-MX', 'MX', 'checkIn')).toBe('Checar entrada');
     expect(lookup('es-ES', 'ES', 'checkIn')).toBe('Fichar entrada');

@@ -12,15 +12,22 @@ import { BR_TEXT } from './br.js';
 import { PT_TEXT } from './pt.js';
 import { GB_TEXT } from './gb.js';
 import { US_TEXT } from './us.js';
+import { IN_MORE } from './more/in.js';
+import { ES_MORE } from './more/es.js';
+import { DE_MORE } from './more/de.js';
+import { FR_MORE } from './more/fr.js';
+import { CN_MORE } from './more/cn.js';
+import { KR_MORE } from './more/kr.js';
+import { JP_MORE } from './more/jp.js';
 
 export const COUNTRY_TEXT: Record<CountryId, CountryStrings> = {
-  IN: IN_TEXT,
-  JP: JP_TEXT,
-  KR: KR_TEXT,
-  CN: CN_TEXT,
-  FR: FR_TEXT,
-  DE: DE_TEXT,
-  ES: ES_TEXT,
+  IN: { ...IN_MORE, ...IN_TEXT },
+  JP: { ...JP_MORE, ...JP_TEXT },
+  KR: { ...KR_MORE, ...KR_TEXT },
+  CN: { ...CN_MORE, ...CN_TEXT },
+  FR: { ...FR_MORE, ...FR_TEXT },
+  DE: { ...DE_MORE, ...DE_TEXT },
+  ES: { ...ES_MORE, ...ES_TEXT },
   MX: MX_TEXT,
   BR: BR_TEXT,
   PT: PT_TEXT,
