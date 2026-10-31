@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { api, errorMessage } from '../lib/api.js';
 import { useApi } from '../lib/useApi.js';
 import { Brand, Card, Field, Notice, Spinner } from '../ui/index.js';
+import { Grain } from '../ui/visuals.js';
 import { useEmployer } from './EmployerApp.js';
 import { useLang } from '../i18n/LangProvider.js';
 import { countryPack } from '../../shared/countries/index.js';
@@ -158,8 +159,15 @@ export const GateDisplay: React.FC = () => {
   const { t } = useLang();
   const wp = base.workplace;
   const [zone, setZone] = useState(wp.zones[0]?.code ?? '');
-  const [code, setCode] = useState<{ svg: string; expiresInS: number } | null>(null);
+  const [code, setCode] = useState<{ svg: string; expiresInS: number; at: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [now, setNow] = useState(() => Date.now());
+
+  // The bar under the code shows how long until it changes.
+  useEffect(() => {
+    const tick = window.setInterval(() => setNow(Date.now()), 250);
+    return () => window.clearInterval(tick);
+  }, []);
 
   useEffect(() => {
     let timer = 0;
@@ -170,7 +178,7 @@ export const GateDisplay: React.FC = () => {
           `/workplaces/${wp.id}/gate?zone=${zone}`
         );
         if (!alive) return;
-        setCode(res);
+        setCode({ ...res, at: Date.now() });
         setError(null);
         timer = window.setTimeout(load, Math.max(2, res.expiresInS) * 1000);
       } catch (err) {
@@ -194,22 +202,19 @@ export const GateDisplay: React.FC = () => {
     };
   }, [wp.id, zone]);
 
+  const total = Math.max(1, code?.expiresInS ?? 30);
+  const left = code ? Math.max(0, total - (now - code.at) / 1000) : total;
+
   return (
     <main className="gate">
-      <div className="stack" style={{ alignItems: 'center', textAlign: 'center', gap: 20 }}>
-        <span style={{ fontSize: 28, fontWeight: 600 }}>{wp.name}</span>
-        <span style={{ fontSize: 18, color: '#5a5963' }}>{t('eGateScan')}</span>
-        {code ? (
-          <div className="gate-qr" dangerouslySetInnerHTML={{ __html: code.svg }} />
-        ) : (
-          <Spinner />
-        )}
-        {error && <Notice kind="error">{error}</Notice>}
+      <Grain />
+      <header className="gate-head">
+        <Brand />
         <select
-          className="select no-print"
-          style={{ maxWidth: 280 }}
+          className="gate-zone no-print"
           value={zone}
           onChange={(e) => setZone(e.target.value)}
+          aria-label={t('eZoneCode')}
         >
           {wp.zones.map((z) => (
             <option key={z.code} value={z.code}>
@@ -217,6 +222,27 @@ export const GateDisplay: React.FC = () => {
             </option>
           ))}
         </select>
+      </header>
+      <div className="gate-body">
+        <h1 className="t-display">{wp.name}</h1>
+        <p>{t('eGateScan')}</p>
+        <div className="gate-poster-card">
+          {code ? (
+            <div className="gate-qr" dangerouslySetInnerHTML={{ __html: code.svg }} />
+          ) : (
+            <div className="gate-qr gate-qr-wait">
+              <Spinner />
+            </div>
+          )}
+          <div className="gate-timer" aria-hidden="true">
+            <span style={{ width: `${(left / total) * 100}%` }} />
+          </div>
+          <div className="gate-zone-name">
+            <span className="t-label">{wp.zones.find((z) => z.code === zone)?.name}</span>
+            <span className="t-label">{Math.ceil(left)}s</span>
+          </div>
+        </div>
+        {error && <Notice kind="error">{error}</Notice>}
       </div>
     </main>
   );

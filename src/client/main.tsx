@@ -4,6 +4,7 @@ import App from './App.js';
 import './styles/tokens.css';
 import './styles/base.css';
 import './styles/firstrun.css';
+import './styles/surfaces.css';
 
 const rootEl = document.getElementById('root');
 if (rootEl) {

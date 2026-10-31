@@ -65,12 +65,27 @@ export const Skeleton: React.FC<{ height: number }> = ({ height }) => (
   <div className="skeleton" style={{ height }} aria-hidden="true" />
 );
 
+/**
+ * Nothing here yet: a blank record slip with the subject stamped on it, so an
+ * empty list still looks like part of a record book rather than a missing page.
+ */
 export const Empty: React.FC<{ icon?: IconName; children: React.ReactNode }> = ({
   icon = 'doc',
   children,
 }) => (
   <div className="empty">
-    <Tile icon={icon} tone="neutral" />
+    <span className="empty-art" aria-hidden="true">
+      <span className="empty-slip empty-slip-back" />
+      <span className="empty-slip">
+        <i />
+        <i />
+        <i />
+        <i />
+      </span>
+      <span className={`empty-stamp${icon === 'check' ? ' clear' : ''}`}>
+        <Icon name={icon} size={22} />
+      </span>
+    </span>
     <p>{children}</p>
   </div>
 );

@@ -187,26 +187,27 @@ export const Overview: React.FC = () => {
       </header>
 
       <div className="kpis">
-        <section className="hero" style={{ padding: 18 }}>
+        <section className="hero onsite">
           <Grain />
-          <div className="row-flex" style={{ gap: 16 }}>
-            <Ring
-              value={dash.kpis.workers ? dash.kpis.onSite / dash.kpis.workers : 0}
-              size={64}
-              stroke={7}
-              color="var(--seal)"
-              label={t('eOnSite')}
-            >
-              <span className="t-strong t-num">{dash.kpis.onSite}</span>
-            </Ring>
-            <div className="stack-sm">
-              <span className="t-label">{t('eOnSite')}</span>
-              <span className="t-caption">
-                {t('eOfTotal', dash.kpis.onSite, dash.kpis.workers)}
-                {dash.leave.today.length ? ` · ${t('eAway', dash.leave.today.length)}` : ''}
-              </span>
-            </div>
+          <div className="onsite-main">
+            <span className="t-label">{t('eOnSite')}</span>
+            <span className="onsite-count">
+              <span className="t-number">{dash.kpis.onSite}</span>
+              <span className="onsite-of">/ {dash.kpis.workers}</span>
+            </span>
+            {dash.leave.today.length > 0 && (
+              <span className="t-caption">{t('eAway', dash.leave.today.length)}</span>
+            )}
           </div>
+          <Ring
+            value={dash.kpis.workers ? dash.kpis.onSite / dash.kpis.workers : 0}
+            size={84}
+            stroke={8}
+            color="var(--seal)"
+            label={t('eOnSite')}
+          >
+            <span className={`onsite-pulse${dash.kpis.onSite ? ' live' : ''}`} />
+          </Ring>
         </section>
         {(
           [
@@ -215,34 +216,32 @@ export const Overview: React.FC = () => {
               t('eOpenClaims'),
               dash.kpis.openClaims,
               t('eDecideBeforePayday'),
-              dash.kpis.openClaims ? 'warn' : undefined,
+              dash.kpis.openClaims ? 'warn' : 'calm',
             ],
             [
               'alert',
               t('eOpenHazards'),
               dash.kpis.openHazards,
               t('eEachDeadline'),
-              dash.kpis.openHazards ? 'danger' : undefined,
+              dash.kpis.openHazards ? 'danger' : 'calm',
             ],
             [
               'wallet',
               t('eOvertimeOwed'),
               money(dash.kpis.overtimeOwed),
               t('eThisPeriod'),
-              undefined,
+              dash.kpis.overtimeOwed ? 'brass' : 'calm',
             ],
-          ] as [IconName, string, string | number, string, 'warn' | 'danger' | undefined][]
+          ] as [IconName, string, string | number, string, string][]
         ).map(([icon, label, value, sub, tone]) => (
-          <Card key={label}>
-            <div className="kpi-tile">
-              <Tile icon={icon} tone={tone} />
-              <div className="stack-sm">
-                <span className="t-caption muted">{label}</span>
-                <span className="t-title t-num">{value}</span>
-                <span className="t-caption faint">{sub}</span>
-              </div>
+          <section key={label} className={`stat-card ${tone}`}>
+            <div className="stat-card-top">
+              <Icon name={icon} size={18} />
+              <span className="stat-card-label">{label}</span>
             </div>
-          </Card>
+            <span className="stat-card-value">{value}</span>
+            <span className="t-caption faint">{sub}</span>
+          </section>
         ))}
       </div>
 
@@ -280,29 +279,40 @@ export const Overview: React.FC = () => {
               title={t('eHotspots')}
               action={<span className="t-caption faint">{t('eLast30')}</span>}
             />
-            {dash.hotspots.map((h) => {
-              const max = Math.max(1, ...dash.hotspots.map((x) => x.count));
-              return (
-                <div key={h.code} className="stack-sm">
-                  <div className="between">
-                    <span>{h.name}</span>
-                    <span className="t-strong">{h.count}</span>
+            {dash.hotspots.every((h) => h.count === 0) ? (
+              <div className="zone-chips">
+                {dash.hotspots.map((h) => (
+                  <span key={h.code} className="zone-chip">
+                    <Icon name="check" size={13} />
+                    {h.name}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              dash.hotspots.map((h) => {
+                const max = Math.max(1, ...dash.hotspots.map((x) => x.count));
+                return (
+                  <div key={h.code} className="stack-sm">
+                    <div className="between">
+                      <span>{h.name}</span>
+                      <span className="t-strong">{h.count}</span>
+                    </div>
+                    <div className="progress">
+                      <span
+                        style={{
+                          width: `${(h.count / max) * 100}%`,
+                          background: h.isHotspot
+                            ? 'var(--danger)'
+                            : h.count
+                              ? 'var(--warn)'
+                              : 'transparent',
+                        }}
+                      />
+                    </div>
                   </div>
-                  <div className="progress">
-                    <span
-                      style={{
-                        width: `${(h.count / max) * 100}%`,
-                        background: h.isHotspot
-                          ? 'var(--danger)'
-                          : h.count
-                            ? 'var(--warn)'
-                            : 'transparent',
-                      }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </Card>
           <Card>
             <SectionHead title={t('eFatigue')} />

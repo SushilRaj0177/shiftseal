@@ -1,0 +1,370 @@
+/* ---------- surfaces: depth, texture and life across the app ---------- */
+
+/* The page itself: a faint warm light from above and paper grain, never a flat fill. */
+body {
+  background: radial-gradient(90% 40% at 50% -5%, var(--glow-top), transparent 70%), var(--bg);
+  background-attachment: fixed;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: var(--page-grain);
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .5 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+#root {
+  position: relative;
+  z-index: 1;
+}
+:root {
+  --glow-top: rgba(211, 169, 93, 0.12);
+  --page-grain: 0.35;
+  --card-top: #ffffff;
+  --card-bottom: #fcfbf8;
+  --card-edge: rgba(255, 255, 255, 0.9);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --glow-top: rgba(137, 168, 236, 0.1);
+    --page-grain: 0.25;
+    --card-top: #1c1d24;
+    --card-bottom: #15161b;
+    --card-edge: rgba(255, 255, 255, 0.06);
+  }
+}
+
+/* Cards: lit from above, with a hairline highlight on the top edge. */
+.card {
+  background: linear-gradient(180deg, var(--card-top), var(--card-bottom));
+  box-shadow:
+    inset 0 1px 0 var(--card-edge),
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    0 14px 32px -18px rgba(0, 0, 0, 0.35);
+}
+@media (prefers-color-scheme: dark) {
+  .card {
+    box-shadow:
+      inset 0 1px 0 var(--card-edge),
+      0 18px 40px -20px rgba(0, 0, 0, 0.8);
+  }
+}
+
+/* ----- empty states: a blank record slip with its subject stamped on ----- */
+.empty {
+  padding: 28px 16px 30px;
+  gap: 14px;
+}
+.empty p {
+  max-width: 30ch;
+  color: var(--ink-2);
+}
+.empty-art {
+  position: relative;
+  width: 112px;
+  height: 84px;
+}
+.empty-slip {
+  position: absolute;
+  left: 14px;
+  top: 6px;
+  width: 78px;
+  height: 70px;
+  padding: 14px 12px;
+  border-radius: 6px;
+  background: var(--slip);
+  box-shadow:
+    inset 0 0 0 1px var(--slip-line),
+    0 10px 20px -10px rgba(0, 0, 0, 0.45);
+  transform: rotate(-4deg);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.empty-slip i {
+  display: block;
+  height: 0;
+  border-top: 1.5px dashed var(--slip-line);
+}
+.empty-slip i:first-child {
+  width: 55%;
+  border-top-style: solid;
+  border-top-width: 3px;
+  border-color: var(--slip-ink);
+}
+.empty-slip-back {
+  transform: rotate(5deg) translate(10px, 2px);
+  opacity: 0.6;
+  padding: 0;
+}
+.empty-stamp {
+  position: absolute;
+  right: 2px;
+  bottom: -2px;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  color: var(--seal);
+  border: 2.5px solid currentColor;
+  box-shadow:
+    inset 0 0 0 3px var(--bg),
+    inset 0 0 0 4px currentColor;
+  background: var(--bg);
+  transform: rotate(-12deg);
+  opacity: 0.9;
+}
+.empty-stamp.clear {
+  color: var(--good);
+}
+:root {
+  --slip: #fbf8f1;
+  --slip-line: rgba(28, 29, 34, 0.14);
+  --slip-ink: rgba(28, 29, 34, 0.55);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --slip: #22232b;
+    --slip-line: rgba(255, 255, 255, 0.1);
+    --slip-ink: rgba(255, 255, 255, 0.35);
+  }
+}
+
+/* ----- overview: who is on site, and what needs deciding ----- */
+.kpis {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.kpis .onsite {
+  grid-column: 1 / -1;
+}
+@media (min-width: 1100px) {
+  .kpis {
+    grid-template-columns: 1.6fr repeat(3, minmax(0, 1fr));
+  }
+  .kpis .onsite {
+    grid-column: auto;
+  }
+}
+.onsite {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 22px;
+}
+.onsite-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.onsite-count {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  color: #fff;
+}
+.onsite-count .t-number {
+  font-size: 56px;
+}
+.onsite-of {
+  font: 600 20px var(--numeric);
+  color: var(--on-navy-2);
+}
+.onsite-pulse {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+}
+.onsite-pulse.live {
+  background: var(--seal);
+  box-shadow: 0 0 0 0 var(--seal-glow);
+  animation: pulse 1.8s ease-out infinite;
+}
+@keyframes pulse {
+  70% {
+    box-shadow: 0 0 0 12px rgba(242, 68, 29, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(242, 68, 29, 0);
+  }
+}
+.stat-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  padding: 14px 14px 16px;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--card-top), var(--card-bottom));
+  box-shadow:
+    inset 0 1px 0 var(--card-edge),
+    0 14px 30px -20px rgba(0, 0, 0, 0.6);
+}
+/* A coloured edge only when the number means work to do. */
+.stat-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: var(--stat-color, transparent);
+}
+.stat-card.warn {
+  --stat-color: var(--warn);
+}
+.stat-card.danger {
+  --stat-color: var(--seal);
+}
+.stat-card.brass {
+  --stat-color: var(--brass);
+}
+.stat-card-top {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+  min-height: 52px;
+  color: var(--stat-color, var(--ink-3));
+}
+.stat-card-top .stat-card-label {
+  font: 600 13px/1.25 var(--font);
+  color: var(--ink-2);
+}
+.stat-card.calm .stat-card-top {
+  color: var(--ink-3);
+}
+.stat-card-value {
+  font: 700 34px/1 var(--numeric);
+  letter-spacing: -0.03em;
+  font-variation-settings: 'opsz' 72;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.stat-card.calm .stat-card-value {
+  color: var(--ink-2);
+}
+.stat-card .t-caption {
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+.zone-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.zone-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  font-size: 14px;
+  color: var(--ink-2);
+}
+.zone-chip svg {
+  color: var(--good);
+}
+
+/* ----- the gate screen: a poster that lives on a wall ----- */
+.gate {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding: calc(env(safe-area-inset-top) + 14px) 22px calc(env(safe-area-inset-bottom) + 22px);
+  color: var(--on-navy);
+  background:
+    radial-gradient(70% 45% at 80% 15%, rgba(242, 68, 29, 0.14), transparent 65%),
+    radial-gradient(80% 50% at 10% 0%, rgba(211, 169, 93, 0.16), transparent 70%),
+    linear-gradient(180deg, #14223f 0%, #0b1428 100%);
+}
+.gate-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.gate-head .brand {
+  color: var(--on-navy);
+}
+.gate-zone {
+  max-width: 55%;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--on-navy);
+  font: 500 15px var(--font);
+}
+.gate-zone option {
+  color: #15161b;
+}
+.gate-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+}
+.gate-body .t-display {
+  color: #fff;
+}
+.gate-body > p {
+  color: var(--on-navy-2);
+  font-size: 17px;
+}
+.gate-poster-card {
+  margin-top: 18px;
+  padding: 18px 18px 14px;
+  border-radius: 18px;
+  background: #f8f3e6;
+  color: #13213f;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    0 30px 60px -20px rgba(0, 0, 0, 0.8);
+}
+.gate-qr svg,
+.gate-qr-wait {
+  display: grid;
+  place-items: center;
+  width: min(72vmin, 520px);
+  height: auto;
+  aspect-ratio: 1;
+}
+.gate-timer {
+  height: 4px;
+  margin-top: 12px;
+  border-radius: 999px;
+  background: rgba(19, 33, 63, 0.12);
+  overflow: hidden;
+}
+.gate-timer span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #e5401b;
+  transition: width 250ms linear;
+}
+.gate-zone-name {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+.gate-zone-name .t-label {
+  color: #5b5a64;
+}
