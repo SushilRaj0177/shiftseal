@@ -4,7 +4,7 @@ import { format, lookup } from '../../src/client/i18n/LangProvider.js';
 import { VARIANTS } from '../../src/client/i18n/variants.js';
 import { COUNTRY_TEXT } from '../../src/client/i18n/countries/index.js';
 import { COUNTRY_KEYS, packKeys } from '../../src/client/i18n/country.js';
-import { BASE_LANGUAGES, LANGUAGES } from '../../src/shared/languages.js';
+import { BASE_LANGUAGES } from '../../src/shared/languages.js';
 import { COUNTRY_IDS } from '../../src/shared/countries/types.js';
 
 const placeholders = (s: string) => (s.match(/\{\d\}/g) ?? []).sort().join(',');
@@ -31,12 +31,11 @@ describe('translations', () => {
     }
   });
 
-  it('gives every country its own legal wording in English and its own languages', () => {
+  it('gives every country its own legal wording in every language', () => {
     for (const id of COUNTRY_IDS) {
       const text = COUNTRY_TEXT[id];
-      const own = LANGUAGES.filter((l) => l.country === id).map((l) => l.base);
       const required = [...COUNTRY_KEYS, ...packKeys(id)];
-      for (const lang of new Set(['en' as const, ...own])) {
+      for (const lang of BASE_LANGUAGES) {
         const dict = text[lang];
         expect(dict, `${id}.${lang}`).toBeDefined();
         for (const key of required) expect(dict![key], `${id}.${lang}.${key}`).toBeTruthy();

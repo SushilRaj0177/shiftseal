@@ -13,6 +13,11 @@ import { PT_TEXT } from './pt.js';
 import { GB_TEXT } from './gb.js';
 import { US_TEXT } from './us.js';
 import { IN_MORE } from './more/in.js';
+import { US_MORE } from './more/us.js';
+import { GB_MORE } from './more/gb.js';
+import { PT_MORE } from './more/pt.js';
+import { BR_MORE } from './more/br.js';
+import { MX_MORE } from './more/mx.js';
 import { ES_MORE } from './more/es.js';
 import { DE_MORE } from './more/de.js';
 import { FR_MORE } from './more/fr.js';
@@ -28,9 +33,9 @@ export const COUNTRY_TEXT: Record<CountryId, CountryStrings> = {
   FR: { ...FR_MORE, ...FR_TEXT },
   DE: { ...DE_MORE, ...DE_TEXT },
   ES: { ...ES_MORE, ...ES_TEXT },
-  MX: MX_TEXT,
-  BR: BR_TEXT,
-  PT: PT_TEXT,
-  GB: GB_TEXT,
-  US: US_TEXT,
+  MX: { ...MX_MORE, ...MX_TEXT },
+  BR: { ...BR_MORE, ...BR_TEXT },
+  PT: { ...PT_MORE, ...PT_TEXT },
+  GB: { ...GB_MORE, ...GB_TEXT },
+  US: { ...US_MORE, ...US_TEXT },
 };
