@@ -125,7 +125,7 @@ The app in `android/` wraps the website and adds a mock-location check, Play Int
 cd android && ./gradlew assembleDebug   # app/build/outputs/apk/debug/app-debug.apk
 ```
 
-It opens the deployed site (`-PshiftsealUrl=https://...` for another). Publishing on Google Play, step by step: [`docs/PLAY_STORE.md`](docs/PLAY_STORE.md). `android/app/debug.keystore` is the standard public Android debug key (password `android`), kept so debug builds have a stable fingerprint; release keys are never in the repository.
+It opens the deployed site (`-PshiftsealUrl=https://...` for another). Publishing on Google Play, step by step: [`docs/PLAY_STORE.md`](docs/PLAY_STORE.md). The icon and its seasonal versions: [`docs/BRAND.md`](docs/BRAND.md). `android/app/debug.keystore` is the standard public Android debug key (password `android`), kept so debug builds have a stable fingerprint; release keys are never in the repository.
 
 ## Project structure
 

@@ -117,7 +117,7 @@ export const AppBar: React.FC<{
 
 export const Brand: React.FC = () => (
   <span className="brand">
-    <img className="brand-mark" src="/brand/seal-mark.png" alt="" aria-hidden="true" />
+    <img className="brand-mark" src="/brand/mark.png" alt="" aria-hidden="true" />
     <span style={{ letterSpacing: '-0.2px' }}>Shiftseal</span>
   </span>
 );

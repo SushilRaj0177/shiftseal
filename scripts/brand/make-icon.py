@@ -1,238 +1,238 @@
-"""Draws the Shiftseal icon: a wax seal pressed onto a time card.
+"""Draws the Shiftseal mark and every icon variant as SVG.
 
-The seal's clock reads ten past ten, which is also a check mark: time, verified.
-The seal is drawn as a height map and lit, so the rim, the pressed well and the
-raised clock catch light like real wax.
+The mark is a landscape time card with a red stamp pressed on its corner: the record, and
+the seal that makes it final. Flat shapes only, so it stays sharp from a 16 px
+favicon to the 512 px store icon.
 
-Writes the SVG variants to public/brand/ (rounded, full-bleed, maskable, the
-Android adaptive foreground and background, and the seal alone). The PNGs in
-public/, public/brand/, store/ and the Android mipmaps are rendered from these
-at their sizes. Run: python3 scripts/brand/make-icon.py
+    python3 scripts/brand/make-icon.py                 # classic colours
+    python3 scripts/brand/make-icon.py --season xmas   # or any name in PALETTES
+    node scripts/brand/render-icons.mjs                # renders the PNGs (needs Playwright)
+
+The chosen season becomes the app's icon everywhere (web, Android, store icon).
+Every season's store icon is also written to public/brand/seasons/ for previews.
 """
+
+import argparse
 import math
 import pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
+OUT = ROOT / "public" / "brand"
+
+# Colour styles. bg: tile; card and ink: the time card; seal: the stamp;
+# mark: the check and the stamp's inner ring.
+PALETTES = {
+    "classic": dict(bg="#13213f", card="#f4efe3", ink="#13213f", seal="#f2441d", mark="#ffffff"),
+    "halloween": dict(bg="#1c1326", card="#efe2c8", ink="#1c1326", seal="#ff7a1a", mark="#1c1326"),
+    "xmas": dict(bg="#0f3b2c", card="#fbf6ec", ink="#0f3b2c", seal="#c8102e", mark="#f6d27a"),
+    "lunar": dict(bg="#b3121b", card="#fff4dc", ink="#7a0b10", seal="#e8b647", mark="#7a0b10"),
+    "spring": dict(bg="#f2bfce", card="#ffffff", ink="#3d6b55", seal="#e0527a", mark="#ffffff"),
+}
+
+# The mark is drawn on a 512 grid: a landscape time card, tilted, with the stamp on its corner.
+CARD_RECT = 'x="96" y="120" width="290" height="250" rx="22"'
+CARD_TILT = 'rotate(-6 236 236)'
+LINES = [(178, 190, 0.85), (226, 150, 0.25), (274, 190, 0.25), (322, 150, 0.25)]  # y, width, opacity
+STAMP = (340, 334, 88)  # cx, cy, r
 
 
-def blob(cx, cy, r, wobble, bulges, n=240):
-    """A wax puddle: a circle with an uneven edge and a few spreads."""
-    pts = []
-    for i in range(n):
-        t = i / n * math.tau
-        rr = r
-        for amp, freq, phase in wobble:
-            rr += amp * math.sin(freq * t + phase)
-        for ang, amp, width in bulges:
-            d = math.atan2(math.sin(t - ang), math.cos(t - ang))
-            rr += amp * math.exp(-(d / width) ** 2)
-        pts.append((cx + rr * math.cos(t), cy + rr * math.sin(t)))
-    return "M" + "L".join(f"{x:.1f} {y:.1f}" for x, y in pts) + "Z"
+def check(cx: float, cy: float) -> str:
+    """Two clock hands at five past ten, which together make a check mark."""
+    vx, vy = cx - 6, cy + 22
+    hx, hy = vx + 32 * math.sin(math.radians(300)), vy - 32 * math.cos(math.radians(300))
+    mx, my = vx + 66 * math.sin(math.radians(32)), vy - 66 * math.cos(math.radians(32))
+    return f"{hx:.1f},{hy:.1f} {vx:.1f},{vy:.1f} {mx:.1f},{my:.1f}"
 
 
-def ticks(cx, cy, r_in, r_out_major, r_out_minor):
-    out = []
-    for i in range(12):
-        a = i / 12 * math.tau - math.pi / 2
-        ro = r_out_major if i % 3 == 0 else r_out_minor
-        out.append((cx + r_in * math.cos(a), cy + r_in * math.sin(a),
-                    cx + ro * math.cos(a), cy + ro * math.sin(a), i % 3 == 0))
-    return out
+def card_lines(ink: str) -> str:
+    return "".join(
+        f'<rect x="128" y="{y}" width="{w}" height="14" rx="7" fill="{ink}" fill-opacity="{o}"/>'
+        for y, w, o in LINES
+    )
 
 
-def hand(cx, cy, clock_minutes, length):
-    a = clock_minutes / 60 * math.tau - math.pi / 2
-    return cx + length * math.cos(a), cy + length * math.sin(a)
+def mark(p: dict) -> str:
+    cx, cy, r = STAMP
+    return f'''<g transform="{CARD_TILT}"><rect {CARD_RECT} fill="{p["card"]}"/>{card_lines(p["ink"])}</g>
+  <circle cx="{cx}" cy="{cy}" r="{r}" fill="{p["seal"]}"/>
+  <circle cx="{cx}" cy="{cy}" r="70" fill="none" stroke="{p["mark"]}" stroke-opacity=".45" stroke-width="4"/>
+  <polyline points="{check(cx, cy)}" fill="none" stroke="{p["mark"]}" stroke-width="20"
+    stroke-linecap="round" stroke-linejoin="round"/>'''
 
 
-CX, CY, R = 318, 326, 136
-WAX = blob(CX, CY, R, [(5.5, 3, 0.7), (3.5, 5, 2.1), (1.6, 11, 0.4), (0.7, 23, 1.3)],
-           [(math.radians(205), 14, 0.42), (math.radians(68), 9, 0.3), (math.radians(318), 7, 0.22),
-            (math.radians(140), -5, 0.3)])
+# ---- Occasion details: small flat motifs in the tile's empty corners ----------
 
-# Hands: ten past ten. The hour hand sits a little past 10, the minute hand on 2.
-HOUR = hand(CX, CY, 50.8, 46)   # ~10:10 hour position, short
-MINUTE = hand(CX, CY, 10.5, 78)  # 2 o'clock, long
-TICKS = ticks(CX, CY, 84, 102, 96)
-
-
-def emblem(dx=0.0, dy=0.0, color="#000", width_scale=1.0):
-    parts = []
-    for x1, y1, x2, y2, major in TICKS:
-        w = (9 if major else 6) * width_scale
-        parts.append(f'<line x1="{x1+dx:.1f}" y1="{y1+dy:.1f}" x2="{x2+dx:.1f}" y2="{y2+dy:.1f}" '
-                     f'stroke="{color}" stroke-width="{w:.1f}" stroke-linecap="round"/>')
-    for (hx, hy), w in ((HOUR, 17), (MINUTE, 15)):
-        parts.append(f'<line x1="{CX+dx:.1f}" y1="{CY+dy:.1f}" x2="{hx+dx:.1f}" y2="{hy+dy:.1f}" '
-                     f'stroke="{color}" stroke-width="{w*width_scale:.1f}" stroke-linecap="round"/>')
-    parts.append(f'<circle cx="{CX+dx:.1f}" cy="{CY+dy:.1f}" r="{12*width_scale:.1f}" fill="{color}"/>')
-    return "\n    ".join(parts)
+def _bat(x: float, y: float, w: float, fill: str) -> str:
+    k = w / 100
+    return (f'<path transform="translate({x - 50 * k:.1f} {y - 24 * k:.1f}) scale({k:.3f})" fill="{fill}" '
+            'd="M50 16 L46 6 L44 15 C38 9 30 6 22 8 C14 9 6 14 0 22 C9 20 15 24 16 32 '
+            'C22 26 30 27 33 35 C38 30 45 32 50 42 C55 32 62 30 67 35 C70 27 78 26 84 32 '
+            'C85 24 91 20 100 22 C94 14 86 9 78 8 C70 6 62 9 56 15 L54 6 Z"/>')
 
 
-ROWS = [("MON", "08:02", "17:31", "16:30", "9.5"),
-        ("TUE", "07:58", "17:04", None, "9.1"),
-        ("WED", "07:55", "18:40", None, "10.7"),
-        ("THU", "08:00", "17:02", None, "9.0"),
-        ("FRI", "07:57", "17:10", None, "9.2")]
+def _moon(x: float, y: float, r: float, fill: str) -> str:
+    return (f'<path fill="{fill}" d="M{x:.1f},{y - r:.1f} A{r},{r} 0 1 0 {x:.1f},{y + r:.1f} '
+            f'A{r * 0.72:.1f},{r} 0 1 1 {x:.1f},{y - r:.1f} Z"/>')
 
 
-def card_rows():
-    rows = []
-    y = 168
-    for day, tin, tout, was, h in ROWS:
-        rows.append(f'<text x="94" y="{y}" class="day">{day}</text>')
-        rows.append(f'<text x="150" y="{y}" class="t">{tin}</text>')
-        if was:
-            rows.append(f'<text x="232" y="{y}" class="t was">{was}</text>')
-            rows.append(f'<line x1="230" y1="{y-7}" x2="290" y2="{y-7}" stroke="#d8391a" stroke-width="3"/>')
-            rows.append(f'<text x="296" y="{y}" class="t">{tout}</text>')
-        else:
-            rows.append(f'<text x="232" y="{y}" class="t">{tout}</text>')
-        rows.append(f'<line x1="86" y1="{y+16}" x2="372" y2="{y+16}" stroke="#13213f" stroke-opacity=".16" stroke-width="2" stroke-dasharray="5 6"/>')
-        y += 44
-    return "\n      ".join(rows)
+def _leaf(x: float, y: float, angle: float, fill: str) -> str:
+    return (f'<path transform="translate({x} {y}) rotate({angle})" fill="{fill}" '
+            'd="M0 0 L8 -8 L14 -4 L20 -12 L27 -6 L34 -11 L40 0 L34 11 L27 6 L20 12 L14 4 L8 8 Z"/>')
 
 
-CARD = f'''    <g transform="rotate(-9 230 230)">
-      <rect x="58" y="92" width="330" height="290" rx="14" fill="#000" opacity=".35" filter="url(#soft)" transform="translate(6 14)"/>
-      <rect x="58" y="92" width="330" height="290" rx="14" fill="url(#paper)"/>
-      <rect x="58" y="92" width="330" height="40" rx="14" fill="#13213f" opacity=".06"/>
-      <line x1="78" y1="92" x2="78" y2="382" stroke="#d8391a" stroke-opacity=".5" stroke-width="2.5"/>
-      <rect x="96" y="106" width="22" height="16" rx="4" fill="#13213f"/>
-      <circle cx="107" cy="114" r="3.5" fill="#d8391a"/>
-      <text x="370" y="120" text-anchor="end" class="no">No. 0044</text>
-      <line x1="86" y1="136" x2="372" y2="136" stroke="#13213f" stroke-width="4"/>
-      {card_rows()}
-    </g>
-'''
+def _snowflake(x: float, y: float, r: float, stroke: str) -> str:
+    out = ""
+    for a in range(0, 180, 60):
+        t = math.radians(a)
+        dx, dy = r * math.cos(t), r * math.sin(t)
+        out += f'<line x1="{x - dx:.1f}" y1="{y - dy:.1f}" x2="{x + dx:.1f}" y2="{y + dy:.1f}"/>'
+    for a in range(0, 360, 60):
+        t = math.radians(a)
+        bx, by = x + 0.6 * r * math.cos(t), y + 0.6 * r * math.sin(t)
+        for side in (-1, 1):
+            u = t + side * math.radians(40)
+            out += f'<line x1="{bx:.1f}" y1="{by:.1f}" x2="{bx + 0.3 * r * math.cos(u):.1f}" y2="{by + 0.3 * r * math.sin(u):.1f}"/>'
+    return f'<g stroke="{stroke}" stroke-width="5" stroke-linecap="round">{out}</g>'
 
 
-def build(variant):
-    clip = variant == 'rounded'
-    bg = variant not in ('foreground', 'seal')
-    content = variant != 'background'
-    scale = {'rounded': 1, 'full': 1, 'maskable': 0.8, 'foreground': 0.64, 'seal': 1, 'background': 1}[variant]
-    view = '0 0 512 512' if variant != 'seal' else f'{CX-R-28} {CY-R-28} {2*R+80} {2*R+84}'
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="{view}">
-  <defs>
-    <style>
-      .t {{ font: 600 19px 'JetBrains Mono', ui-monospace, monospace; fill: #13213f; }}
-      .t.was {{ fill: #d8391a; opacity: .85; }}
-      .no {{ font: 600 13px 'JetBrains Mono', monospace; letter-spacing: .12em; fill: #13213f; opacity: .45; }}
-      .day {{ font: 700 13px 'Figtree', sans-serif; letter-spacing: .08em; fill: #13213f; opacity: .5; }}
-    </style>
-    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#1d3060"/>
-      <stop offset="1" stop-color="#0a1226"/>
-    </linearGradient>
-    <radialGradient id="lamp" cx="0.22" cy="0.08" r="0.75">
-      <stop offset="0" stop-color="#e8c58a" stop-opacity=".28"/>
-      <stop offset="1" stop-color="#e8c58a" stop-opacity="0"/>
-    </radialGradient>
-    <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#fbf6ea"/>
-      <stop offset="1" stop-color="#ece2cb"/>
-    </linearGradient>
-    <radialGradient id="wax" cx="0.36" cy="0.3" r="0.78">
-      <stop offset="0" stop-color="#ff6a3f"/>
-      <stop offset="0.45" stop-color="#e2401a"/>
-      <stop offset="0.85" stop-color="#b42a0e"/>
-      <stop offset="1" stop-color="#8a1d07"/>
-    </radialGradient>
-    <radialGradient id="well" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0.82" stop-color="#c7330f"/>
-      <stop offset="1" stop-color="#9c230a"/>
-    </radialGradient>
-    <filter id="grain" x="0" y="0" width="100%" height="100%">
-      <feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="3" seed="4"/>
-      <feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .07 0"/>
-      <feComposite in2="SourceGraphic" operator="in"/>
-    </filter>
-    <filter id="waxtex" x="-5%" y="-5%" width="110%" height="110%">
-      <feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="3" seed="9" result="n"/>
-      <feDiffuseLighting in="n" surfaceScale="2.2" lighting-color="#fff" result="lit">
-        <feDistantLight azimuth="225" elevation="52"/>
-      </feDiffuseLighting>
-      <feComposite in="lit" in2="SourceGraphic" operator="in" result="tex"/>
-      <feBlend in="SourceGraphic" in2="tex" mode="multiply"/>
-    </filter>
-    <filter id="waxlight" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
-      <feColorMatrix in="SourceGraphic" type="luminanceToAlpha" result="h0"/>
-      <feTurbulence type="fractalNoise" baseFrequency=".012" numOctaves="2" seed="11" result="n"/>
-      <feColorMatrix in="n" type="luminanceToAlpha" result="na"/>
-      <feComposite in="h0" in2="na" operator="arithmetic" k2="1" k3="0" k4="0" result="h1"/>
-      <feComposite in="h1" in2="SourceAlpha" operator="in" result="h2"/>
-      <feGaussianBlur in="h2" stdDeviation="2.2" result="h"/>
-      <feDiffuseLighting in="h" surfaceScale="9" diffuseConstant="1.15" lighting-color="#fff" result="diff">
-        <feDistantLight azimuth="235" elevation="36"/>
-      </feDiffuseLighting>
-      <feSpecularLighting in="h" surfaceScale="9" specularConstant=".9" specularExponent="30" lighting-color="#ffe2d4" result="spec">
-        <feDistantLight azimuth="235" elevation="36"/>
-      </feSpecularLighting>
-      <feFlood flood-color="#a81d09" result="red"/>
-      <feComposite in="red" in2="SourceAlpha" operator="in" result="base"/>
-      <feComposite in="base" in2="diff" operator="arithmetic" k1="1.5" result="shaded"/>
-      <feComposite in="spec" in2="SourceAlpha" operator="in" result="specm"/>
-      <feComposite in="shaded" in2="specm" operator="arithmetic" k2="1" k3=".85"/>
-    </filter>
-    <filter id="blur6" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"/></filter>
-    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="9"/></filter>
-    <filter id="blur2" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2"/></filter>
-    <filter id="blur1"><feGaussianBlur stdDeviation="1.1"/></filter>
-    <clipPath id="tile"><rect width="512" height="512" rx="112"/></clipPath>
-    <clipPath id="sealclip"><path d="{WAX}"/></clipPath>
-  </defs>
-
-  <g {'clip-path="url(#tile)"' if clip else ''}>
-    {'<rect width="512" height="512" fill="url(#bg)"/><rect width="512" height="512" fill="url(#lamp)"/>' if bg else ''}
-    <g transform="translate(256 256) scale({scale}) translate(-256 -256)" {'' if content else 'display="none"'}>
-
-    {'' if variant == 'seal' else CARD}
-    <!-- the time card (see CARD) -->
-
-    <!-- the wax seal: drawn as a height map, then lit -->
-    <path d="{WAX}" fill="#000" opacity=".6" filter="url(#soft)" transform="translate(12 18)"/>
-    <g filter="url(#waxlight)">
-      <path d="{WAX}" fill="#c4c4c4"/>
-      <g clip-path="url(#sealclip)">
-        <circle cx="{CX}" cy="{CY}" r="{R-14}" fill="none" stroke="#fff" stroke-width="20" filter="url(#blur6)"/>
-        <circle cx="{CX}" cy="{CY}" r="110" fill="#7a7a7a" filter="url(#blur1)"/>
-        <g filter="url(#blur1)">
-    {emblem(0, 0, "#c8c8c8")}
-        </g>
-      </g>
-    </g>
-
-    </g>
-    {'<rect width="512" height="512" filter="url(#grain)" fill="#fff"/>' if bg else ''}
-  </g>
-</svg>
-'''
+def _lantern(x: float, y: float, body: str, rib: str) -> str:
+    return f'''<g>
+    <line x1="{x}" y1="{y - 78}" x2="{x}" y2="{y - 36}" stroke="{body}" stroke-width="4"/>
+    <rect x="{x - 14}" y="{y - 40}" width="28" height="9" rx="3" fill="{body}"/>
+    <ellipse cx="{x}" cy="{y}" rx="30" ry="33" fill="{body}"/>
+    <path d="M{x - 12} {y - 31} Q{x - 22} {y} {x - 12} {y + 31} M{x + 12} {y - 31} Q{x + 22} {y} {x + 12} {y + 31} M{x} {y - 33} V{y + 33}"
+      fill="none" stroke="{rib}" stroke-width="3.5" stroke-opacity=".7"/>
+    <rect x="{x - 14}" y="{y + 31}" width="28" height="9" rx="3" fill="{body}"/>
+    <path d="M{x - 6} {y + 42} V{y + 64} M{x} {y + 42} V{y + 68} M{x + 6} {y + 42} V{y + 64}"
+      stroke="{body}" stroke-width="3" stroke-linecap="round"/>
+  </g>'''
 
 
-
-def mono():
-    """Android 13 themed icon: one colour, the seal with its clock cut out."""
-    return f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <defs>
-    <mask id="m">
-      <path d="{WAX}" fill="#fff"/>
-      <circle cx="{CX}" cy="{CY}" r="110" fill="none" stroke="#000" stroke-width="6"/>
-      {emblem(0, 0, "#000")}
-    </mask>
-  </defs>
-  <g transform="translate(256 256) scale(0.6) translate({-CX} {-CY})">
-    <rect width="1024" height="1024" fill="#fff" mask="url(#m)"/>
-  </g>
-</svg>
-'''
+def _sparkle(x: float, y: float, r: float, fill: str) -> str:
+    q = r * 0.28
+    return (f'<path fill="{fill}" d="M{x} {y - r} Q{x + q} {y - q} {x + r} {y} Q{x + q} {y + q} {x} {y + r} '
+            f'Q{x - q} {y + q} {x - r} {y} Q{x - q} {y - q} {x} {y - r} Z"/>')
 
 
-(ROOT / "public" / "brand").mkdir(exist_ok=True)
-(ROOT / "public" / "brand" / "icon-monochrome.svg").write_text(mono())
+def _blossom(x: float, y: float, r: float, petal: str, centre: str) -> str:
+    petals = "".join(
+        f'<ellipse cx="{x}" cy="{y - r * 0.55:.1f}" rx="{r * 0.42:.1f}" ry="{r * 0.55:.1f}" '
+        f'transform="rotate({a} {x} {y})" fill="{petal}"/>'
+        for a in range(0, 360, 72)
+    )
+    return f'{petals}<circle cx="{x}" cy="{y}" r="{r * 0.22:.1f}" fill="{centre}"/>'
 
-for name, variant in [("icon.svg", "rounded"), ("icon-full.svg", "full"), ("icon-maskable.svg", "maskable"),
-                      ("icon-foreground.svg", "foreground"), ("seal.svg", "seal"), ("icon-background.svg", "background")]:
-    (ROOT / "public" / "brand").mkdir(exist_ok=True)
-    (ROOT / "public" / "brand" / name).write_text(build(variant))
-print("wrote public/brand/*.svg")
+
+def _pumpkin(x: float, y: float, r: float, fill: str, line: str, stem: str) -> str:
+    return f'''<g>
+    <rect x="{x - r * 0.12:.1f}" y="{y - r * 1.25:.1f}" width="{r * 0.24:.1f}" height="{r * 0.5:.1f}" rx="{r * 0.08:.1f}" fill="{stem}"/>
+    <ellipse cx="{x - r * 0.42:.1f}" cy="{y}" rx="{r * 0.62:.1f}" ry="{r * 0.88:.1f}" fill="{fill}" stroke="{line}" stroke-width="3"/>
+    <ellipse cx="{x + r * 0.42:.1f}" cy="{y}" rx="{r * 0.62:.1f}" ry="{r * 0.88:.1f}" fill="{fill}" stroke="{line}" stroke-width="3"/>
+    <ellipse cx="{x}" cy="{y}" rx="{r * 0.58:.1f}" ry="{r * 0.94:.1f}" fill="{fill}" stroke="{line}" stroke-width="3"/>
+    {_carved_face(x, y, r)}
+  </g>'''
+
+
+def _carved_face(x: float, y: float, r: float, glow: str = "#ffd34d") -> str:
+    """A jack-o'-lantern's face, lit from inside."""
+    def tri(cx, cy, w, h, up=True):
+        tip = cy - h / 2 if up else cy + h / 2
+        base = cy + h / 2 if up else cy - h / 2
+        return f"M{cx:.1f},{tip:.1f} L{cx + w / 2:.1f},{base:.1f} L{cx - w / 2:.1f},{base:.1f} Z"
+    eyes = tri(x - r * 0.42, y - r * 0.22, r * 0.42, r * 0.34) + tri(x + r * 0.42, y - r * 0.22, r * 0.42, r * 0.34)
+    nose = tri(x, y + r * 0.06, r * 0.2, r * 0.18)
+    m = [(-0.7, 0.26), (-0.48, 0.4), (-0.34, 0.3), (-0.17, 0.44), (0, 0.32), (0.17, 0.44), (0.34, 0.3),
+         (0.48, 0.4), (0.7, 0.26), (0.5, 0.66), (0.2, 0.58), (0, 0.7), (-0.2, 0.58), (-0.5, 0.66)]
+    mouth = "M" + " L".join(f"{x + dx * r:.1f},{y + dy * r:.1f}" for dx, dy in m) + " Z"
+    return f'<path d="{eyes} {nose} {mouth}" fill="{glow}"/>'
+
+
+def _holly(x: float, y: float, k: float) -> str:
+    leaves = _leaf(0, 0, -150, "#3f9a63") + _leaf(0, 0, -60, "#2f7d4f")
+    berries = "".join(
+        f'<circle cx="{cx}" cy="{cy}" r="9" fill="#d61f3a" stroke="#8f0f22" stroke-width="2"/>'
+        for cx, cy in ((-2, 6), (12, 0), (6, 16))
+    )
+    return f'<g transform="translate({x} {y}) scale({k})">{leaves}{berries}</g>'
+
+
+def details(season: str) -> str:
+    if season == "halloween":
+        return (_bat(420, 120, 132, "#efe2c8")
+                + _pumpkin(100, 440, 44, "#ff7a1a", "#c4560c", "#5b8a3c"))
+    if season == "xmas":
+        return (_holly(104, 128, 1.5)
+                + _snowflake(438, 132, 40, "#fbf6ec")
+                + _sparkle(96, 446, 26, "#f6d27a"))
+    if season == "lunar":
+        return (f'<g transform="translate(440 160) scale(1.3) translate(-440 -160)">'
+                f'{_lantern(440, 160, "#e8b647", "#7a0b10")}</g>'
+                + _sparkle(92, 440, 28, "#e8b647") + _sparkle(140, 474, 14, "#fff4dc")
+                + _sparkle(470, 300, 13, "#fff4dc"))
+    if season == "spring":
+        return (_blossom(384, 108, 48, "#f7a8bf", "#e0527a")
+                + _blossom(96, 440, 36, "#ffffff", "#e0527a")
+                + '<ellipse cx="456" cy="236" rx="12" ry="18" transform="rotate(35 456 236)" fill="#ffffff"/>'
+                + '<ellipse cx="156" cy="474" rx="9" ry="14" transform="rotate(-25 156 474)" fill="#f7a8bf"/>')
+    return ""
+
+
+def scaled(body: str, k: float) -> str:
+    return f'<g transform="translate(256 256) scale({k}) translate(-256 -256)">{body}</g>'
+
+
+def svg(body: str, bg: str | None = None, radius: int = 0) -> str:
+    back = f'<rect width="512" height="512" rx="{radius}" fill="{bg}"/>' if bg else ""
+    return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">{back}{body}</svg>\n'
+
+
+def mono() -> str:
+    """Android 13 themed icon: one colour; the stamp is set apart from the card by a thin gap."""
+    cx, cy, r = STAMP
+    body = f'''<defs><mask id="m">
+    <rect width="512" height="512" fill="#000"/>
+    <g transform="{CARD_TILT}"><rect {CARD_RECT} fill="#fff"/>{card_lines("#000")}</g>
+    <circle cx="{cx}" cy="{cy}" r="{r + 12}" fill="#000"/>
+    <circle cx="{cx}" cy="{cy}" r="{r}" fill="#fff"/>
+    <polyline points="{check(cx, cy)}" fill="none" stroke="#000" stroke-width="20"
+      stroke-linecap="round" stroke-linejoin="round"/>
+  </mask></defs>
+  <rect width="512" height="512" fill="#fff" mask="url(#m)"/>'''
+    return svg(scaled(body, 0.62))
+
+
+def variants(p: dict, season: str) -> dict[str, str]:
+    bg = p["bg"]
+    tile = mark(p) + details(season)  # app icons carry the occasion's details; the logo stays plain
+    return {
+        # The mark alone: in-app logo.
+        "mark.svg": svg(scaled(mark(p), 1.12)),
+        # Rounded tile: favicon, docs.
+        "icon.svg": svg(scaled(tile, 0.9), bg, 112),
+        # Full bleed: store icon, web app icons, apple-touch-icon (the platform rounds it).
+        "icon-full.svg": svg(scaled(tile, 0.9), bg),
+        # Maskable web icon: inside the 80 % safe circle.
+        "icon-maskable.svg": svg(scaled(tile, 0.72), bg),
+        # Android adaptive icon layers: inside the 66 % safe zone.
+        "icon-foreground.svg": svg(scaled(tile, 0.62)),
+        "icon-background.svg": svg("", bg),
+        "icon-monochrome.svg": mono(),
+    }
+
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--season", default="classic", choices=sorted(PALETTES))
+    season = ap.parse_args().season
+
+    OUT.mkdir(parents=True, exist_ok=True)
+    (OUT / "seal.svg").unlink(missing_ok=True)
+    for name, text in variants(PALETTES[season], season).items():
+        (OUT / name).write_text(text)
+    (OUT / "season.txt").write_text(season + "\n")
+
+    seasons = OUT / "seasons"
+    seasons.mkdir(exist_ok=True)
+    for key, p in PALETTES.items():
+        (seasons / f"{key}.svg").write_text(variants(p, key)["icon-full.svg"])
+    print(f"wrote public/brand/*.svg in the {season} colours, and public/brand/seasons/*.svg")

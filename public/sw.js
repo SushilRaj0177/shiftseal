@@ -1,10 +1,10 @@
 /* Shiftseal service worker: keeps the app shell available offline so a worker can
    still scan the gate code and queue a check-in without a signal. API calls are
    never cached. */
-const CACHE = 'shiftseal-shell-v3';
+const CACHE = 'shiftseal-shell-v4';
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(['/', '/manifest.webmanifest', '/favicon.png', '/brand/seal-mark.png'])));
+  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(['/', '/manifest.webmanifest', '/favicon.png', '/brand/mark.png'])));
   self.skipWaiting();
 });
 

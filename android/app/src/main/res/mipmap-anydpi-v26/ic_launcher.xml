@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Drawn by scripts/brand/make-icon.py: the wax seal on its time card. -->
+<!-- Drawn by scripts/brand/make-icon.py: the time card with its stamp. -->
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
     <background android:drawable="@mipmap/ic_launcher_background" />
     <foreground android:drawable="@mipmap/ic_launcher_foreground" />

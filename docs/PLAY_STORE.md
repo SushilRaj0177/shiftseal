@@ -34,11 +34,11 @@ Go to https://play.google.com/console and sign in with the Google account that o
 
 1. **Testing → Internal testing → Create new release.**
 2. When asked about app signing, keep **Use Google-generated key (recommended)**. Google holds the final signing key; you only keep the upload key.
-3. Upload `app-release.aab` (version code 1).
-4. Release name `1.0 (1)`. Release notes: `First release.`
+3. Upload `app-release.aab` (version code 2).
+4. Release name `1.0 (2)`. Release notes: `First release.`
 5. **Testers** tab: create an email list with your team's Gmail addresses, save, then copy the **join link**. That link is the "available on Google Play" link for the README and the demo.
 
-Every later upload needs a higher version code. Build one from GitHub: **Actions → Android → Run workflow**, enter the next version code (2, 3, …), then download `shiftseal-play-bundle`. That job needs two repository secrets, set once under **Settings → Secrets and variables → Actions**:
+Every later upload needs a higher version code. Build one from GitHub: **Actions → Android → Run workflow**, enter the next version code (3, 4, …), then download `shiftseal-play-bundle`. That job needs two repository secrets, set once under **Settings → Secrets and variables → Actions**:
 
 | Secret | Value |
 | --- | --- |
@@ -54,7 +54,7 @@ keyAlias=shiftseal-upload
 keyPassword=...
 ```
 
-then run `cd android && ./gradlew bundleRelease -PversionCode=2`.
+then run `cd android && ./gradlew bundleRelease -PversionCode=3`.
 
 **Keep the upload key and its password safe and private.** If they are lost, Play support can reset the upload key, but it takes days.
 
@@ -107,7 +107,7 @@ Shiftseal never tracks your location in the background. Location is read only at
 
 | Asset | File |
 | --- | --- |
-| App icon, 512 × 512 | `icon-512.png` |
+| App icon, 512 × 512 | `icon-512.png` (seasonal versions: see [`BRAND.md`](BRAND.md)) |
 | Feature graphic, 1024 × 500 | `feature-graphic.png` |
 | Phone screenshots, 1080 × 1920 | `play-light-0.png` … `play-light-5.png` |
 
