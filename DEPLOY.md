@@ -29,10 +29,10 @@ done
 ```bash
 cd ~/shiftseal && git fetch origin main && git reset --hard origin/main
 gcloud run deploy shiftseal --source . --region asia-south1 --allow-unauthenticated \
-  --set-env-vars GOOGLE_GENAI_USE_VERTEXAI=true,GOOGLE_CLOUD_PROJECT=promptwars-512900,GOOGLE_CLOUD_LOCATION=global,GEMINI_MODEL=gemini-3.8-flash,STORE=firestore,FIREBASE_PROJECT_ID=promptwars-512900,FIREBASE_WEB_API_KEY=<apiKey>,FIREBASE_AUTH_DOMAIN=<authDomain>
+  --update-env-vars GOOGLE_GENAI_USE_VERTEXAI=true,GOOGLE_CLOUD_PROJECT=promptwars-512900,GOOGLE_CLOUD_LOCATION=global,GEMINI_MODEL=gemini-3.8-flash,STORE=firestore,FIREBASE_PROJECT_ID=promptwars-512900,FIREBASE_WEB_API_KEY=<apiKey>,FIREBASE_AUTH_DOMAIN=<authDomain>
 ```
 
-`SESSION_SECRET` (already set on the service) must stay the same across deploys: it signs workers' receipts and the gate codes. The server refuses to start in production without it, or in developer sign-in mode.
+Use `--update-env-vars`, never `--set-env-vars`: the latter removes every variable not listed, including `SESSION_SECRET`. Set it once with `--update-env-vars SESSION_SECRET=$(openssl rand -hex 32)`; it must stay the same across deploys: it signs workers' receipts and the gate codes. The server refuses to start in production without it, or in developer sign-in mode.
 
 ## Running locally
 
