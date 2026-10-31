@@ -10,6 +10,18 @@ Whether it is a construction site, a campus or an office, someone else usually k
 
 How it works: [`ARCHITECTURE.md`](ARCHITECTURE.md) · Designs: [Figma](https://www.figma.com/design/viMV0sdG4YQXTDyAN6qucK) · System model: [FigJam](https://www.figma.com/board/DXbOejYuuG4GDZP0KnsHtc)
 
+**Live demo:** https://shiftseal-872210045960.asia-south1.run.app
+
+## Screenshots
+
+| Welcome | Worker home | Pay, line by line | Report a hazard |
+| --- | --- | --- | --- |
+| ![Welcome screen with a sealed time card](docs/screenshots/welcome.png) | ![Worker home: today's shift and the last 7 days](docs/screenshots/worker-home.png) | ![Pay: net pay and how it adds up](docs/screenshots/worker-pay.png) | ![Reporting a hazard in three steps](docs/screenshots/worker-report.png) |
+
+| Leave balances | Dark mode | Employer dashboard |
+| --- | --- | --- |
+| ![Leave balances and requests](docs/screenshots/worker-leave.png) | ![Worker home in dark mode](docs/screenshots/worker-home-dark.png) | ![Employer overview on a desktop](docs/screenshots/employer-dashboard.png) |
+
 ---
 
 ## For workers
@@ -60,27 +72,75 @@ Nobody can close a flag about themselves, and flags about the employer can only 
 - **Google Cloud:** Cloud Run, Firestore (one document per record, chains appended in transactions), Gemini on Vertex AI (no API keys), Firebase Authentication (phone and Google).
 - **Rules:** pure, tested functions in `src/shared/rules/`: hours, pay, claims, severity floor, fatigue, anonymity, fact check, evidence flags.
 
-## Develop
+## Setup and running
+
+**You need:** Node.js 20.6 or newer and npm. Nothing else is needed to run it locally: no database, no Firebase project and no API key.
 
 ```bash
+git clone https://github.com/SushilRaj0177/shiftseal.git
+cd shiftseal
 npm ci
-npm test               # unit, API and end-to-end flow tests
-npm run lint && npm run typecheck
+cp .env.example .env      # local defaults: in-memory store, developer sign-in
 npm run build
-AUTH_MODE=dev STORE=memory npm start   # http://localhost:8080 with developer sign-in
+npm run start:local       # http://localhost:8080
 ```
 
-Android app (`android/`, needs the Android SDK and JDK 17):
+Open http://localhost:8080, pick **I manage a workplace** to create one, then open the invite code in a second browser window as a worker. Developer sign-in asks only for a user id; the server refuses to start with it in production.
+
+Without a Gemini key, every AI step (voice, hazard reports, claims, payslip questions) falls back to a safe rule-based answer, so the whole app still works.
+
+### Environment variables
+
+All of them are listed, with comments, in [`.env.example`](.env.example). The server validates them at startup and stops with a clear message if one is wrong.
+
+| Variable | Needed for | What it does |
+| --- | --- | --- |
+| `NODE_ENV` | always | `development`, `test` or `production` |
+| `PORT` | always | HTTP port, default `8080` |
+| `STORE` | always | `memory` (local) or `firestore` (production) |
+| `AUTH_MODE` | always | `dev` (local sign-in) or `firebase` (phone and Google sign-in) |
+| `FIREBASE_PROJECT_ID`, `FIREBASE_WEB_API_KEY`, `FIREBASE_AUTH_DOMAIN` | `AUTH_MODE=firebase` | Firebase web app settings (public identifiers) |
+| `SESSION_SECRET` | production | 32+ random characters for signing sessions and gate codes |
+| `GOOGLE_CLOUD_PROJECT`, `GOOGLE_CLOUD_LOCATION` | Firestore, Vertex AI | Google Cloud project and region |
+| `GOOGLE_GENAI_USE_VERTEXAI`, `GEMINI_MODEL` | AI features | `true` uses Vertex AI with the service account (no key) |
+| `GEMINI_API_KEY` | AI without Vertex | Only when `GOOGLE_GENAI_USE_VERTEXAI=false`; never commit it |
+| `ANDROID_PACKAGE`, `ANDROID_CERT_SHA256` | Android app | Turn on Play Integrity checks and app links |
+
+### Checks
+
+```bash
+npm test                  # 177 unit, API and end-to-end flow tests
+npm run lint
+npm run typecheck
+npm run format:check
+```
+
+CI runs all of them on every push. Deploying to Cloud Run, including the Firebase sign-in setup: [`DEPLOY.md`](DEPLOY.md). Threat model: [`SECURITY.md`](SECURITY.md).
+
+### Android app
+
+The app in `android/` wraps the website and adds a mock-location check, Play Integrity and native Google sign-in. It needs the Android SDK and JDK 17:
 
 ```bash
 cd android && ./gradlew assembleDebug   # app/build/outputs/apk/debug/app-debug.apk
 ```
 
-It opens the deployed site (`-PshiftsealUrl=https://...` for another). For Play Integrity and app links, set `ANDROID_PACKAGE=dev.sushilraj.shiftseal` and `ANDROID_CERT_SHA256` (Play Console, App signing) on the server.
+It opens the deployed site (`-PshiftsealUrl=https://...` for another). `android/app/debug.keystore` is the standard public Android debug key (password `android`), kept so debug builds have a stable fingerprint; release keys are never in the repository.
 
-Deploying, including the Firebase sign-in setup: [`DEPLOY.md`](DEPLOY.md). Threat model: [`SECURITY.md`](SECURITY.md).
+## Project structure
 
----
+```
+src/
+  client/      React app: worker/, employer/, auth/, ui/, i18n/ (10 languages), styles/
+  server/      Express API: routes/, services/, auth/, gemini/, data/ (memory and Firestore stores)
+  shared/      Code both sides use: rules/ (hours, pay, claims, flags), countries/ (12 law packs),
+               ledger/ (hash-chained records), zod schemas
+tests/         client, server and shared tests (Vitest)
+android/       Android app (Java, WebView shell)
+docs/          architecture decisions and screenshots
+```
+
+**Validation and errors:** every API request body is checked against a zod schema (`src/shared/apiSchemas.ts`) and rejected with a clear message when invalid. Errors come back in one shape (`{ error, message }`) without stack traces or secrets. The app shows them in place and keeps check-ins in an offline queue until they reach the server.
 
 ## Countries
 
@@ -101,9 +161,6 @@ Each country is a pack in `src/shared/countries/` with sourced rules (statute an
 | UK | contract (no statutory premium) | 48 h average over 17 weeks | 28 days | duty to prevent sexual harassment; ACAS |
 | US | after 40 h, 1.5× (California: daily 8 h, 2× after 12, seventh day) | 40 h workweek | PTO and sick time (California, New York rules) | Title VII; EEOC, CRD, NYS DHR |
 
----
-
-Shiftseal began as a Top 10 entry at Prompt Wars 2026 (UN SDG 8, decent work).
 
 ### Students and young workers
 
@@ -119,3 +176,7 @@ Shops, cafés and convenience stores are a sector of their own. A worker can say
 | UK | 20 h/week in term | 8 h/day, 40 h/week, no 22:00–6:00 |
 | US | 20 h/week on campus in term (F-1) | under 16: 18 h school week, no work 19:00–7:00 |
 | India, China, Mexico, Brazil, Portugal | described, not metered | hazardous work, overtime and night rules as each law sets |
+
+---
+
+Shiftseal began as a Top 10 entry at Prompt Wars 2026 (UN SDG 8, decent work).

@@ -24,6 +24,13 @@ describe('runtime configuration', () => {
     expect(config.PORT).toBe(8080);
   });
 
+  it('treats blank lines from .env.example as unset', () => {
+    const config = parseConfig({ FIREBASE_PROJECT_ID: '', SESSION_SECRET: '  ', PORT: '' });
+    expect(config.FIREBASE_PROJECT_ID).toBeUndefined();
+    expect(config.SESSION_SECRET).toBeUndefined();
+    expect(config.PORT).toBe(8080);
+  });
+
   it('rejects an unknown store, an invalid port and a weak session secret', () => {
     expect(() => parseConfig({ STORE: 'postgres' })).toThrow(/STORE/);
     expect(() => parseConfig({ PORT: '99999' })).toThrow(/PORT/);

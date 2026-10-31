@@ -51,7 +51,9 @@ const envSchema = z
 export type AppConfig = z.infer<typeof envSchema>;
 
 export function parseConfig(env: Record<string, string | undefined>): AppConfig {
-  const result = envSchema.safeParse(env);
+  // A blank line in .env (`KEY=`) means "not set", not "set to nothing".
+  const present = Object.fromEntries(Object.entries(env).filter(([, v]) => v?.trim()));
+  const result = envSchema.safeParse(present);
   if (!result.success) {
     const fields = result.error.issues.map((i) => i.path.join('.')).join(', ');
     throw new Error(`Invalid configuration: ${fields}`);
