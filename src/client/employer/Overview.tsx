@@ -167,7 +167,7 @@ export const Overview: React.FC = () => {
       <header className="dash-greeting">
         <div className="stack-sm">
           <span className="t-eyebrow">{wp.name}</span>
-          <h1 className="t-display" style={{ fontSize: 30, lineHeight: '36px' }}>
+          <h1 className="t-display page-title">
             {t('eGreeting', greeting, firstName(base.member.name, lang))}
           </h1>
           <span className="muted">

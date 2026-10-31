@@ -5,7 +5,8 @@ import { api, errorMessage } from '../lib/api.js';
 import { useApi } from '../lib/useApi.js';
 import { Brand, Card, Field, Notice, Spinner } from '../ui/index.js';
 import { Grain } from '../ui/visuals.js';
-import { useEmployer } from './EmployerApp.js';
+import { PageHead, useEmployer } from './EmployerApp.js';
+import { Icon } from '../components/Icon.js';
 import { useLang } from '../i18n/LangProvider.js';
 import { countryPack } from '../../shared/countries/index.js';
 
@@ -45,15 +46,23 @@ export const Invite: React.FC = () => {
 
   return (
     <>
-      <header className="between no-print">
-        <h1 className="t-title">{t('eNavInvite')}</h1>
-        {/* The Android app's web view cannot print; the poster prints from the website. */}
-        {!isAndroidApp() && (
-          <button type="button" className="btn btn-secondary btn-sm" onClick={() => window.print()}>
-            {t('ePrintPoster')}
-          </button>
-        )}
-      </header>
+      {/* The Android app's web view cannot print; the poster prints from the website. */}
+      <PageHead
+        className="no-print"
+        title={t('eNavInvite')}
+        action={
+          isAndroidApp() ? null : (
+            <button
+              type="button"
+              className="btn btn-secondary btn-sm"
+              onClick={() => window.print()}
+            >
+              <Icon name="printer" size={16} />
+              {t('ePrintPoster')}
+            </button>
+          )
+        }
+      />
 
       <div className="cols">
         <Card>

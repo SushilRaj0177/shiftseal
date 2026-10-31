@@ -23,7 +23,7 @@ const FLAG_SEV: Record<string, StringKey> = {
   review: 'eReview',
   info: 'eInfo',
 };
-import { useEmployer } from './EmployerApp.js';
+import { PageHead, useEmployer } from './EmployerApp.js';
 
 type Tab = 'claims' | 'hazards' | 'flags';
 
@@ -71,7 +71,7 @@ export const Review: React.FC = () => {
 
   return (
     <>
-      <h1 className="t-title">{t('eNavReview')}</h1>
+      <PageHead title={t('eNavReview')} />
       <div className="segmented" role="group" style={{ maxWidth: 480 }}>
         {(
           [

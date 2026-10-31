@@ -8,7 +8,7 @@ import type { LeaveResponse } from '../lib/types.js';
 import { Card, Empty, Field, Notice, Pill, Sheet, Skeleton } from '../ui/index.js';
 import { STATUS_KEY, STATUS_TONE, TYPE_KEY } from '../worker/Leave.js';
 import { useLang } from '../i18n/LangProvider.js';
-import { useEmployer } from './EmployerApp.js';
+import { PageHead, useEmployer } from './EmployerApp.js';
 
 export const Leave: React.FC = () => {
   const { t, lang } = useLang();
@@ -67,7 +67,7 @@ export const Leave: React.FC = () => {
 
   return (
     <>
-      <h1 className="t-title">{t('eNavLeave')}</h1>
+      <PageHead title={t('eNavLeave')} />
       {msg && <Notice kind={msg.kind}>{msg.text}</Notice>}
       <div className="cols">
         <div className="stack">

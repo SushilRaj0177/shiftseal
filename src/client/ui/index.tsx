@@ -3,6 +3,7 @@ import { apiImage } from '../lib/api.js';
 import { useNavigate } from 'react-router-dom';
 import { Icon, type IconName } from '../components/Icon.js';
 import { LANGUAGES, type Language } from '../../shared/languages.js';
+import { InkStamp } from './visuals.js';
 
 export type Tone = 'good' | 'warn' | 'danger' | 'accent' | 'neutral';
 
@@ -218,4 +219,56 @@ export const LanguagePicker: React.FC<{
       </button>
     ))}
   </div>
+);
+
+/** The top of a form screen: a marked glyph, the title, and one line of why. */
+export const FormHead: React.FC<{
+  icon: IconName;
+  tone?: 'hazard' | 'voice' | 'pay';
+  title: string;
+  children?: React.ReactNode;
+}> = ({ icon, tone = 'voice', title, children }) => (
+  <header className="form-head">
+    <span className={`form-glyph ${tone}`} aria-hidden="true">
+      <Icon name={icon} size={26} />
+    </span>
+    <h1 className="t-title">{title}</h1>
+    {children ? <p className="muted">{children}</p> : null}
+  </header>
+);
+
+/** A numbered step heading inside a form. */
+export const Step: React.FC<{ n: number; title: string; aside?: React.ReactNode }> = ({
+  n,
+  title,
+  aside,
+}) => (
+  <h2 className="step">
+    <span className="step-n" aria-hidden="true">
+      {n}
+    </span>
+    <span className="grow">{title}</span>
+    {aside}
+  </h2>
+);
+
+/** The moment something is filed: a record slip with the seal pressed on it. */
+export const Sealed: React.FC<{
+  title: string;
+  children?: React.ReactNode;
+  action?: React.ReactNode;
+}> = ({ title, children, action }) => (
+  <section className="sealed" role="status">
+    <div className="sealed-slip">
+      <InkStamp className="sealed-stamp" />
+      <span className="sealed-lines" aria-hidden="true">
+        <i />
+        <i />
+        <i />
+      </span>
+      <p className="t-headline">{title}</p>
+      {children ? <div className="t-caption muted">{children}</div> : null}
+    </div>
+    {action}
+  </section>
 );

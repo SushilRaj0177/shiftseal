@@ -25,6 +25,26 @@ interface EmployerContextValue {
 
 const EmployerContext = createContext<EmployerContextValue | null>(null);
 
+/** The top of every employer page: the workplace, the page, and its main action. */
+export const PageHead: React.FC<{
+  title: string;
+  sub?: React.ReactNode;
+  action?: React.ReactNode;
+  className?: string;
+}> = ({ title, sub, action, className }) => {
+  const { base } = useEmployer();
+  return (
+    <header className={`page-head${className ? ` ${className}` : ''}`}>
+      <div className="stack-sm">
+        <span className="t-eyebrow">{base.workplace.name}</span>
+        <h1 className="t-display page-title">{title}</h1>
+        {sub ? <span className="muted">{sub}</span> : null}
+      </div>
+      {action ? <div className="row-flex">{action}</div> : null}
+    </header>
+  );
+};
+
 export function useEmployer(): EmployerContextValue {
   const ctx = useContext(EmployerContext);
   if (!ctx) throw new Error('useEmployer outside EmployerApp');

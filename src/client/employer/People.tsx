@@ -3,7 +3,8 @@ import { Link } from 'react-router-dom';
 import { useLang } from '../i18n/LangProvider.js';
 import type { StringKey } from '../i18n/strings.js';
 import { Card, Empty, Pill, Skeleton, type Tone } from '../ui/index.js';
-import { useEmployer } from './EmployerApp.js';
+import { PageHead, useEmployer } from './EmployerApp.js';
+import { Icon } from '../components/Icon.js';
 import { initials } from '../lib/format.js';
 
 const STATUS: Record<string, [Tone | undefined, StringKey]> = {
@@ -20,12 +21,16 @@ export const People: React.FC = () => {
   if (!dash) return <Skeleton height={300} />;
   return (
     <>
-      <header className="between">
-        <h1 className="t-title">{t('eNavPeople')}</h1>
-        <Link className="btn btn-primary btn-sm" to="../invite">
-          {t('eInvite')}
-        </Link>
-      </header>
+      <PageHead
+        title={t('eNavPeople')}
+        sub={t('ePeopleCount', dash.people.length)}
+        action={
+          <Link className="btn btn-primary btn-sm" to="../invite">
+            <Icon name="plus" size={16} />
+            {t('eInvite')}
+          </Link>
+        }
+      />
       {dash.people.length === 0 ? (
         <Card>
           <Empty icon="users">{t('eNoPeople')}</Empty>

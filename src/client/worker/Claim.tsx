@@ -3,9 +3,8 @@ import { Link } from 'react-router-dom';
 import type { Language } from '../../shared/types.js';
 import { api, errorMessage } from '../lib/api.js';
 import { useLang } from '../i18n/LangProvider.js';
-import { HoldToTalk } from '../components/HoldToTalk.js';
-import { Icon } from '../components/Icon.js';
-import { AppBar, Card, Field, Notice, Spinner } from '../ui/index.js';
+import { Composer } from '../components/Composer.js';
+import { AppBar, Card, Field, FormHead, Notice, Sealed, Spinner } from '../ui/index.js';
 import { useWorker } from './WorkerApp.js';
 
 interface Understood {
@@ -76,16 +75,15 @@ export const Claim: React.FC = () => {
       <main className="screen">
         <div className="screen-body">
           <div className="spacer" />
-          <div className="stack center" style={{ alignItems: 'center' }}>
-            <span className="tile good" style={{ width: 64, height: 64, borderRadius: 20 }}>
-              <Icon name="check" size={32} />
-            </span>
-            <p className="t-headline">{t('claimSent')}</p>
-          </div>
+          <Sealed
+            title={t('claimSent')}
+            action={
+              <Link className="btn btn-primary" to={`/w/${wp.id}/pay`}>
+                {t('done')}
+              </Link>
+            }
+          />
           <div className="spacer" />
-          <Link className="btn btn-primary" to={`/w/${wp.id}/pay`}>
-            {t('done')}
-          </Link>
         </div>
       </main>
     );
@@ -101,36 +99,23 @@ export const Claim: React.FC = () => {
     <main className="screen">
       <AppBar back={`/w/${wp.id}/pay`} />
       <div className="screen-body">
-        <h1 className="t-title">{t('claimTitle')}</h1>
-        <p className="muted">{t('claimBody')}</p>
+        <FormHead icon="clock" tone="pay" title={t('claimTitle')}>
+          {t('claimBody')}
+        </FormHead>
         {overview?.overtime === 'comp_off' && <Notice kind="info">{t('compOffNote')}</Notice>}
         {!result && (
-          <>
-            <HoldToTalk
-              disabled={busy}
-              onRecorded={(b64, mime) => understand({ audioBase64: b64, audioMimeType: mime })}
-            />
-            <form
-              className="stack"
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (text.trim()) void understand({ text: text.trim() });
-              }}
-            >
-              <Field label={t('typeInstead')}>
-                <textarea
-                  className="textarea"
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                />
-              </Field>
-              <button type="submit" className="btn btn-secondary" disabled={!text.trim() || busy}>
-                {t('understand')}
-              </button>
-            </form>
-          </>
+          <Composer
+            value={text}
+            onChange={setText}
+            label={t('typeInstead')}
+            placeholder={t('typeInstead')}
+            submitLabel={t('understand')}
+            busy={busy}
+            onSubmit={(v) => void understand({ text: v })}
+            onVoice={(b64, mime) => void understand({ audioBase64: b64, audioMimeType: mime })}
+          />
         )}
-        {busy && <Spinner label={t('loading')} />}
+        {busy && result && <Spinner label={t('loading')} />}
         {result && (
           <>
             <Card>

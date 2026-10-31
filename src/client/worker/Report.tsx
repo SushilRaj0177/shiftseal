@@ -6,10 +6,10 @@ import { getFix } from '../lib/location.js';
 import { compressPhoto } from '../lib/photo.js';
 import { useLang } from '../i18n/LangProvider.js';
 import type { StringKey } from '../i18n/strings.js';
-import { HoldToTalk } from '../components/HoldToTalk.js';
+import { Composer } from '../components/Composer.js';
 import { Icon, zoneIcon } from '../components/Icon.js';
 import { Link } from 'react-router-dom';
-import { Card, Notice, Pill, Spinner, Tile } from '../ui/index.js';
+import { Card, FormHead, Notice, Pill, Sealed, Spinner, Step, Tile } from '../ui/index.js';
 import { TabBar, useWorker } from './WorkerApp.js';
 
 interface Structured {
@@ -126,20 +126,37 @@ export const Report: React.FC = () => {
     overview?.hazards.filter((h) => h.status === 'resolved' && !h.fixDisputed) ?? [];
   const sev = result?.severityEvaluation;
 
+  if (done)
+    return (
+      <main className="screen has-tabs">
+        <div className="screen-body">
+          <div className="spacer" />
+          <Sealed
+            title={done}
+            action={
+              <button type="button" className="btn btn-primary" onClick={() => setDone(null)}>
+                {t('done')}
+              </button>
+            }
+          />
+          <div className="spacer" />
+        </div>
+        <TabBar />
+      </main>
+    );
+
   return (
     <main className="screen has-tabs">
       <div className="screen-body">
-        <header className="stack-sm" style={{ paddingTop: 8 }}>
-          <h1 className="t-title">{t('reportTitle')}</h1>
-          <span className="muted">{t('reportBody')}</span>
-        </header>
-        {done && <Notice kind="info">{done}</Notice>}
+        <FormHead icon="alert" tone="hazard" title={t('reportTitle')}>
+          {t('reportBody')}
+        </FormHead>
 
         {fixedForMe.slice(0, 1).map((h) => (
           <FixCheck key={h.id} hazardId={h.id} zoneName={h.zoneName} />
         ))}
 
-        <span className="t-label">{t('where')}</span>
+        <Step n={1} title={t('where')} />
         <div className="grid-2" role="radiogroup" aria-label={t('where')}>
           {wp.zones.map((z) => (
             <button
@@ -159,36 +176,22 @@ export const Report: React.FC = () => {
           ))}
         </div>
 
-        <span className="t-label">{t('whatSaw')}</span>
+        <Step n={2} title={t('whatSaw')} />
         {!result ? (
-          <>
-            <form
-              className="stack"
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (text.trim()) void understand({ text: text.trim() });
-              }}
-            >
-              <textarea
-                className="textarea"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder={t('describeHazard')}
-                aria-label={t('describeHazard')}
-              />
-              <button type="submit" className="btn btn-secondary" disabled={!text.trim() || busy}>
-                {t('understand')}
-              </button>
-            </form>
-            <HoldToTalk
-              disabled={busy}
-              onRecorded={(b64, mime) => understand({ audioBase64: b64, audioMimeType: mime })}
-            />
-          </>
+          <Composer
+            value={text}
+            onChange={setText}
+            label={t('describeHazard')}
+            placeholder={t('describeHazard')}
+            submitLabel={t('understand')}
+            busy={busy}
+            onSubmit={(v) => void understand({ text: v })}
+            onVoice={(b64, mime) => void understand({ audioBase64: b64, audioMimeType: mime })}
+          />
         ) : (
-          <Card>
+          <section className={`card hazard-slip sev-${sev?.finalSeverity ?? 'low'}`}>
             <div className="between">
-              <span className="t-strong" style={{ textTransform: 'capitalize' }}>
+              <span className="t-headline" style={{ textTransform: 'capitalize' }}>
                 {tx(`hz_${result.structuredHazard.hazardType}`)}
               </span>
               {sev && (
@@ -205,7 +208,7 @@ export const Report: React.FC = () => {
                 </Pill>
               )}
             </div>
-            <p className="t-caption">{result.structuredHazard.description}</p>
+            <p>{result.structuredHazard.description}</p>
             {sev?.floorApplied && (
               <span className="t-caption muted">
                 {t('severityFloorNote', t(SEV_KEY[sev.floorSeverity]))}
@@ -217,11 +220,13 @@ export const Report: React.FC = () => {
               style={{ alignSelf: 'flex-start' }}
               onClick={() => setResult(null)}
             >
+              <Icon name="pencil" size={16} />
               {t('edit')}
             </button>
-          </Card>
+          </section>
         )}
 
+        <Step n={3} title={t('takePhoto')} />
         <input
           ref={fileRef}
           type="file"
@@ -230,31 +235,27 @@ export const Report: React.FC = () => {
           hidden
           onChange={(e) => void onPhoto(e.target.files?.[0])}
         />
-        {photo ? (
-          <div className="row-flex">
-            <img
-              src={photo.dataUrl}
-              alt=""
-              width={64}
-              height={64}
-              style={{ borderRadius: 12, objectFit: 'cover' }}
-            />
-            <button type="button" className="link-btn" onClick={() => fileRef.current?.click()}>
-              {t('retake')}
-            </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={() => fileRef.current?.click()}
-          >
-            <Icon name="camera" />
-            {t('takePhoto')}
-          </button>
-        )}
+        <button
+          type="button"
+          className={`photo-drop${photo ? ' has-photo' : ''}`}
+          onClick={() => fileRef.current?.click()}
+        >
+          {photo ? (
+            <>
+              <img src={photo.dataUrl} alt="" width={72} height={72} />
+              <span className="t-strong">{t('retake')}</span>
+            </>
+          ) : (
+            <>
+              <span className="photo-drop-icon" aria-hidden="true">
+                <Icon name="camera" size={24} />
+              </span>
+              <span className="t-strong">{t('takePhoto')}</span>
+            </>
+          )}
+        </button>
 
-        {busy && <Spinner label={t('loading')} />}
+        {busy && result && <Spinner label={t('loading')} />}
         {error && <Notice kind="error">{error}</Notice>}
         <button type="button" className="btn btn-primary" disabled={!result || busy} onClick={send}>
           {t('sendReport')}

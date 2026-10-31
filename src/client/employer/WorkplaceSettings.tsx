@@ -8,7 +8,7 @@ import { getFix } from '../lib/location.js';
 import { useAuth } from '../auth/AuthProvider.js';
 import { useLang } from '../i18n/LangProvider.js';
 import { Card, Field, Kv, LanguagePicker, Notice } from '../ui/index.js';
-import { useEmployer } from './EmployerApp.js';
+import { PageHead, useEmployer } from './EmployerApp.js';
 import { countryName, CYCLE_KEY, weekdayNames } from './CreateWorkplace.js';
 
 export const WorkplaceSettings: React.FC = () => {
@@ -85,7 +85,7 @@ export const WorkplaceSettings: React.FC = () => {
 
   return (
     <>
-      <h1 className="t-title">{t('eNavSettings')}</h1>
+      <PageHead title={t('eNavSettings')} />
       {msg && <Notice kind={msg.kind}>{msg.text}</Notice>}
       <div className="cols">
         <div className="stack">

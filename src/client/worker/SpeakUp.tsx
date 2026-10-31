@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { api, errorMessage } from '../lib/api.js';
 import { useLang } from '../i18n/LangProvider.js';
-import { HoldToTalk } from '../components/HoldToTalk.js';
+import { Composer } from '../components/Composer.js';
 import { Icon } from '../components/Icon.js';
-import { Card, Notice, Spinner, Tile } from '../ui/index.js';
+import { FormHead, Notice, Sealed, Tile } from '../ui/index.js';
 import { TabBar, useWorker } from './WorkerApp.js';
 
 interface Preview {
@@ -61,14 +61,34 @@ export const SpeakUp: React.FC = () => {
 
   const g = overview?.feedbackGroup;
 
+  if (sent)
+    return (
+      <main className="screen has-tabs">
+        <div className="screen-body">
+          <div className="spacer" />
+          <Sealed
+            title={t('sentAnon')}
+            action={
+              <button type="button" className="btn btn-primary" onClick={() => setSent(false)}>
+                {t('done')}
+              </button>
+            }
+          >
+            {g ? t('groupProgress', Math.min(g.count, g.threshold), g.threshold) : null}
+          </Sealed>
+          <div className="spacer" />
+        </div>
+        <TabBar />
+      </main>
+    );
+
   return (
     <main className="screen has-tabs">
       <div className="screen-body">
-        <header className="stack-sm" style={{ paddingTop: 8 }}>
-          <h1 className="t-title">{t('speakTitle')}</h1>
-          <span className="muted">{t('speakBody')}</span>
-        </header>
-        <Card>
+        <FormHead icon="chat" tone="voice" title={t('speakTitle')}>
+          {t('speakBody')}
+        </FormHead>
+        <ol className="promise">
           {(
             [
               ['eye', 'privacy1', 'privacy1b'],
@@ -76,65 +96,66 @@ export const SpeakUp: React.FC = () => {
               ['users', 'privacy3', 'privacy3b'],
             ] as const
           ).map(([icon, a, b]) => (
-            <div key={a} className="row-flex" style={{ alignItems: 'flex-start' }}>
+            <li key={a}>
               <Tile icon={icon} small />
-              <div className="stack-sm">
+              <span className="stack-sm" style={{ gap: 2 }}>
                 <span className="t-strong">{t(a)}</span>
                 <span className="t-caption muted">{t(b)}</span>
-              </div>
-            </div>
+              </span>
+            </li>
           ))}
-        </Card>
-        {sent && <Notice kind="info">{t('sentAnon')}</Notice>}
+        </ol>
+        {g && (
+          <div
+            className="group-meter"
+            aria-label={t('groupProgress', Math.min(g.count, g.threshold), g.threshold)}
+          >
+            <span className="group-dots" aria-hidden="true">
+              {Array.from({ length: g.threshold }, (_, i) => (
+                <i key={i} className={i < g.count ? 'on' : ''} />
+              ))}
+            </span>
+            <span className="t-caption muted">
+              {t('groupProgress', Math.min(g.count, g.threshold), g.threshold)}
+            </span>
+          </div>
+        )}
+        <h2 className="step">
+          <span className="grow">{t('whatsOnMind')}</span>
+        </h2>
         {!preview ? (
-          <>
-            <span className="t-label">{t('whatsOnMind')}</span>
-            <form
-              className="stack"
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (text.trim()) void clean({ text: text.trim() });
-              }}
-            >
-              <textarea
-                className="textarea"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                aria-label={t('whatsOnMind')}
-              />
-              <button type="submit" className="btn btn-secondary" disabled={!text.trim() || busy}>
-                {t('continue')}
-              </button>
-            </form>
-            <HoldToTalk
-              disabled={busy}
-              onRecorded={(b64, mime) => clean({ audioBase64: b64, audioMimeType: mime })}
-            />
-          </>
+          <Composer
+            value={text}
+            onChange={setText}
+            label={t('whatsOnMind')}
+            submitLabel={t('continue')}
+            busy={busy}
+            onSubmit={(v) => void clean({ text: v })}
+            onVoice={(b64, mime) => void clean({ audioBase64: b64, audioMimeType: mime })}
+          />
         ) : (
-          <Card tone="subtle">
-            <span className="t-caption muted">{t('willBeSaved')}</span>
-            <p>{preview.cleanText}</p>
+          <section className="card quote-slip">
+            <span className="t-label">{t('willBeSaved')}</span>
+            <blockquote className="t-note">{preview.cleanText}</blockquote>
             <button
               type="button"
               className="link-btn"
               style={{ alignSelf: 'flex-start' }}
               onClick={() => setPreview(null)}
             >
+              <Icon name="pencil" size={16} />
               {t('edit')}
             </button>
-          </Card>
+          </section>
         )}
-        {busy && <Spinner label={t('loading')} />}
         {error && <Notice kind="error">{error}</Notice>}
-        {g && (
-          <div className="row-flex t-caption muted">
-            <Icon name="users" size={18} />
-            {t('groupProgress', Math.min(g.count, g.threshold), g.threshold)}
-          </div>
-        )}
         {preview && (
           <button type="button" className="btn btn-primary" disabled={busy} onClick={send}>
+            {busy ? (
+              <span className="spinner" aria-hidden="true" />
+            ) : (
+              <Icon name="lock" size={18} />
+            )}
             {t('sendAnon')}
           </button>
         )}
