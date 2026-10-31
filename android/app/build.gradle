@@ -6,6 +6,8 @@ plugins {
 def shiftsealUrl = project.findProperty('shiftsealUrl') ?: 'https://shiftseal-872210045960.asia-south1.run.app'
 // Google Cloud project number that Play Integrity tokens are issued for.
 def cloudProjectNumber = project.findProperty('cloudProjectNumber') ?: '872210045960'
+// OAuth "Web client" ID of the Firebase project, for native Google sign-in.
+def googleWebClientId = project.findProperty('googleWebClientId') ?: ''
 
 android {
     namespace 'dev.sushilraj.shiftseal'
@@ -20,6 +22,18 @@ android {
         manifestPlaceholders = [appHost: new URI(shiftsealUrl).host]
         buildConfigField 'String', 'APP_URL', "\"${shiftsealUrl}\""
         buildConfigField 'long', 'CLOUD_PROJECT_NUMBER', "${cloudProjectNumber}L"
+        buildConfigField 'String', 'GOOGLE_WEB_CLIENT_ID', "\"${googleWebClientId}\""
+    }
+
+    // A fixed debug key (debug only, not a secret) so every debug build has the
+    // same SHA-1, which Firebase needs to allow Google sign-in from the app.
+    signingConfigs {
+        debug {
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
     }
 
     buildFeatures {
@@ -43,4 +57,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.8.0'
     implementation 'com.google.android.gms:play-services-location:21.4.0'
     implementation 'com.google.android.play:integrity:1.6.0'
+    implementation 'androidx.credentials:credentials:1.6.0'
+    implementation 'androidx.credentials:credentials-play-services-auth:1.6.0'
+    implementation 'com.google.android.libraries.identity.googleid:googleid:1.1.1'
 }

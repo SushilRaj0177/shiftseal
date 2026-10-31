@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import type { Auth, ConfirmationResult, RecaptchaVerifier } from '@firebase/auth';
 import { api, setTokenGetter } from '../lib/api.js';
+import { callNative, isAndroidApp } from '../lib/native.js';
 
 /**
  * Sign-in. Production uses Firebase Authentication (phone number + SMS code for
@@ -121,6 +122,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const auth = authRef.current;
     if (!auth) throw new Error('Sign-in is not ready yet.');
     const fa = await import('@firebase/auth');
+    // Google refuses sign-in pages inside an app's web view, so the Android app
+    // signs in natively and hands over the Google ID token.
+    if (isAndroidApp()) {
+      const res = await callNative<{ idToken?: string; error?: string }>(
+        'googleSignIn',
+        {},
+        120_000
+      );
+      if (!res?.idToken) {
+        if (res?.error === 'cancelled') return;
+        throw new Error(
+          'Google sign-in did not work on this phone. Try your phone number instead.'
+        );
+      }
+      await fa.signInWithCredential(auth, fa.GoogleAuthProvider.credential(res.idToken));
+      return;
+    }
     await fa.signInWithPopup(auth, new fa.GoogleAuthProvider());
   }, []);
 

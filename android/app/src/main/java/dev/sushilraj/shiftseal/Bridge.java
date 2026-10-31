@@ -23,6 +23,21 @@ import com.google.android.play.core.integrity.IntegrityManager;
 import com.google.android.play.core.integrity.IntegrityManagerFactory;
 import com.google.android.play.core.integrity.IntegrityTokenRequest;
 
+import android.os.CancellationSignal;
+
+import androidx.credentials.Credential;
+import androidx.credentials.CredentialManager;
+import androidx.credentials.CredentialManagerCallback;
+import androidx.credentials.CustomCredential;
+import androidx.credentials.GetCredentialRequest;
+import androidx.credentials.GetCredentialResponse;
+import androidx.credentials.exceptions.GetCredentialCancellationException;
+import androidx.credentials.exceptions.GetCredentialException;
+import androidx.credentials.exceptions.NoCredentialException;
+
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption;
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,6 +53,7 @@ import java.util.TimeZone;
  *
  * getFix          one precise GPS reading, with whether a mock-location app made it
  * integrityToken  a Play Integrity token bound to the check's nonce
+ * googleSignIn    a Google ID token (Google blocks its sign-in page inside web views)
  */
 public class Bridge {
     private final AppCompatActivity activity;
@@ -90,6 +106,9 @@ public class Bridge {
                     break;
                 case "integrityToken":
                     integrityToken(id, args.optString("nonce", ""));
+                    break;
+                case "googleSignIn":
+                    googleSignIn(id);
                     break;
                 default:
                     resolve(id, "null");
@@ -169,6 +188,39 @@ public class Bridge {
                 })
                 // Not installed from Play, no Play services, or offline: the check goes ahead without it.
                 .addOnFailureListener(e -> resolve(id, "null"));
+    }
+
+    private void googleSignIn(String id) {
+        if (BuildConfig.GOOGLE_WEB_CLIENT_ID.isEmpty()) {
+            resolve(id, "{\"error\":\"unavailable\"}");
+            return;
+        }
+        GetCredentialRequest request = new GetCredentialRequest.Builder()
+                .addCredentialOption(new GetSignInWithGoogleOption.Builder(BuildConfig.GOOGLE_WEB_CLIENT_ID).build())
+                .build();
+        CredentialManager.create(activity).getCredentialAsync(activity, request, new CancellationSignal(),
+                ContextCompat.getMainExecutor(activity),
+                new CredentialManagerCallback<GetCredentialResponse, GetCredentialException>() {
+                    @Override
+                    public void onResult(GetCredentialResponse result) {
+                        Credential c = result.getCredential();
+                        if (c instanceof CustomCredential
+                                && GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL.equals(c.getType())) {
+                            String token = GoogleIdTokenCredential.createFrom(c.getData()).getIdToken();
+                            resolve(id, "{\"idToken\":" + JSONObject.quote(token) + "}");
+                        } else {
+                            resolve(id, "{\"error\":\"unavailable\"}");
+                        }
+                    }
+
+                    @Override
+                    public void onError(GetCredentialException e) {
+                        // NoCredentialException: no Google account on this phone.
+                        String error = e instanceof GetCredentialCancellationException ? "cancelled"
+                                : e instanceof NoCredentialException ? "no_account" : "unavailable";
+                        resolve(id, "{\"error\":\"" + error + "\"}");
+                    }
+                });
     }
 
     private void fail(String id, String reason) {
