@@ -961,3 +961,62 @@ a.widget:active {
     align-self: start;
   }
 }
+
+/* ---------- equal tiles: no stretched cards ---------- */
+/* Desktop: four equal tiles. Phones: a 2 × 2 grid, on site and payday side by side. */
+.widgets {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.widget.w-onsite .w-num {
+  font-size: 48px;
+}
+.w-roster {
+  gap: 6px;
+}
+@media (max-width: 960px) {
+  .widgets {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .widget {
+    min-height: 0;
+    aspect-ratio: 1;
+    padding: 16px;
+  }
+  .w-onsite {
+    grid-column: auto;
+  }
+  .widget.w-onsite .w-num {
+    font-size: 44px;
+  }
+  .w-roster li {
+    width: 32px;
+    height: 32px;
+    font-size: 11.5px;
+  }
+  .w-payday {
+    grid-column: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .w-payday .w-dial {
+    width: 76px;
+    height: 76px;
+    margin: 0 0 auto;
+  }
+  .w-payday .w-dial svg {
+    width: 76px;
+    height: 76px;
+  }
+  .w-dial-num {
+    font-size: 24px;
+  }
+  .w-payday .w-label {
+    align-self: auto;
+    margin-top: 8px;
+  }
+  .w-payday .w-note b {
+    font-size: 16px;
+  }
+}
