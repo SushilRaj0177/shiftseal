@@ -48,7 +48,7 @@ interface ActionItem {
 
 export const Overview: React.FC = () => {
   const { base, dash, error } = useEmployer();
-  const { t, tx, lang, money } = useLang();
+  const { t, tx, lang } = useLang();
   const wp = base.workplace;
   const hour = new Date().getHours();
   const greeting = hour < 12 ? t('goodMorning') : hour < 17 ? t('goodAfternoon') : t('goodEvening');
@@ -161,6 +161,9 @@ export const Overview: React.FC = () => {
       })),
   ];
 
+  const openHazards = dash.hazards.filter((h) => h.status !== 'resolved');
+  const openClaims = dash.claims.filter((c) => c.resolutionStatus === 'pending');
+
   return (
     <>
       <header className="dash-greeting">
@@ -214,46 +217,46 @@ export const Overview: React.FC = () => {
             )}
           </div>
         </section>
-        {(
-          [
-            [
-              'clock',
-              t('eOpenClaims'),
-              dash.kpis.openClaims,
-              dash.kpis.openClaims,
-              t('eDecideBeforePayday'),
-              'amber',
-              'review',
-            ],
-            [
-              'alert',
-              t('eOpenHazards'),
-              dash.kpis.openHazards,
-              dash.kpis.openHazards,
-              t('eEachDeadline'),
-              'coral',
-              'review?tab=hazards',
-            ],
-            [
-              'wallet',
-              t('eOvertimeOwed'),
-              money(dash.kpis.overtimeOwed),
-              dash.kpis.overtimeOwed,
-              t('eThisPeriod'),
-              'gold',
-              'people',
-            ],
-          ] as [IconName, string, string | number, number, string, string, string][]
-        ).map(([icon, label, value, raw, sub, tone, to]) => (
-          <Link key={label} to={to} className={`widget w-${tone}${raw === 0 ? ' quiet' : ''}`}>
-            <span className="w-icon" aria-hidden="true">
-              <Icon name={icon} size={20} />
-            </span>
-            <span className="w-label">{label}</span>
-            <span className="w-num">{value}</span>
-            <span className="w-note">{sub}</span>
-          </Link>
-        ))}
+        <PaydayWidget dash={dash} />
+        <Link
+          to="review?tab=hazards"
+          className={`widget w-list${openHazards.length ? '' : ' quiet'}`}
+        >
+          <span className="w-icon" aria-hidden="true">
+            <Icon name="alert" size={20} />
+          </span>
+          <span className="w-label">{t('eOpenHazards')}</span>
+          <span className="w-num">{openHazards.length}</span>
+          <ul className="w-rows">
+            {openHazards.slice(0, 2).map((h) => (
+              <li key={h.id}>
+                <i className={`sev sev-${h.finalSeverity}`} aria-hidden="true" />
+                <span className="grow">{h.zoneName}</span>
+                <span className="w-due">{dueIn(h.deadlineAt)}</span>
+              </li>
+            ))}
+            {openHazards.length === 0 && <li className="w-empty">{t('eEachDeadline')}</li>}
+          </ul>
+        </Link>
+        <Link to="review" className={`widget w-list${openClaims.length ? '' : ' quiet'}`}>
+          <span className="w-icon" aria-hidden="true">
+            <Icon name="clock" size={20} />
+          </span>
+          <span className="w-label">{t('eOpenClaims')}</span>
+          <span className="w-num">{openClaims.length}</span>
+          <ul className="w-rows">
+            {openClaims.slice(0, 2).map((c) => (
+              <li key={c.id}>
+                <b className="w-face" aria-hidden="true">
+                  {initials(c.workerName)}
+                </b>
+                <span className="grow">{firstName(c.workerName, lang)}</span>
+                <span className="w-due">+{c.extraHours} h</span>
+              </li>
+            ))}
+            {openClaims.length === 0 && <li className="w-empty">{t('eDecideBeforePayday')}</li>}
+          </ul>
+        </Link>
       </div>
 
       <div className="cols">
@@ -409,3 +412,47 @@ function initials(name: string): string {
     .map((w) => w[0]!.toUpperCase())
     .join('');
 }
+
+/** Hours or days until a deadline, as a short label: "5 h", "2 d", "late". */
+function dueIn(iso: string): string {
+  const ms = Date.parse(iso) - Date.now();
+  if (ms <= 0) return 'late';
+  const h = Math.ceil(ms / 3_600_000);
+  return h < 48 ? `${h} h` : `${Math.ceil(h / 24)} d`;
+}
+
+/** Days to payday as a ring that fills through the pay period, with the overtime owed. */
+const PaydayWidget: React.FC<{ dash: NonNullable<ReturnType<typeof useEmployer>['dash']> }> = ({
+  dash,
+}) => {
+  const { t, money, lang } = useLang();
+  const day = (d: string) => Date.parse(d + 'T00:00:00Z');
+  const total = Math.max(1, (day(dash.period.payDate) - day(dash.period.start)) / 86_400_000);
+  const left = Math.max(0, Math.round((day(dash.period.payDate) - day(dash.today)) / 86_400_000));
+  const done = Math.min(1, Math.max(0, 1 - left / total));
+  const r = 30;
+  const c = 2 * Math.PI * r;
+  return (
+    <Link to="people" className="widget w-payday">
+      <span className="w-label">{dayLabel(dash.period.payDate, lang)}</span>
+      <span className="w-sub">{t('daysCount', left)}</span>
+      <span className="w-ring" aria-hidden="true">
+        <svg viewBox="0 0 76 76" width="76" height="76">
+          <circle cx="38" cy="38" r={r} className="w-ring-track" />
+          <circle
+            cx="38"
+            cy="38"
+            r={r}
+            className="w-ring-fill"
+            strokeDasharray={`${c * done} ${c}`}
+            transform="rotate(-90 38 38)"
+          />
+        </svg>
+        <span className="w-ring-num">{left}</span>
+      </span>
+      <span className="w-note">
+        {t('eOvertimeOwed')} · <b>{money(dash.kpis.overtimeOwed)}</b>
+      </span>
+    </Link>
+  );
+};

@@ -7,7 +7,7 @@ def shiftsealUrl = project.findProperty('shiftsealUrl') ?: 'https://shiftseal-87
 // Google Cloud project number that Play Integrity tokens are issued for.
 def cloudProjectNumber = project.findProperty('cloudProjectNumber') ?: '872210045960'
 // OAuth "Web client" ID of the Firebase project, for native Google sign-in.
-def googleWebClientId = project.findProperty('googleWebClientId') ?: ''
+def googleWebClientId = project.findProperty('googleWebClientId') ?: '872210045960-d267pvi2cjlttnvejjlusm5f0hc1jfgu.apps.googleusercontent.com'
 // Each Play upload needs a higher number: -PversionCode=2, 3, ...
 def appVersionCode = (project.findProperty('versionCode') ?: '1') as int
 def appVersionName = project.findProperty('versionName') ?: '1.0'

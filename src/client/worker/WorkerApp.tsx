@@ -64,9 +64,9 @@ export const TabBar: React.FC = () => {
     <nav className="tabbar" aria-label="Main">
       <div className="tabbar-inner">
         {tabs.map((tab) => (
-          <NavLink key={tab.to} to={tab.to} end={tab.end}>
+          <NavLink key={tab.to} to={tab.to} end={tab.end} aria-label={tab.label}>
             <Icon name={tab.icon} size={22} />
-            {tab.label}
+            <span className="tab-label">{tab.label}</span>
           </NavLink>
         ))}
       </div>

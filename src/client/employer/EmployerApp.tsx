@@ -166,9 +166,16 @@ export default function EmployerApp() {
               <nav className="tabbar dash-mobile-nav" aria-label={t('eNavMain')}>
                 <div className="tabbar-inner">
                   {NAV.filter((n) => n.to !== 'invite').map((n) => (
-                    <NavLink key={n.to} to={link(n.to)} end={n.to === ''}>
+                    <NavLink
+                      key={n.to}
+                      to={link(n.to)}
+                      end={n.to === ''}
+                      aria-label={t(`${n.label}Short` as StringKey) || t(n.label)}
+                    >
                       <Icon name={n.icon} size={22} />
-                      {t(`${n.label}Short` as StringKey) || t(n.label)}
+                      <span className="tab-label">
+                        {t(`${n.label}Short` as StringKey) || t(n.label)}
+                      </span>
                     </NavLink>
                   ))}
                 </div>

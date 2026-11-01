@@ -576,3 +576,223 @@ a.widget:active {
     grid-column: 2;
   }
 }
+
+/* ---------- widgets with something inside them ---------- */
+.widgets {
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+}
+.widget .w-rows {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 10px 0 0;
+  border-top: 1px dashed var(--line-strong);
+  display: grid;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+.widget .w-rows li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.widget .w-rows .grow {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.w-due {
+  font: 600 12px/1 var(--head);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.w-empty {
+  color: var(--ink-3);
+}
+.w-list .w-num {
+  margin-top: 8px;
+}
+.sev {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ink-3);
+}
+.sev-medium {
+  background: var(--warn);
+}
+.sev-high,
+.sev-critical {
+  background: var(--danger);
+}
+.w-face {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font: 700 9.5px/1 var(--head);
+  color: var(--on-accent);
+  background: var(--accent);
+}
+/* Payday: a ring that fills through the pay period. */
+.w-payday {
+  align-items: flex-start;
+}
+.w-payday .w-sub {
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+.w-ring {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  margin: 8px 0 4px;
+}
+.w-ring svg {
+  display: block;
+}
+.w-ring-track,
+.w-ring-fill {
+  fill: none;
+  stroke-width: 8;
+}
+.w-ring-track {
+  stroke: var(--subtle);
+}
+.w-ring-fill {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  transition: stroke-dasharray 700ms var(--ease);
+}
+.w-ring-num {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font: 750 24px/1 var(--head);
+  letter-spacing: -0.03em;
+}
+.w-payday .w-note b {
+  color: var(--ink);
+}
+@media (max-width: 960px) {
+  .widgets {
+    grid-template-columns: 1fr 1fr;
+  }
+  .w-payday {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto 1fr;
+    column-gap: 16px;
+    min-height: 0;
+  }
+  .w-payday .w-ring {
+    grid-row: 1 / 4;
+    grid-column: 1;
+    margin: 0;
+  }
+  .w-payday .w-label,
+  .w-payday .w-sub,
+  .w-payday .w-note {
+    grid-column: 2;
+    align-self: center;
+  }
+  .widget .w-num {
+    font-size: 30px;
+  }
+}
+
+/* ---------- the tab bar: a floating pill, like Sumi's ---------- */
+:root {
+  --tabbar-h: 84px;
+}
+.tabbar {
+  bottom: calc(env(safe-area-inset-bottom) + 12px);
+  padding: 0 16px;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  pointer-events: none;
+}
+.tabbar-inner {
+  pointer-events: auto;
+  max-width: 420px;
+  height: 60px;
+  padding: 6px;
+  gap: 2px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    0 16px 34px -14px rgba(0, 0, 0, 0.35);
+}
+.tabbar a {
+  flex: 1 1 0;
+  min-width: 0;
+  flex-direction: row;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 999px;
+  font: 600 14.5px/1 var(--head);
+  color: var(--ink-3);
+  transition:
+    flex-grow 280ms cubic-bezier(0.3, 1.3, 0.5, 1),
+    background-color 200ms var(--ease),
+    color 200ms var(--ease);
+}
+.tabbar a svg {
+  padding: 0;
+  flex: none;
+}
+.tabbar a .tab-label {
+  display: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tabbar a[aria-current='page'] {
+  flex-grow: 2;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+.tabbar a[aria-current='page'] .tab-label {
+  display: inline;
+  animation: tab-in 220ms var(--ease);
+}
+.tabbar a[aria-current='page']::before {
+  display: none;
+}
+@keyframes tab-in {
+  from {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+}
+@media (prefers-color-scheme: dark) {
+  .tabbar-inner {
+    background: var(--surface-2);
+    box-shadow: 0 18px 40px -12px rgba(0, 0, 0, 0.8);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tabbar a,
+  .tabbar a[aria-current='page'] .tab-label {
+    transition: none;
+    animation: none;
+  }
+}
+@media (max-width: 960px) {
+  .widget.w-onsite .w-num {
+    font-size: 56px;
+  }
+  .w-onsite .w-foot:empty,
+  .w-onsite .w-foot:not(:has(b, .w-note)) {
+    display: none;
+  }
+}
