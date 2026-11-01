@@ -66,6 +66,8 @@ export const employer_hi: EmployerDict = {
   eWage: 'मज़दूरी',
   eGreeting: '{0}, {1}',
   ePayPeriod: 'वेतन अवधि {0} · भुगतान {1}',
+  ePayday: 'वेतन दिवस {0}',
+  eUntilPayday: 'वेतन दिवस तक',
   eInvite: 'आमंत्रित करें',
   eGateScreen: 'गेट स्क्रीन',
   eOnSite: 'अभी साइट पर',

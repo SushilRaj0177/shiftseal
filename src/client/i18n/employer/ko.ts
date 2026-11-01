@@ -66,6 +66,8 @@ export const employer_ko: EmployerDict = {
   eWage: '임금',
   eGreeting: '{1}, {0}',
   ePayPeriod: '급여 기간 {0} · 지급일 {1}',
+  ePayday: '지급일 {0}',
+  eUntilPayday: '지급일까지',
   eInvite: '초대',
   eGateScreen: '출입구 화면',
   eOnSite: '현재 현장 인원',

@@ -66,6 +66,8 @@ export const employer_zh: EmployerDict = {
   eWage: '工资',
   eGreeting: '{0}，{1}',
   ePayPeriod: '工资周期 {0} · 发薪日 {1}',
+  ePayday: '发薪日 {0}',
+  eUntilPayday: '距发薪日',
   eInvite: '邀请',
   eGateScreen: '入口屏幕',
   eOnSite: '当前在现场',

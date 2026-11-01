@@ -66,6 +66,8 @@ export const employer_ta: EmployerDict = {
   eWage: 'ஊதியம்',
   eGreeting: '{0}, {1}',
   ePayPeriod: 'சம்பளக் காலம் {0} · சம்பள நாள் {1}',
+  ePayday: 'சம்பள நாள் {0}',
+  eUntilPayday: 'சம்பள நாள் வரை',
   eInvite: 'அழை',
   eGateScreen: 'வாயில் திரை',
   eOnSite: 'இப்போது தளத்தில்',

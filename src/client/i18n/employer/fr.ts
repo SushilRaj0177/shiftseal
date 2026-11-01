@@ -66,6 +66,8 @@ export const employer_fr: EmployerDict = {
   eWage: 'Salaire',
   eGreeting: '{0}, {1}',
   ePayPeriod: 'Période {0} · paie le {1}',
+  ePayday: 'Jour de paie : {0}',
+  eUntilPayday: "Jusqu'à la paie",
   eInvite: 'Inviter',
   eGateScreen: 'Écran d’entrée',
   eOnSite: 'Sur place',

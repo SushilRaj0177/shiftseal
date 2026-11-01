@@ -66,6 +66,8 @@ export const employer_ja: EmployerDict = {
   eWage: '賃金',
   eGreeting: '{0}、{1}',
   ePayPeriod: '給与計算期間 {0}・支給日 {1}',
+  ePayday: '支給日 {0}',
+  eUntilPayday: '支給日まで',
   eInvite: '招待',
   eGateScreen: '入口画面',
   eOnSite: '現在現場にいる人',

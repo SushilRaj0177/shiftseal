@@ -796,3 +796,168 @@ a.widget:active {
     display: none;
   }
 }
+
+/* ---------- overview: lit surfaces ---------- */
+/* Each widget catches a soft light in its top corner, has a bright top edge and a fine grain. */
+:root {
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.widget {
+  background:
+    radial-gradient(
+      120% 90% at 0% 0%,
+      color-mix(in srgb, var(--accent) 8%, transparent),
+      transparent 62%
+    ),
+    var(--surface);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 1px 2px rgba(19, 33, 63, 0.05),
+    0 22px 36px -28px rgba(19, 33, 63, 0.45);
+}
+.widget::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: var(--grain);
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+@media (prefers-color-scheme: dark) {
+  .widget {
+    border-color: rgba(255, 255, 255, 0.07);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.07),
+      0 26px 44px -30px #000;
+  }
+}
+
+/* On site: deep navy with the gate's signal rippling out of one corner. */
+.w-onsite {
+  background:
+    radial-gradient(90% 120% at 100% 0%, rgba(137, 168, 236, 0.26), transparent 62%),
+    linear-gradient(160deg, #1c3060, var(--navy) 72%);
+  border-color: transparent;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 26px 44px -26px rgba(19, 33, 63, 0.75);
+}
+.w-onsite::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-radial-gradient(
+    circle at 100% 100%,
+    transparent 0 23px,
+    rgba(255, 255, 255, 0.075) 23px 24px
+  );
+  -webkit-mask-image: radial-gradient(circle at 100% 100%, #000, transparent 78%);
+  mask-image: radial-gradient(circle at 100% 100%, #000, transparent 78%);
+  pointer-events: none;
+}
+.w-onsite > * {
+  position: relative;
+}
+
+/* Everyone on the team as a face: lit when on site, an outline when not. */
+.w-roster {
+  list-style: none;
+  margin: auto 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.w-roster li {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  font: 700 12.5px/1 var(--head);
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.5);
+  border: 1px dashed rgba(255, 255, 255, 0.3);
+}
+.w-roster li.s-on_site {
+  color: var(--navy);
+  background: #fff;
+  border: 0;
+  box-shadow:
+    0 0 0 3px rgba(137, 168, 236, 0.28),
+    0 0 22px rgba(137, 168, 236, 0.6);
+}
+.w-roster li.s-on_leave,
+.w-roster li.s-wfh {
+  border-style: solid;
+}
+.w-roster li.more {
+  border: 0;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+}
+.w-onsite .w-note {
+  color: var(--on-navy-2);
+}
+
+/* Payday: a watch bezel whose ticks light up through the pay period. */
+.w-dial {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  margin: 0 0 6px;
+}
+.w-dial svg {
+  display: block;
+}
+.w-dial line {
+  stroke: var(--line);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.w-dial line.on {
+  stroke: var(--accent);
+  filter: drop-shadow(0 0 2.5px color-mix(in srgb, var(--accent) 70%, transparent));
+}
+.w-dial-num {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font: 750 30px/1 var(--head);
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+.w-dial-num small {
+  margin-top: 3px;
+  font: 600 11px/1 var(--font);
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+}
+.w-payday .w-note b {
+  display: block;
+  margin-top: 3px;
+  font: 700 18px/1.1 var(--head);
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+@media (max-width: 960px) {
+  .w-payday {
+    align-items: center;
+  }
+  .w-payday .w-dial {
+    grid-row: 1 / 4;
+    grid-column: 1;
+    margin: 0;
+  }
+  .w-payday .w-label {
+    align-self: end;
+  }
+  .w-payday .w-note {
+    align-self: start;
+  }
+}

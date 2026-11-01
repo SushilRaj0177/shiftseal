@@ -6,7 +6,6 @@ import { baseOf } from '../../shared/languages.js';
 import { useLang } from '../i18n/LangProvider.js';
 import type { StringKey } from '../i18n/strings.js';
 import { TYPE_KEY } from '../worker/Leave.js';
-import { periodLabel } from '../lib/period.js';
 import { Icon, type IconName } from '../components/Icon.js';
 import { Card, Empty, Notice, Pill, SectionHead, Skeleton, Tile, type Tone } from '../ui/index.js';
 import { useEmployer } from './EmployerApp.js';
@@ -49,7 +48,6 @@ interface ActionItem {
 export const Overview: React.FC = () => {
   const { base, dash, error } = useEmployer();
   const { t, tx, lang } = useLang();
-  const wp = base.workplace;
   const hour = new Date().getHours();
   const greeting = hour < 12 ? t('goodMorning') : hour < 17 ? t('goodAfternoon') : t('goodEvening');
   if (!dash) return error ? <Notice kind="error">{error}</Notice> : <Skeleton height={300} />;
@@ -168,13 +166,10 @@ export const Overview: React.FC = () => {
     <>
       <header className="dash-greeting">
         <div className="stack-sm">
-          <span className="t-eyebrow">{wp.name}</span>
           <h1 className="t-display page-title">
             {t('eGreeting', greeting, firstName(base.member.name, lang))}
           </h1>
-          <span className="muted">
-            {t('ePayPeriod', periodLabel(dash.period, lang), dayLabel(dash.period.payDate, lang))}
-          </span>
+          <span className="muted">{t('ePayday', dayLabel(dash.period.payDate, lang))}</span>
         </div>
         <div className="row-flex">
           <Link className="btn btn-secondary btn-sm" to="invite">
@@ -198,24 +193,17 @@ export const Overview: React.FC = () => {
             <span className="w-num">{dash.kpis.onSite}</span>
             <span className="w-of">/ {dash.kpis.workers}</span>
           </div>
-          <div className="w-bar" aria-hidden="true">
-            {dash.people.map((p) => (
-              <i key={p.uid} className={`s-${p.status}`} />
+          <ul className="w-roster" aria-hidden="true">
+            {dash.people.slice(0, 8).map((p) => (
+              <li key={p.uid} className={`s-${p.status}`}>
+                {initials(p.name)}
+              </li>
             ))}
-          </div>
-          <div className="w-foot">
-            <span className="w-faces" aria-hidden="true">
-              {dash.people
-                .filter((p) => p.status === 'on_site')
-                .slice(0, 5)
-                .map((p) => (
-                  <b key={p.uid}>{initials(p.name)}</b>
-                ))}
-            </span>
-            {dash.leave.today.length > 0 && (
-              <span className="w-note">{t('eAway', dash.leave.today.length)}</span>
-            )}
-          </div>
+            {dash.people.length > 8 && <li className="more">+{dash.people.length - 8}</li>}
+          </ul>
+          {dash.leave.today.length > 0 && (
+            <span className="w-note">{t('eAway', dash.leave.today.length)}</span>
+          )}
         </section>
         <PaydayWidget dash={dash} />
         <Link
@@ -421,37 +409,41 @@ function dueIn(iso: string): string {
   return h < 48 ? `${h} h` : `${Math.ceil(h / 24)} d`;
 }
 
-/** Days to payday as a ring that fills through the pay period, with the overtime owed. */
+/** Days to payday on a dial whose ticks light through the pay period, with the overtime owed. */
 const PaydayWidget: React.FC<{ dash: NonNullable<ReturnType<typeof useEmployer>['dash']> }> = ({
   dash,
 }) => {
-  const { t, money, lang } = useLang();
+  const { t, money } = useLang();
   const day = (d: string) => Date.parse(d + 'T00:00:00Z');
   const total = Math.max(1, (day(dash.period.payDate) - day(dash.period.start)) / 86_400_000);
   const left = Math.max(0, Math.round((day(dash.period.payDate) - day(dash.today)) / 86_400_000));
   const done = Math.min(1, Math.max(0, 1 - left / total));
-  const r = 30;
-  const c = 2 * Math.PI * r;
+  const ticks = 48;
+  const lit = Math.round(done * ticks);
   return (
     <Link to="people" className="widget w-payday">
-      <span className="w-label">{dayLabel(dash.period.payDate, lang)}</span>
-      <span className="w-sub">{t('daysCount', left)}</span>
-      <span className="w-ring" aria-hidden="true">
-        <svg viewBox="0 0 76 76" width="76" height="76">
-          <circle cx="38" cy="38" r={r} className="w-ring-track" />
-          <circle
-            cx="38"
-            cy="38"
-            r={r}
-            className="w-ring-fill"
-            strokeDasharray={`${c * done} ${c}`}
-            transform="rotate(-90 38 38)"
-          />
+      <span className="w-dial" aria-hidden="true">
+        <svg viewBox="0 0 96 96" width="96" height="96">
+          {Array.from({ length: ticks }, (_, i) => (
+            <line
+              key={i}
+              x1="48"
+              y1="4"
+              x2="48"
+              y2={i % 4 === 0 ? 13 : 10}
+              className={i < lit ? 'on' : undefined}
+              transform={`rotate(${(i * 360) / ticks} 48 48)`}
+            />
+          ))}
         </svg>
-        <span className="w-ring-num">{left}</span>
+        <span className="w-dial-num">
+          {left}
+          <small>{t('unitDays')}</small>
+        </span>
       </span>
+      <span className="w-label">{t('eUntilPayday')}</span>
       <span className="w-note">
-        {t('eOvertimeOwed')} · <b>{money(dash.kpis.overtimeOwed)}</b>
+        {t('eOvertimeOwed')} <b>{money(dash.kpis.overtimeOwed)}</b>
       </span>
     </Link>
   );

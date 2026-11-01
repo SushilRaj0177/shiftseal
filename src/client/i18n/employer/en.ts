@@ -65,6 +65,8 @@ export const employerEn = {
   eWage: 'Wage',
   eGreeting: '{0}, {1}',
   ePayPeriod: 'Pay period {0} · payday {1}',
+  ePayday: 'Payday {0}',
+  eUntilPayday: 'Until payday',
   eInvite: 'Invite',
   eGateScreen: 'Gate screen',
   eOnSite: 'On site now',
