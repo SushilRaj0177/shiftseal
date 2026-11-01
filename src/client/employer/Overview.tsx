@@ -46,7 +46,7 @@ interface ActionItem {
 }
 
 export const Overview: React.FC = () => {
-  const { base, dash, error } = useEmployer();
+  const { dash, error } = useEmployer();
   const { t, tx, lang } = useLang();
   const hour = new Date().getHours();
   const greeting = hour < 12 ? t('goodMorning') : hour < 17 ? t('goodAfternoon') : t('goodEvening');
@@ -166,9 +166,7 @@ export const Overview: React.FC = () => {
     <>
       <header className="dash-greeting">
         <div className="stack-sm">
-          <h1 className="t-display page-title">
-            {t('eGreeting', greeting, firstName(base.member.name, lang))}
-          </h1>
+          <h1 className="t-display page-title">{greeting}</h1>
           <span className="muted">{t('ePayday', dayLabel(dash.period.payDate, lang))}</span>
         </div>
         <div className="row-flex">
