@@ -4,7 +4,7 @@
   "description": "Every hour counted. Every rupee explained. Proof of work for shift workers.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f6f4ef",
+  "background_color": "#f7f8fa",
   "theme_color": "#13213f",
   "icons": [
     {

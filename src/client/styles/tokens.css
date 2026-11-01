@@ -1,19 +1,19 @@
 /* Design tokens. Mirrors the Figma file "Shiftseal — App design" (Foundations page). */
 :root {
-  --bg: #f4f2ec;
+  --bg: #f7f8fa;
   --surface: #ffffff;
-  --surface-2: #fbfaf7;
-  --subtle: #ece9e1;
-  --ink: #15161b;
-  --ink-2: #565560;
-  --ink-3: #6b6973;
-  --line: #e6e2d8;
-  --line-strong: #cfc9bb;
+  --surface-2: #fafbfc;
+  --subtle: #eef0f4;
+  --ink: #0f172a;
+  --ink-2: #5b6475;
+  --ink-3: #687184;
+  --line: #e4e7ec;
+  --line-strong: #cbd2dc;
 
-  --accent: #2b4c8c;
-  --accent-pressed: #223e74;
-  --accent-soft: #e8eef8;
-  --accent-ink: #1f3a70;
+  --accent: #1f3a6e;
+  --accent-pressed: #172d57;
+  --accent-soft: #e9eef7;
+  --accent-ink: #1a3260;
   --on-accent: #ffffff;
 
   /* Deep navy used for hero surfaces and the employer sidebar. */
