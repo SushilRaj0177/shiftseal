@@ -1,6 +1,14 @@
 import { Toaster } from './ui/toast.js';
-import React, { Suspense, lazy, useEffect } from 'react';
-import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+  useParams,
+} from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth/AuthProvider.js';
 import { LangProvider } from './i18n/LangProvider.js';
 import { useApi } from './lib/useApi.js';
@@ -55,6 +63,40 @@ function Home() {
   return <Splash />;
 }
 
+/** A private demo link: signs that demo account in, then opens its workplace. */
+function DemoLink() {
+  const { ready, signInWithLink } = useAuth();
+  const { token = '' } = useParams();
+  const [failed, setFailed] = useState(false);
+  const started = useRef(false);
+  useEffect(() => {
+    if (!ready || started.current) return;
+    started.current = true;
+    signInWithLink(token)
+      .then((lang) => {
+        try {
+          localStorage.removeItem(LAST_WP);
+          if (lang) localStorage.setItem('shiftseal.lang', lang);
+        } catch {
+          // storage unavailable
+        }
+        // A full load, so the language and the new account take effect everywhere,
+        // and the token leaves the address bar.
+        window.location.replace('/');
+      })
+      .catch(() => setFailed(true));
+  }, [ready, signInWithLink, token]);
+  if (failed)
+    return (
+      <div className="screen">
+        <div className="screen-body">
+          <Notice kind="error">This link does not work.</Notice>
+        </div>
+      </div>
+    );
+  return <Splash />;
+}
+
 /** A gate QR opened with the phone's camera app lands here. */
 function CheckLink() {
   const location = useLocation();
@@ -99,6 +141,7 @@ export default function App() {
             <Routes>
               <Route path="/welcome" element={<Welcome />} />
               <Route path="/sign-in" element={<SignIn />} />
+              <Route path="/demo/:token" element={<DemoLink />} />
               <Route
                 path="/c"
                 element={

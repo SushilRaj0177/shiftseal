@@ -37,6 +37,8 @@ interface AuthContextValue {
   confirmCode(code: string): Promise<void>;
   signInWithGoogle(): Promise<void>;
   devSignIn(uid: string, phone?: string): void;
+  /** Signs in with a private demo link's token; returns the account's language, if set. */
+  signInWithLink(token: string): Promise<string | null>;
   signOut(): Promise<void>;
   /** Erases the account on the server and in Firebase, then signs out. */
   deleteAccount(): Promise<void>;
@@ -150,6 +152,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(u);
   }, []);
 
+  const signInWithLink = useCallback(
+    async (token: string) => {
+      const res = await api<{ customToken?: string; devUid?: string; lang: string | null }>(
+        '/demo/session',
+        { body: { token } }
+      );
+      if (res.devUid) {
+        devSignIn(res.devUid);
+      } else if (res.customToken) {
+        const auth = authRef.current;
+        if (!auth) throw new Error('Sign-in is not ready yet.');
+        const fa = await import('@firebase/auth');
+        await fa.signInWithCustomToken(auth, res.customToken);
+      }
+      return res.lang;
+    },
+    [devSignIn]
+  );
+
   const signOut = useCallback(async () => {
     sessionStorage.removeItem(DEV_KEY);
     if (authRef.current) {
@@ -181,6 +202,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       confirmCode,
       signInWithGoogle,
       devSignIn,
+      signInWithLink,
       signOut,
       deleteAccount,
     }),
@@ -193,6 +215,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       confirmCode,
       signInWithGoogle,
       devSignIn,
+      signInWithLink,
       signOut,
       deleteAccount,
     ]

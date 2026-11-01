@@ -26,6 +26,16 @@ const envSchema = z
       .string()
       .regex(/^([0-9A-F]{2}(:[0-9A-F]{2}){31})(,\s*[0-9A-F]{2}(:[0-9A-F]{2}){31})*$/i)
       .optional(),
+    /**
+     * Private demo links: `<sha256 of link token>:<uid>[:<language>]`, comma-separated.
+     * Only the hashes live here; the tokens themselves are in the links.
+     */
+    DEMO_LINKS: z
+      .string()
+      .regex(
+        /^[0-9a-f]{64}:[A-Za-z0-9_-]{1,64}(:[a-z]{2})?(,[0-9a-f]{64}:[A-Za-z0-9_-]{1,64}(:[a-z]{2})?)*$/
+      )
+      .optional(),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV !== 'production') return;
