@@ -10,7 +10,6 @@ import { periodLabel } from '../lib/period.js';
 import { Icon, type IconName } from '../components/Icon.js';
 import { Card, Empty, Notice, Pill, SectionHead, Skeleton, Tile, type Tone } from '../ui/index.js';
 import { useEmployer } from './EmployerApp.js';
-import { Grain, Ring } from '../ui/visuals.js';
 
 /** A flag's title in the reader's language. The no-handler title names the country's own body. */
 export function flagTitle(code: string, tx: (k: string) => string): string {
@@ -186,28 +185,34 @@ export const Overview: React.FC = () => {
         </div>
       </header>
 
-      <div className="kpis">
-        <section className="hero onsite">
-          <Grain />
-          <div className="onsite-main">
-            <span className="t-label">{t('eOnSite')}</span>
-            <span className="onsite-count">
-              <span className="t-number">{dash.kpis.onSite}</span>
-              <span className="onsite-of">/ {dash.kpis.workers}</span>
+      <div className="widgets">
+        <section className="widget w-onsite">
+          <div className="w-head">
+            <span className={`w-live${dash.kpis.onSite ? ' on' : ''}`} aria-hidden="true" />
+            <span className="w-label">{t('eOnSite')}</span>
+          </div>
+          <div className="w-figure">
+            <span className="w-num">{dash.kpis.onSite}</span>
+            <span className="w-of">/ {dash.kpis.workers}</span>
+          </div>
+          <div className="w-bar" aria-hidden="true">
+            {dash.people.map((p) => (
+              <i key={p.uid} className={`s-${p.status}`} />
+            ))}
+          </div>
+          <div className="w-foot">
+            <span className="w-faces" aria-hidden="true">
+              {dash.people
+                .filter((p) => p.status === 'on_site')
+                .slice(0, 5)
+                .map((p) => (
+                  <b key={p.uid}>{initials(p.name)}</b>
+                ))}
             </span>
             {dash.leave.today.length > 0 && (
-              <span className="t-caption">{t('eAway', dash.leave.today.length)}</span>
+              <span className="w-note">{t('eAway', dash.leave.today.length)}</span>
             )}
           </div>
-          <Ring
-            value={dash.kpis.workers ? dash.kpis.onSite / dash.kpis.workers : 0}
-            size={84}
-            stroke={8}
-            color="var(--seal)"
-            label={t('eOnSite')}
-          >
-            <span className={`onsite-pulse${dash.kpis.onSite ? ' live' : ''}`} />
-          </Ring>
         </section>
         {(
           [
@@ -215,33 +220,39 @@ export const Overview: React.FC = () => {
               'clock',
               t('eOpenClaims'),
               dash.kpis.openClaims,
+              dash.kpis.openClaims,
               t('eDecideBeforePayday'),
-              dash.kpis.openClaims ? 'warn' : 'calm',
+              'amber',
+              'review',
             ],
             [
               'alert',
               t('eOpenHazards'),
               dash.kpis.openHazards,
+              dash.kpis.openHazards,
               t('eEachDeadline'),
-              dash.kpis.openHazards ? 'danger' : 'calm',
+              'coral',
+              'review?tab=hazards',
             ],
             [
               'wallet',
               t('eOvertimeOwed'),
               money(dash.kpis.overtimeOwed),
+              dash.kpis.overtimeOwed,
               t('eThisPeriod'),
-              dash.kpis.overtimeOwed ? 'brass' : 'calm',
+              'gold',
+              'people',
             ],
-          ] as [IconName, string, string | number, string, string][]
-        ).map(([icon, label, value, sub, tone]) => (
-          <section key={label} className={`stat-card ${tone}`}>
-            <div className="stat-card-top">
-              <Icon name={icon} size={18} />
-              <span className="stat-card-label">{label}</span>
-            </div>
-            <span className="stat-card-value">{value}</span>
-            <span className="t-caption faint">{sub}</span>
-          </section>
+          ] as [IconName, string, string | number, number, string, string, string][]
+        ).map(([icon, label, value, raw, sub, tone, to]) => (
+          <Link key={label} to={to} className={`widget w-${tone}${raw === 0 ? ' quiet' : ''}`}>
+            <span className="w-icon" aria-hidden="true">
+              <Icon name={icon} size={20} />
+            </span>
+            <span className="w-label">{label}</span>
+            <span className="w-num">{value}</span>
+            <span className="w-note">{sub}</span>
+          </Link>
         ))}
       </div>
 
@@ -389,3 +400,12 @@ export const Overview: React.FC = () => {
     </>
   );
 };
+
+function initials(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]!.toUpperCase())
+    .join('');
+}
