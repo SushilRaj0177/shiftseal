@@ -1020,3 +1020,21 @@ a.widget:active {
     font-size: 16px;
   }
 }
+
+/* Roster: overlapping faces, so a full crew stays on one line. */
+.w-roster {
+  flex-wrap: nowrap;
+  gap: 0;
+}
+.w-roster li {
+  flex: none;
+  background: #1a2c55;
+}
+.w-roster li + li {
+  margin-left: -9px;
+}
+.w-roster li.s-on_site {
+  background: #fff;
+  border: 2px solid #1a2c55;
+  box-shadow: 0 0 18px rgba(137, 168, 236, 0.45);
+}

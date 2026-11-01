@@ -192,12 +192,12 @@ export const Overview: React.FC = () => {
             <span className="w-of">/ {dash.kpis.workers}</span>
           </div>
           <ul className="w-roster" aria-hidden="true">
-            {dash.people.slice(0, 8).map((p) => (
+            {dash.people.slice(0, 4).map((p) => (
               <li key={p.uid} className={`s-${p.status}`}>
                 {initials(p.name)}
               </li>
             ))}
-            {dash.people.length > 8 && <li className="more">+{dash.people.length - 8}</li>}
+            {dash.people.length > 4 && <li className="more">+{dash.people.length - 4}</li>}
           </ul>
           {dash.leave.today.length > 0 && (
             <span className="w-note">{t('eAway', dash.leave.today.length)}</span>
