@@ -349,3 +349,64 @@ select.input {
   border: 0 !important;
   border-radius: 24px;
 }
+
+/*
+ * Three text styles, and weight only where it means something.
+ *   Display  600  page titles and the big figures (time on shift, pay, counts)
+ *   Title    500  row and card titles, buttons, tabs, emphasis
+ *   Body     400  everything else, in ink or grey
+ * Everything starts at Body; the two lists below lift what deserves it.
+ */
+body * {
+  font-weight: 400 !important;
+}
+body
+  :is(
+    .t-strong,
+    .t-headline,
+    h2,
+    h3,
+    b,
+    strong,
+    label,
+    th,
+    .btn,
+    .tab-label,
+    .tabbar a,
+    .pill,
+    .chip,
+    .group-total,
+    .link-btn,
+    .w-label,
+    .t-num,
+    .field-label,
+    .seg button,
+    .tabs button,
+    .avatar,
+    .w-roster li,
+    .w-face,
+    .round-btn,
+    .t-label.strong
+  ) {
+  font-weight: 500 !important;
+}
+body
+  :is(
+    h1,
+    .t-title,
+    .t-greeting,
+    .page-title,
+    .t-display,
+    .t-number,
+    .hero2-time,
+    .hero2-time *,
+    .pay-net,
+    .widget .w-num,
+    .w-dial-num,
+    .stat b,
+    .balance-num,
+    .stat-card-value,
+    .w-of
+  ) {
+  font-weight: 600 !important;
+}
