@@ -54,6 +54,7 @@ export const de: WorkerDict = {
   navSpeak: 'Feedback',
 
   today: 'Heute',
+  toDo: 'Zu erledigen',
   onShift: 'Im Dienst',
   offShift: 'Nicht eingestempelt',
   checkedInAt: 'Eingestempelt {0} · Schichtende {1}',

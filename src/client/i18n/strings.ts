@@ -71,6 +71,7 @@ const workerEn = {
   navSpeak: 'Speak up',
 
   today: 'Today',
+  toDo: 'To do',
   onShift: 'On shift',
   offShift: 'Not checked in',
   checkedInAt: 'Checked in {0} · shift ends {1}',
@@ -399,6 +400,7 @@ export const ta: WorkerDict = {
   navReport: 'புகார்',
   navSpeak: 'பேசுங்கள்',
   today: 'இன்று',
+  toDo: 'செய்ய வேண்டியவை',
   onShift: 'பணியில்',
   offShift: 'செக்-இன் செய்யவில்லை',
   checkedInAt: '{0}-க்கு செக்-இன் · ஷிஃப்ட் {1}-க்கு முடியும்',
@@ -714,6 +716,7 @@ export const hi: WorkerDict = {
   navReport: 'रिपोर्ट',
   navSpeak: 'अपनी बात',
   today: 'आज',
+  toDo: 'करने के लिए',
   onShift: 'शिफ्ट पर',
   offShift: 'चेक-इन नहीं किया',
   checkedInAt: '{0} पर चेक-इन · शिफ्ट {1} पर ख़त्म',

@@ -51,6 +51,7 @@ export const ko: WorkerDict = {
   navSpeak: '의견',
 
   today: '오늘',
+  toDo: '할 일',
   onShift: '근무 중',
   offShift: '출근 전',
   checkedInAt: '{0} 출근 · {1} 근무 종료',

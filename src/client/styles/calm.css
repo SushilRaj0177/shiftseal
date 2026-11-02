@@ -1,0 +1,351 @@
+/*
+ * Calm: the look of the floating tab bar, everywhere. One typeface (Onest),
+ * one accent (navy), surfaces that float on soft shadows instead of outlines,
+ * pill-shaped controls, and grouped lists instead of stacks of boxes.
+ */
+:root {
+  --font: 'Onest', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --head: 'Onest', -apple-system, 'Segoe UI', sans-serif;
+  --bg: #f4f5f8;
+  --ink-3: #5f687a;
+  --accent-mid: #8ea3c9;
+  --brass: var(--accent-mid);
+  --brass-soft: var(--accent-soft);
+  --warn: #5b6475;
+  --warn-soft: #eef0f4;
+  --float: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 30px -22px rgba(15, 23, 42, 0.35);
+}
+html[lang='ta'] {
+  --font: 'Onest', 'Noto Sans Tamil', sans-serif;
+  --head: var(--font);
+}
+html[lang='hi'] {
+  --font: 'Onest', 'Noto Sans Devanagari', sans-serif;
+  --head: var(--font);
+}
+html[lang='ja'] {
+  --font: 'Onest', 'Noto Sans JP', sans-serif;
+  --head: var(--font);
+}
+html[lang='zh'] {
+  --font: 'Onest', 'Noto Sans SC', sans-serif;
+  --head: var(--font);
+}
+html[lang='ko'] {
+  --font: 'Onest', 'Noto Sans KR', sans-serif;
+  --head: var(--font);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e0f13;
+    --ink-3: #9aa1b0;
+    --accent-mid: #5d76a8;
+    --warn: #b9c0cd;
+    --warn-soft: #1c1e25;
+    --float: 0 10px 30px -22px rgba(0, 0, 0, 0.9);
+  }
+}
+body {
+  font-family: var(--font);
+}
+
+/* Type: semibold at most, a little tighter. */
+h1,
+h2,
+h3,
+.t-title,
+.t-headline,
+.t-display,
+.t-greeting,
+.page-title {
+  font-family: var(--head);
+  font-weight: 600 !important;
+  letter-spacing: -0.02em;
+}
+.t-title,
+.t-greeting,
+.page-title {
+  font-size: 26px;
+  line-height: 1.15;
+}
+.t-strong {
+  font-weight: 600;
+}
+.t-number,
+.t-num,
+.stat b,
+.widget .w-num,
+.stat-card-value {
+  font-weight: 600 !important;
+}
+.t-label {
+  font-family: var(--font);
+  letter-spacing: 0;
+  text-transform: none;
+}
+.link-btn {
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* Surfaces float; no outlines. */
+.card,
+.card.flush,
+.widget:not(.w-onsite) {
+  border: 0 !important;
+  border-radius: 24px;
+  background: var(--surface);
+  box-shadow: var(--float);
+}
+.card.subtle,
+.card[class*='tone-subtle'] {
+  background: var(--surface-2);
+  box-shadow: none;
+}
+
+/* Controls are pills, like the tab bar. */
+.btn {
+  border-radius: 999px;
+  font-weight: 600;
+}
+.btn-light {
+  background: #fff;
+  color: var(--navy);
+}
+.input,
+textarea.input,
+select.input {
+  border-radius: 16px;
+}
+
+/* Notices: a quiet floating strip, not a coloured box. */
+.notice,
+.notice.warn,
+.notice.info {
+  background: var(--surface);
+  color: var(--ink-2);
+  border: 0;
+  border-radius: 18px;
+  padding: 11px 16px;
+  box-shadow: var(--float);
+  align-items: center;
+}
+.notice.warn::before,
+.notice.info::before {
+  content: '';
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.notice.warn::before {
+  background: #d99a00;
+}
+.notice strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+.notice.error {
+  box-shadow: none;
+}
+
+/* Status pills: small and soft. */
+.pill {
+  font-weight: 600;
+  border-radius: 999px;
+}
+.pill::before {
+  display: none;
+}
+
+/* ---------- worker home ---------- */
+.home-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+  padding-top: 10px;
+}
+.home-date {
+  font-size: 13px;
+  color: var(--ink-3);
+}
+.round-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--ink-2);
+  box-shadow: var(--float);
+}
+.round-dot {
+  position: absolute;
+  top: 9px;
+  right: 10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--danger);
+  box-shadow: 0 0 0 2px var(--surface);
+}
+.hero2 {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 22px 22px 20px;
+  border-radius: 28px;
+  color: #fff;
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgba(137, 168, 236, 0.22), transparent 60%), var(--navy);
+  box-shadow: 0 22px 40px -26px rgba(19, 33, 63, 0.85);
+}
+.hero2-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #b8c4de;
+}
+.hero2-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #7d8aa6;
+}
+.hero2-dot.on {
+  background: #4ade80;
+  box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.15);
+}
+.hero2-time {
+  margin-top: 14px;
+  font-size: 58px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+.hero2-time small {
+  margin: 0 6px 0 2px;
+  font-size: 26px;
+  letter-spacing: -0.02em;
+  color: #8fa0c4;
+}
+.hero2-track {
+  height: 4px;
+  margin-top: 18px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.12);
+}
+.hero2-track i {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: #fff;
+  transition: width 600ms var(--ease);
+}
+.hero2-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 9px;
+  font-size: 13px;
+  color: #a9b6d3;
+}
+.hero2-btn {
+  margin-top: 18px;
+  height: 52px;
+  background: #fff;
+  color: var(--navy);
+}
+
+/* ---------- grouped lists ---------- */
+.group-label {
+  margin: 14px 4px -4px;
+  font-size: 13px;
+  color: var(--ink-3);
+  align-items: center;
+}
+.group {
+  display: flex;
+  flex-direction: column;
+  padding: 4px 0;
+  border-radius: 24px;
+  background: var(--surface);
+  box-shadow: var(--float);
+}
+.group-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  color: inherit;
+  text-decoration: none;
+}
+.group-row + .group-row {
+  border-top: 1px solid var(--line);
+}
+.group-ic {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+.group-total {
+  font-weight: 600;
+  font-size: 16px;
+}
+.rule-ref {
+  margin-left: 6px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ink-3);
+}
+
+/* ---------- pay ---------- */
+.pay-amount {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 2px 0;
+}
+.pay-net {
+  font-size: 46px;
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.035em;
+}
+.pay-amount .legend {
+  color: var(--ink-2);
+}
+.ask-pill {
+  height: 54px;
+  padding: 0 20px;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: var(--surface);
+  box-shadow: var(--float);
+}
+
+/* Onest's tabular figures run wide; big numbers use its natural ones. */
+.hero2-time,
+.pay-net,
+.stat b,
+.widget .w-num,
+.w-dial-num,
+.t-number,
+.stat-card-value {
+  font-variant-numeric: normal;
+}
+.w-onsite {
+  border: 0 !important;
+  border-radius: 24px;
+}

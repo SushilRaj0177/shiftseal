@@ -49,6 +49,7 @@ export const zh: WorkerDict = {
   navSpeak: '发声',
 
   today: '今天',
+  toDo: '待办',
   onShift: '上班中',
   offShift: '未打卡',
   checkedInAt: '{0} 上班打卡 · 班次 {1} 结束',

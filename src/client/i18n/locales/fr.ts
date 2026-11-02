@@ -54,6 +54,7 @@ export const fr: WorkerDict = {
   navSpeak: 'S’exprimer',
 
   today: 'Aujourd’hui',
+  toDo: 'À faire',
   onShift: 'En service',
   offShift: 'Pas pointé',
   checkedInAt: 'Arrivée à {0} · fin du service à {1}',

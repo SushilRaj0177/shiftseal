@@ -53,6 +53,7 @@ export const ja: WorkerDict = {
   navSpeak: '声を届ける',
 
   today: '今日',
+  toDo: 'やること',
   onShift: '勤務中',
   offShift: '未出勤',
   checkedInAt: '{0} に出勤 · 勤務終了 {1}',

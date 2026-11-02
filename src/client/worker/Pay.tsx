@@ -9,8 +9,8 @@ import { useLang } from '../i18n/LangProvider.js';
 import { HoldToTalk } from '../components/HoldToTalk.js';
 import { ListenButton } from '../components/ListenButton.js';
 import { Icon } from '../components/Icon.js';
-import { Card, Field, Kv, Notice, Pill, Skeleton, Tile } from '../ui/index.js';
-import { Composition, Grain } from '../ui/visuals.js';
+import { Card, Field, Notice, Skeleton } from '../ui/index.js';
+import { Composition } from '../ui/visuals.js';
 import { TabBar, useWorker } from './WorkerApp.js';
 
 interface Explanation {
@@ -177,10 +177,10 @@ export const Pay: React.FC = () => {
     {
       label: overview?.payType === 'monthly' ? t('lineSalary') : t('lineRegular'),
       value: sum(['salary', 'normal', 'unpaid_leave']),
-      color: '#dfe6f5',
+      color: 'var(--accent)',
     },
-    { label: t('lineOvertime'), value: sum(EXTRA), color: 'var(--brass)' },
-    { label: t('lineDeduction'), value: -sum(['deduction']), color: '#f19a8f' },
+    { label: t('lineOvertime'), value: sum(EXTRA), color: 'var(--accent-mid)' },
+    { label: t('lineDeduction'), value: -sum(['deduction']), color: 'var(--line-strong)' },
   ];
 
   const ask = async (body: Record<string, string>) => {
@@ -200,33 +200,24 @@ export const Pay: React.FC = () => {
   return (
     <main className="screen has-tabs">
       <div className="screen-body">
-        <header className="stack-sm" style={{ paddingTop: 8 }}>
-          <h1 className="t-title">{t('pay')}</h1>
+        <header className="stack-sm" style={{ paddingTop: 8, gap: 2 }}>
           {overview && (
-            <span className="muted">
+            <span className="home-date">
               {t(
                 overview.payType === 'monthly' ? 'monthOf' : 'periodOf',
                 periodLabel(overview.period, lang)
               )}
             </span>
           )}
+          <h1 className="t-title">{t('pay')}</h1>
         </header>
         {!overview && <Skeleton height={160} />}
         {overview && !slip && <Notice kind="info">{t('rateNotSet')}</Notice>}
         {slip && (
           <>
-            <section className="hero stack">
-              <Grain />
-              <span className="t-label">{t('netPay')}</span>
-              <span
-                className="t-number"
-                style={{ color: 'var(--on-navy)', fontSize: 44, lineHeight: '48px' }}
-              >
-                {money(slip.netPay)}
-              </span>
-              <span className="t-caption">
-                {t('paidOn', dayLabel(overview!.period.payDate, lang))}
-              </span>
+            <section className="pay-amount">
+              <span className="pay-net t-num">{money(slip.netPay)}</span>
+              <span className="muted">{t('paidOn', dayLabel(overview!.period.payDate, lang))}</span>
               <Composition parts={parts} />
               <div className="legend">
                 {parts
@@ -239,48 +230,47 @@ export const Pay: React.FC = () => {
                   ))}
               </div>
             </section>
-            <Card>
-              <div className="between">
-                <h2 className="t-headline">{t('howItAddsUp')}</h2>
-                <ListenButton text={`${t('netPay')} ${money(slip.netPay)}`} />
-              </div>
+            <div className="group-label between">
+              <span>{t('howItAddsUp')}</span>
+              <ListenButton text={`${t('netPay')} ${money(slip.netPay)}`} />
+            </div>
+            <div className="group">
               {slip.lines
                 .filter((l) => l.kind !== 'net')
                 .map((l) => (
-                  <div key={l.id} className="between" style={{ alignItems: 'flex-start' }}>
-                    <div className="stack-sm grow">
-                      <div className="row-flex" style={{ gap: 8 }}>
-                        <span className="t-strong">{lineLabel(l, t)}</span>
+                  <div key={l.id} className="group-row">
+                    <span className="grow stack-sm" style={{ gap: 2 }}>
+                      <span className="t-strong">
+                        {lineLabel(l, t)}
                         {l.ruleRef && (
-                          <Pill tone={l.ruleRef.kind === 'law' ? 'accent' : 'neutral'}>
+                          <span className="rule-ref">
                             {l.ruleRef.kind === 'law' ? t('law') : t('policy')}
-                          </Pill>
+                          </span>
                         )}
-                      </div>
+                      </span>
                       {l.hours !== undefined && l.rate !== undefined && (
                         <span className="t-caption muted">
                           {l.hours} {t('hoursUnit')} × {money(l.rate)}
                         </span>
                       )}
-                    </div>
-                    <span className={`t-strong${l.amount < 0 ? ' c-danger' : ''}`}>
+                    </span>
+                    <span className={`t-strong t-num${l.amount < 0 ? ' c-danger' : ''}`}>
                       {l.amount < 0 ? '−' : ''}
                       {money(Math.abs(l.amount))}
                     </span>
                   </div>
                 ))}
-              <hr className="divider" />
-              <Kv k={t('netPay')} v={money(slip.netPay)} vClass="t-headline" />
-            </Card>
-
-            <Card>
-              <div className="row-flex" style={{ alignItems: 'flex-start' }}>
-                <Tile icon="chat" />
-                <div className="grow stack-sm">
-                  <span className="t-strong">{t('askTitle')}</span>
-                  <span className="t-caption muted">{t('askBody')}</span>
-                </div>
+              <div className="group-row group-total">
+                <span className="grow">{t('netPay')}</span>
+                <span className="t-num">{money(slip.netPay)}</span>
               </div>
+            </div>
+
+            <div className="group-label">{t('askTitle')}</div>
+            <div className="stack">
+              <span className="t-caption muted" style={{ marginTop: -6 }}>
+                {t('askBody')}
+              </span>
               <form
                 className="stack"
                 onSubmit={(e) => {
@@ -288,14 +278,13 @@ export const Pay: React.FC = () => {
                   if (question.trim()) void ask({ question: question.trim() });
                 }}
               >
-                <Field label={t('askTitle')}>
-                  <input
-                    className="input"
-                    value={question}
-                    onChange={(e) => setQuestion(e.target.value)}
-                    placeholder={t('askPlaceholder')}
-                  />
-                </Field>
+                <input
+                  className="input ask-pill"
+                  aria-label={t('askTitle')}
+                  value={question}
+                  onChange={(e) => setQuestion(e.target.value)}
+                  placeholder={t('askPlaceholder')}
+                />
                 <HoldToTalk
                   disabled={busy}
                   onRecorded={(b64, mime) => ask({ audioBase64: b64, audioMimeType: mime })}
@@ -317,24 +306,22 @@ export const Pay: React.FC = () => {
                   </div>
                 </Card>
               )}
-            </Card>
+            </div>
           </>
         )}
 
-        <Link
-          to={`/w/${wp.id}/claim`}
-          className="card flush"
-          style={{ textDecoration: 'none', color: 'inherit' }}
-        >
-          <span className="list-row">
-            <Tile icon="clock" />
-            <span className="grow stack-sm" style={{ gap: 0 }}>
+        <div className="group">
+          <Link to={`/w/${wp.id}/claim`} className="group-row">
+            <span className="group-ic">
+              <Icon name="clock" size={18} />
+            </span>
+            <span className="grow stack-sm" style={{ gap: 2 }}>
               <span className="t-strong">{t('claimMissed')}</span>
               <span className="t-caption muted">{t('claimMissedSub')}</span>
             </span>
-            <Icon name="chev" size={18} />
-          </span>
-        </Link>
+            <Icon name="chev" size={18} className="faint" />
+          </Link>
+        </div>
 
         <AnnualPayments />
 
